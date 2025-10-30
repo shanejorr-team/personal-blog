@@ -9,7 +9,13 @@
       "Bash(git init:*)",
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(brew info:*)",
+      "Bash(brew install:*)",
+      "Bash(export PATH=\"/usr/local/opt/node@22/bin:$PATH\":*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

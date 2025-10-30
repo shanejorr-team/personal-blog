@@ -3,13 +3,13 @@ import { defineCollection, z } from 'astro:content';
 // Photography Journal collection - travel photo stories
 const photographyJournal = defineCollection({
   type: 'content',
-  schema: ({ image }) => z.object({
+  schema: () => z.object({
     title: z.string(),
     description: z.string(),
     date: z.date(),
     location: z.string().optional(),
     country: z.string().optional(),
-    featuredImage: image(),
+    featuredImage: z.string(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
@@ -18,11 +18,11 @@ const photographyJournal = defineCollection({
 // Other Writings collection - general blog posts
 const writings = defineCollection({
   type: 'content',
-  schema: ({ image }) => z.object({
+  schema: () => z.object({
     title: z.string(),
     description: z.string(),
     date: z.date(),
-    featuredImage: image().optional(),
+    featuredImage: z.string().optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
@@ -31,15 +31,15 @@ const writings = defineCollection({
 // Portfolio collection - organized by category
 const portfolio = defineCollection({
   type: 'data',
-  schema: ({ image }) => z.object({
+  schema: () => z.object({
     title: z.string(),
     category: z.enum(['nature', 'street', 'concert', 'other']),
     images: z.array(z.object({
-      src: image(),
+      src: z.string(),
       alt: z.string(),
       caption: z.string().optional(),
       location: z.string().optional(),
-      date: z.date().optional(),
+      date: z.coerce.date().optional(),
     })),
     order: z.number().default(0),
   }),
@@ -48,9 +48,9 @@ const portfolio = defineCollection({
 // Featured photos for home page
 const featured = defineCollection({
   type: 'data',
-  schema: ({ image }) => z.object({
+  schema: () => z.object({
     title: z.string(),
-    image: image(),
+    image: z.string(),
     alt: z.string(),
     location: z.string().optional(),
     order: z.number().default(0),
