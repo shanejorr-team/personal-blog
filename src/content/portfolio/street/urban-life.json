@@ -1,0 +1,28 @@
+{
+  "title": "Urban Life",
+  "category": "street",
+  "images": [
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Busy Tokyo street crossing",
+      "caption": "Rush hour at Shibuya Crossing",
+      "location": "Tokyo, Japan",
+      "date": "2024-03-10"
+    },
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Street vendor preparing food",
+      "caption": "Morning market in Bangkok",
+      "location": "Bangkok, Thailand",
+      "date": "2023-11-05"
+    },
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Cyclist in narrow alley",
+      "caption": "Hidden streets of Amsterdam",
+      "location": "Amsterdam, Netherlands",
+      "date": "2023-08-14"
+    }
+  ],
+  "order": 0
+}

@@ -1,0 +1,28 @@
+{
+  "title": "Live Music Performance",
+  "category": "concert",
+  "images": [
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Rock band performing on stage",
+      "caption": "Intense performance under stage lights",
+      "location": "Red Rocks Amphitheatre, Colorado",
+      "date": "2023-06-15"
+    },
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Guitarist silhouette",
+      "caption": "Dramatic backlighting during solo",
+      "location": "Madison Square Garden, New York",
+      "date": "2023-10-20"
+    },
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Crowd at concert",
+      "caption": "Energy of the crowd",
+      "location": "Coachella Valley, California",
+      "date": "2024-04-12"
+    }
+  ],
+  "order": 0
+}

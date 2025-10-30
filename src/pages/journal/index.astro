@@ -1,0 +1,111 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { sortByDate, filterDrafts, getUniqueTags } from '../../utils/helpers';
+
+// Get all journal posts
+const allPosts = await getCollection('photography-journal');
+const posts = sortByDate(filterDrafts(allPosts));
+const tags = getUniqueTags(posts);
+
+// Get filter from URL
+const currentTag = Astro.url.searchParams.get('tag');
+const filteredPosts = currentTag
+  ? posts.filter(post => post.data.tags.includes(currentTag))
+  : posts;
+---
+
+<BaseLayout
+  title="Photography Journal - Travel Photo Stories"
+  description="Travel photo stories and essays from around the world. Exploring cultures, landscapes, and moments through photography."
+>
+  <div class="container mx-auto px-4 py-12">
+    <Breadcrumbs items={[{ label: 'Photography Journal' }]} />
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Photography Journal</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        Travel stories and photo essays from around the world
+      </p>
+    </div>
+
+    <!-- Tags Filter -->
+    {tags.length > 0 && (
+      <div class="mb-8">
+        <div class="flex flex-wrap gap-2 justify-center">
+          <a
+            href="/journal"
+            class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              !currentTag
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+            }`}
+          >
+            All
+          </a>
+          {tags.map(tag => (
+            <a
+              href={`/journal?tag=${encodeURIComponent(tag)}`}
+              class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                currentTag === tag
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Posts Grid -->
+    {filteredPosts.length === 0 ? (
+      <div class="text-center py-12">
+        <p class="text-gray-600 dark:text-gray-400">No posts found.</p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredPosts.map(post => (
+          <article class="card overflow-hidden">
+            <a href={`/journal/${post.slug}`} class="block">
+              {post.data.featuredImage && (
+                <div class="relative aspect-[4/3] overflow-hidden">
+                  <Image
+                    src={post.data.featuredImage}
+                    alt={post.data.title}
+                    class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    widths={[400, 600, 800]}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              )}
+              <div class="p-6">
+                <div class="flex flex-wrap gap-2 mb-3">
+                  {post.data.tags.slice(0, 2).map(tag => (
+                    <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <h2 class="text-2xl font-bold mb-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  {post.data.title}
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  {post.data.location && `${post.data.location} • `}
+                  {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+                <p class="text-gray-700 dark:text-gray-300 line-clamp-3">
+                  {post.data.description}
+                </p>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>

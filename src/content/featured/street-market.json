@@ -1,0 +1,8 @@
+{
+  "title": "Bustling Market",
+  "image": "/images/placeholder.svg",
+  "alt": "Colorful street market with vendors",
+  "location": "Bangkok, Thailand",
+  "order": 1,
+  "link": "/portfolio?category=street"
+}

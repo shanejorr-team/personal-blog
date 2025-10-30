@@ -1,0 +1,131 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { formatDate } from '../../utils/helpers';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('photography-journal');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+type Props = {
+  post: CollectionEntry<'photography-journal'>;
+};
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<BaseLayout
+  title={`${post.data.title} - Photography Journal`}
+  description={post.data.description}
+  image={post.data.featuredImage?.src}
+>
+  <article class="container mx-auto px-4 py-12">
+    <Breadcrumbs
+      items={[
+        { label: 'Photography Journal', href: '/journal' },
+        { label: post.data.title }
+      ]}
+    />
+
+    <!-- Header -->
+    <header class="max-w-4xl mx-auto mb-12 text-center">
+      <div class="flex flex-wrap gap-2 justify-center mb-4">
+        {post.data.tags.map(tag => (
+          <a
+            href={`/journal?tag=${encodeURIComponent(tag)}`}
+            class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+          >
+            {tag}
+          </a>
+        ))}
+      </div>
+
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+        {post.data.title}
+      </h1>
+
+      <div class="flex items-center justify-center space-x-4 text-gray-600 dark:text-gray-400">
+        {post.data.location && (
+          <>
+            <span class="flex items-center">
+              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              {post.data.location}
+            </span>
+            <span>•</span>
+          </>
+        )}
+        <time datetime={post.data.date.toISOString()}>
+          {formatDate(post.data.date)}
+        </time>
+      </div>
+    </header>
+
+    <!-- Featured Image -->
+    {post.data.featuredImage && (
+      <div class="max-w-6xl mx-auto mb-12">
+        <Image
+          src={post.data.featuredImage}
+          alt={post.data.title}
+          class="w-full rounded-lg shadow-2xl"
+          widths={[800, 1200, 1600]}
+          sizes="(max-width: 1280px) 100vw, 1280px"
+        />
+      </div>
+    )}
+
+    <!-- Content -->
+    <div class="prose prose-lg dark:prose-invert mx-auto">
+      <Content />
+    </div>
+
+    <!-- Navigation -->
+    <div class="max-w-4xl mx-auto mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+      <a
+        href="/journal"
+        class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline font-medium"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Photography Journal
+      </a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  /* Custom prose styles for photography journal */
+  .prose figure {
+    @apply my-12;
+  }
+
+  .prose figcaption {
+    @apply text-center text-base text-gray-600 dark:text-gray-400 mt-4 italic;
+  }
+
+  .prose img {
+    @apply rounded-lg shadow-lg;
+  }
+
+  .prose p {
+    @apply text-lg leading-relaxed;
+  }
+
+  .prose h2 {
+    @apply mt-12 mb-6;
+  }
+
+  .prose h3 {
+    @apply mt-8 mb-4;
+  }
+</style>

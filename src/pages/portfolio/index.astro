@@ -1,0 +1,196 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+
+// Get all portfolio collections
+const allPortfolio = await getCollection('portfolio');
+const sortedPortfolio = allPortfolio.sort((a, b) => a.data.order - b.data.order);
+
+// Group by category
+const categories = {
+  nature: sortedPortfolio.filter(p => p.data.category === 'nature'),
+  street: sortedPortfolio.filter(p => p.data.category === 'street'),
+  concert: sortedPortfolio.filter(p => p.data.category === 'concert'),
+  other: sortedPortfolio.filter(p => p.data.category === 'other'),
+};
+
+const categoryInfo = {
+  nature: {
+    title: 'Nature',
+    description: 'Landscapes, wildlife, and natural wonders',
+  },
+  street: {
+    title: 'Street Photography',
+    description: 'Candid moments and urban life',
+  },
+  concert: {
+    title: 'Concert Photography',
+    description: 'Live music and performance',
+  },
+  other: {
+    title: 'Other',
+    description: 'Various photography projects',
+  },
+};
+
+// Get current category filter
+const currentCategory = Astro.url.searchParams.get('category') as keyof typeof categories | null;
+---
+
+<BaseLayout
+  title="Photography Portfolio"
+  description="Browse curated collections of nature, street, and concert photography."
+>
+  <div class="container mx-auto px-4 py-12">
+    <Breadcrumbs items={[{ label: 'Portfolio' }]} />
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Photography Portfolio</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        Curated collections of my best work
+      </p>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="mb-12">
+      <div class="flex flex-wrap gap-4 justify-center">
+        <a
+          href="/portfolio"
+          class={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            !currentCategory
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+          }`}
+        >
+          All
+        </a>
+        {Object.entries(categoryInfo).map(([key, info]) => (
+          <a
+            href={`/portfolio?category=${key}`}
+            class={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              currentCategory === key
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+            }`}
+          >
+            {info.title}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- Portfolio Galleries -->
+    {Object.entries(categories).map(([categoryKey, galleries]) => {
+      const key = categoryKey as keyof typeof categories;
+      if (currentCategory && currentCategory !== key) return null;
+      if (galleries.length === 0) return null;
+
+      return (
+        <section class="mb-20" id={key}>
+          <div class="mb-8">
+            <h2 class="text-3xl font-bold mb-2">{categoryInfo[key].title}</h2>
+            <p class="text-gray-600 dark:text-gray-400">
+              {categoryInfo[key].description}
+            </p>
+          </div>
+
+          {galleries.map(gallery => (
+            <div class="mb-16">
+              <h3 class="text-2xl font-semibold mb-6">{gallery.data.title}</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {gallery.data.images.map((image, index) => (
+                  <button
+                    class="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer lightbox-trigger"
+                    data-gallery={gallery.id}
+                    data-index={index}
+                  >
+                    <Image
+                      src={image.src}
+                      alt={image.alt}
+                      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      widths={[400, 600, 800]}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                    {image.caption && (
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                          <p class="text-sm font-medium">{image.caption}</p>
+                          {image.location && (
+                            <p class="text-xs text-gray-300">{image.location}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
+      );
+    })}
+
+    {/* Show message if no galleries in selected category */}
+    {currentCategory && categories[currentCategory].length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-gray-600 dark:text-gray-400">
+          No galleries found in this category.
+        </p>
+      </div>
+    )}
+  </div>
+
+  <!-- Lightbox Modal (placeholder - will be implemented with component) -->
+  <div id="lightbox" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+    <button
+      id="lightbox-close"
+      class="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+      aria-label="Close"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <div id="lightbox-content" class="max-w-7xl w-full"></div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Basic lightbox functionality (will be enhanced with component)
+  document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxContent = document.getElementById('lightbox-content');
+    const closeBtn = document.getElementById('lightbox-close');
+    const triggers = document.querySelectorAll('.lightbox-trigger');
+
+    triggers.forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const img = trigger.querySelector('img');
+        if (img && lightboxContent) {
+          lightboxContent.innerHTML = `<img src="${img.src}" alt="${img.alt}" class="max-w-full max-h-[90vh] mx-auto rounded-lg">`;
+          lightbox?.classList.remove('hidden');
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', () => {
+      lightbox?.classList.add('hidden');
+    });
+
+    lightbox?.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.classList.add('hidden');
+      }
+    });
+
+    // ESC key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lightbox?.classList.contains('hidden')) {
+        lightbox?.classList.add('hidden');
+      }
+    });
+  });
+</script>

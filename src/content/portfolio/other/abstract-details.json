@@ -1,0 +1,27 @@
+{
+  "title": "Abstract Details",
+  "category": "other",
+  "images": [
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Architectural detail",
+      "caption": "Modern architecture patterns",
+      "location": "Dubai, UAE",
+      "date": "2023-12-03"
+    },
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Water droplets macro",
+      "caption": "Morning dew on leaf",
+      "date": "2023-05-18"
+    },
+    {
+      "src": "/images/placeholder.svg",
+      "alt": "Colorful market spices",
+      "caption": "Vibrant colors at the spice market",
+      "location": "Marrakech, Morocco",
+      "date": "2023-09-25"
+    }
+  ],
+  "order": 0
+}
