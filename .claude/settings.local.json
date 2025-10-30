@@ -15,7 +15,8 @@
       "Bash(brew info:*)",
       "Bash(brew install:*)",
       "Bash(export PATH=\"/usr/local/opt/node@22/bin:$PATH\":*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []
