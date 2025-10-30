@@ -3,6 +3,7 @@
   "image": "/images/featured/atitlan.jpg",
   "alt": "Lake Atitlan in Guatemala",
   "location": "Lake Atitlan, Guatemala",
+  "description": "Lake views are nice. Volcano views are great. But lake and volcano views are majestic.",
   "order": 6,
   "link": "/portfolio?category=landscape"
 }

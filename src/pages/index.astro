@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Lightbox from '../components/Lightbox.astro';
 import { sortByDate, filterDrafts } from '../utils/helpers';
 
 // Get featured photos
@@ -59,10 +60,16 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
     <section class="container mx-auto px-4 py-16">
       <h2 class="text-3xl font-bold mb-8 text-center">Featured Work</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedFeatured.slice(1, 7).map((photo) => (
-          <a
-            href={photo.data.link || '#'}
-            class="group relative aspect-square overflow-hidden rounded-lg"
+        {sortedFeatured.slice(1, 7).map((photo, index) => (
+          <button
+            type="button"
+            class="featured-photo group relative aspect-square overflow-hidden rounded-lg text-left w-full border-0 p-0"
+            data-index={index}
+            data-image={photo.data.image}
+            data-alt={photo.data.alt}
+            data-title={photo.data.title}
+            data-location={photo.data.location || ''}
+            data-description={photo.data.description || ''}
           >
             <img
               src={photo.data.image}
@@ -77,7 +84,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
                 )}
               </div>
             </div>
-          </a>
+          </button>
         ))}
       </div>
     </section>
@@ -175,4 +182,73 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
       View Full Portfolio
     </a>
   </section>
+
+  <!-- Lightbox Component -->
+  <Lightbox />
 </BaseLayout>
+
+<style>
+  /* Featured photo responsive behavior */
+  .featured-photo {
+    cursor: default;
+    background: transparent;
+  }
+
+  /* Desktop and tablet: make clickable with pointer cursor and hover effects */
+  @media (min-width: 768px) {
+    .featured-photo {
+      cursor: pointer;
+    }
+  }
+
+  /* Mobile: disable hover effects */
+  @media (max-width: 767px) {
+    .featured-photo .group-hover\:scale-110 {
+      transform: scale(1) !important;
+    }
+
+    .featured-photo .group-hover\:opacity-100 {
+      opacity: 0 !important;
+    }
+  }
+</style>
+
+<script>
+  // Responsive lightbox behavior - only enable on desktop/tablet
+  function initFeaturedPhotos() {
+    const featuredPhotoButtons = document.querySelectorAll('.featured-photo');
+
+    // Collect all photos data into an array
+    const photosData = Array.from(featuredPhotoButtons).map((button) => {
+      const btn = button as HTMLButtonElement;
+      return {
+        image: btn.dataset.image || '',
+        alt: btn.dataset.alt || '',
+        title: btn.dataset.title || '',
+        location: btn.dataset.location || '',
+        description: btn.dataset.description || '',
+      };
+    });
+
+    // Add click handlers
+    featuredPhotoButtons.forEach((photo) => {
+      photo.addEventListener('click', (e) => {
+        // Only open lightbox on desktop/tablet (>= 768px)
+        if (window.innerWidth >= 768) {
+          const button = e.currentTarget as HTMLButtonElement;
+          const clickedIndex = parseInt(button.dataset.index || '0', 10);
+
+          if ((window as any).openLightbox && photosData.length > 0) {
+            (window as any).openLightbox(photosData, clickedIndex);
+          }
+        }
+      });
+    });
+  }
+
+  // Initialize on page load
+  initFeaturedPhotos();
+
+  // Re-initialize on navigation (for Astro view transitions)
+  document.addEventListener('astro:page-load', initFeaturedPhotos);
+</script>

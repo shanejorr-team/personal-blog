@@ -53,6 +53,7 @@ const featured = defineCollection({
     image: z.string(),
     alt: z.string(),
     location: z.string().optional(),
+    description: z.string().optional(),
     order: z.number().default(0),
     link: z.string().optional(),
   }),
