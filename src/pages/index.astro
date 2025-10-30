@@ -17,7 +17,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
 ---
 
 <BaseLayout
-  title="Your Name - Photography & Stories"
+  title="Shane Orr - Photography & Stories"
   description="Capturing moments and stories through the lens. Explore photo journals, writings, and portfolio."
 >
   <!-- Hero Section -->
@@ -34,11 +34,13 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
 
     <div class="relative z-20 h-full flex items-center justify-center text-center px-4">
       <div class="max-w-4xl">
+        <!--
         <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 text-balance">
           Capturing Life Through the Lens
         </h1>
+        -->
         <p class="text-xl md:text-2xl text-gray-200 mb-8 text-balance">
-          Photo stories, travel adventures, and creative explorations
+          Photo journal, portfolio, and creative explorations
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a href="/journal" class="btn btn-primary">
@@ -60,7 +62,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
         {sortedFeatured.slice(1, 7).map((photo) => (
           <a
             href={photo.data.link || '#'}
-            class="group relative aspect-[4/3] overflow-hidden rounded-lg"
+            class="group relative aspect-square overflow-hidden rounded-lg"
           >
             <img
               src={photo.data.image}

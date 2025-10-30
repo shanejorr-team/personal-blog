@@ -1,0 +1,8 @@
+{
+  "title": "Volcán de Agua",
+  "image": "/images/featured/volcanoe.jpg",
+  "alt": "Volcán de Agua",
+  "location": "Guatemala",
+  "order": 2,
+  "link": "/portfolio?category=landscape"
+}

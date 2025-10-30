@@ -1,0 +1,8 @@
+{
+  "title": "Streets of Guanajuato",
+  "image": "/images/featured/guanajuato-street.jpg",
+  "alt": "Guanajuato, Mexico colorful streets",
+  "location": "Guanajuato, Mexico",
+  "order": 5,
+  "link": "/portfolio?category=street"
+}

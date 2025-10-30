@@ -1,0 +1,8 @@
+{
+  "title": "Atlanta Skyline",
+  "image": "/images/featured/atlanta-traffic.jpg",
+  "alt": "Atlanta skyline",
+  "location": "Atlanta, GA",
+  "order": 1,
+  "link": "/portfolio?category=street"
+}

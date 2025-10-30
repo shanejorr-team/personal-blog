@@ -1,8 +1,8 @@
 {
-  "title": "Mountain Sunrise",
-  "image": "/images/placeholder.svg",
-  "alt": "Golden sunrise over mountain peaks",
-  "location": "Swiss Alps, Switzerland",
+  "title": "Ballons over Capadocia",
+  "image": "/images/featured/_cover-photo.jpg",
+  "alt": "Hot air ballons in Capadocia, Turkey",
+  "location": "Capadocia, Turkey",
   "order": 0,
-  "link": "/portfolio?category=nature"
+  "link": "/portfolio?category=other"
 }
