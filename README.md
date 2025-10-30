@@ -1,43 +1,147 @@
-# Astro Starter Kit: Minimal
+# Photography Blog & Portfolio
 
-```sh
-npm create astro@latest -- --template minimal
+A modern, fast, and beautiful photography blog built with Astro, TypeScript, and Tailwind CSS. Features a dual-section layout for photo stories and general writings, plus a curated portfolio with category galleries.
+
+## ✨ Features
+
+- **Photography Journal**: Travel photo stories with embedded images
+- **Other Writings**: General blog posts and articles
+- **Portfolio Galleries**: Organized by category (Nature, Street, Concert, Other)
+- **Dark Mode**: Automatic theme switching with localStorage persistence
+- **Image Optimization**: Automatic WebP conversion and responsive images
+- **RSS Feeds**: Separate feeds for journal and writings
+- **Responsive Design**: Mobile-first, works beautifully on all devices
+- **SEO Optimized**: Meta tags, sitemap, and semantic HTML
+- **Fast Performance**: Static site generation with Astro
+- **Type-Safe**: Built with TypeScript
+
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Open browser to http://localhost:4321
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 📝 Adding Content
 
-## 🚀 Project Structure
+### Photography Journal Posts
+Create Markdown files in `src/content/photography-journal/`:
+```markdown
+---
+title: "Your Story"
+description: "Story description"
+date: 2024-03-15
+location: "Tokyo, Japan"
+featuredImage: "/images/journal/your-image.jpg"
+tags: ["travel", "japan"]
+---
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+Your content here with ![images](/path/to/image.jpg)
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+### Other Writings
+Create Markdown files in `src/content/writings/`:
+```markdown
+---
+title: "Your Post"
+description: "Post description"
+date: 2024-03-15
+tags: ["tutorial", "tips"]
+---
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Your content...
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
+### Portfolio Galleries
+Add JSON files in `src/content/portfolio/{category}/`:
+```json
+{
+  "title": "Gallery Name",
+  "category": "nature",
+  "images": [
+    {
+      "src": "/images/portfolio/nature/photo.jpg",
+      "alt": "Description",
+      "caption": "Photo caption"
+    }
+  ],
+  "order": 0
+}
+```
+
+For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
 
 ## 🧞 Commands
 
-All commands are run from the root of the project, from a terminal:
+| Command | Action |
+| :------ | :----- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Start dev server at `localhost:4321` |
+| `npm run build` | Build production site to `./dist/` |
+| `npm run preview` | Preview production build locally |
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## 🚢 Deployment
 
-## 👀 Want to learn more?
+### Vercel (Recommended)
+1. Push code to GitHub
+2. Import repository in Vercel
+3. Deploy automatically
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+### Netlify
+1. Connect GitHub repository
+2. Build command: `npm run build`
+3. Publish directory: `dist`
+
+## 🎨 Customization
+
+- **Site info**: Edit `src/layouts/BaseLayout.astro`
+- **Navigation**: Update `src/components/Header.astro`
+- **About page**: Edit `src/pages/about.astro`
+- **Colors**: Customize `tailwind.config.js`
+- **Domain**: Update `astro.config.mjs`
+
+## 📂 Project Structure
+
+```
+/
+├── public/images/        # Image assets
+├── src/
+│   ├── components/       # Reusable components
+│   ├── content/          # Content collections
+│   │   ├── photography-journal/
+│   │   ├── writings/
+│   │   ├── portfolio/
+│   │   └── featured/
+│   ├── layouts/          # Page layouts
+│   ├── pages/            # Routes
+│   └── styles/           # Global CSS
+└── CLAUDE.md            # Detailed documentation
+```
+
+## ⚠️ Before Deploying
+
+1. Replace placeholder images in `public/images/`
+2. Update personal info in About page
+3. Configure domain in `astro.config.mjs`
+4. Update social media links in footer
+5. Add your actual content!
+
+## 📚 Tech Stack
+
+- **[Astro](https://astro.build)** - Static site generator
+- **[Tailwind CSS](https://tailwindcss.com)** - Styling
+- **[TypeScript](https://www.typescriptlang.org/)** - Type safety
+- **Content Collections** - Type-safe content management
+
+## 📄 License
+
+MIT License - Feel free to use for your own photography site!
+
+---
+
+Built with ❤️ using Astro
