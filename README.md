@@ -76,6 +76,58 @@ Add JSON files in `src/content/portfolio/{category}/`:
 
 For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
 
+## 📐 Image Size & Aspect Ratio Guidelines
+
+To ensure images display correctly across the site, follow these aspect ratio and size recommendations:
+
+### Home Page
+- **Hero/Main Featured Photo** (first featured image)
+  - Aspect Ratio: Flexible (landscape recommended, e.g., 16:9 or 3:2)
+  - Recommended Size: 2400×1350px or larger
+  - Notes: Displayed at 80vh height, full width with cover
+
+- **Featured Work Grid** (additional featured photos)
+  - Aspect Ratio: **1:1 (Square)**
+  - Recommended Size: 1200×1200px or larger
+  - Location: `public/images/featured/`
+
+- **Journal/Writings Thumbnails** (recent posts preview)
+  - Aspect Ratio: **16:9 (Widescreen)**
+  - Recommended Size: 1920×1080px
+  - Notes: Displayed with consistent aspect ratio across all devices
+
+### Photography Journal
+- **Featured Images** (post thumbnails on listing page)
+  - Aspect Ratio: **16:9 (Widescreen)**
+  - Recommended Size: 1920×1080px
+  - Location: `public/images/journal/`
+
+- **Inline Images** (within post content)
+  - Aspect Ratio: Flexible (optimized by Astro)
+  - Recommended Width: 1200px or larger
+  - Notes: Maintain original aspect ratio
+
+### Other Writings
+- **Featured Images** (post thumbnails)
+  - Aspect Ratio: **16:9 (Widescreen)**
+  - Recommended Size: 1920×1080px
+  - Location: `public/images/writings/`
+
+### Portfolio
+- **Gallery Images**
+  - Aspect Ratio: **4:3 (Landscape)**
+  - Recommended Size: 1600×1200px or larger
+  - Location: `public/images/portfolio/{category}/`
+  - Notes: Higher resolution recommended for lightbox view
+
+### General Image Best Practices
+- Use JPG format for photographs
+- Maintain high quality (85-90% quality for JPG)
+- Source images should be at least 1200px on the longest edge
+- Astro automatically optimizes and converts to WebP
+- Use descriptive filenames (e.g., `sunset-grand-canyon.jpg`)
+- Always provide descriptive alt text for accessibility
+
 ## 🧞 Commands
 
 | Command | Action |
