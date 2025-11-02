@@ -32,7 +32,6 @@ const writings = defineCollection({
 const portfolio = defineCollection({
   type: 'data',
   schema: () => z.object({
-    title: z.string(),
     category: z.enum(['nature', 'street', 'concert', 'other']),
     images: z.array(z.object({
       src: z.string(),
