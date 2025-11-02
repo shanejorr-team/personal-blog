@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Lightbox from '../../components/Lightbox.astro';
 
 // Get all portfolio collections
 const allPortfolio = await getCollection('portfolio');
@@ -107,11 +108,16 @@ const currentCategory = Astro.url.searchParams.get('category') as keyof typeof c
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {allImages.map((image) => (
+            {allImages.map((image, index) => (
               <button
-                class="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer lightbox-trigger"
-                data-gallery={image.galleryId}
-                data-index={image.imageIndex}
+                type="button"
+                class="portfolio-photo group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer text-left w-full border-0 p-0"
+                data-category={key}
+                data-index={index}
+                data-image={image.src}
+                data-alt={image.alt}
+                data-caption={image.caption || ''}
+                data-location={image.location || ''}
               >
                 <img
                   src={image.src}
@@ -145,54 +151,58 @@ const currentCategory = Astro.url.searchParams.get('category') as keyof typeof c
     )}
   </div>
 
-  <!-- Lightbox Modal (placeholder - will be implemented with component) -->
-  <div id="lightbox" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-    <button
-      id="lightbox-close"
-      class="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
-      aria-label="Close"
-    >
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-    <div id="lightbox-content" class="max-w-7xl w-full"></div>
-  </div>
+  <!-- Lightbox Component -->
+  <Lightbox />
 </BaseLayout>
 
 <script>
-  // Basic lightbox functionality (will be enhanced with component)
-  document.addEventListener('DOMContentLoaded', () => {
-    const lightbox = document.getElementById('lightbox');
-    const lightboxContent = document.getElementById('lightbox-content');
-    const closeBtn = document.getElementById('lightbox-close');
-    const triggers = document.querySelectorAll('.lightbox-trigger');
+  // Portfolio lightbox functionality
+  function initPortfolioPhotos() {
+    const portfolioPhotoButtons = document.querySelectorAll('.portfolio-photo');
 
-    triggers.forEach(trigger => {
-      trigger.addEventListener('click', () => {
-        const img = trigger.querySelector('img');
-        if (img && lightboxContent) {
-          lightboxContent.innerHTML = `<img src="${img.src}" alt="${img.alt}" class="max-w-full max-h-[90vh] mx-auto rounded-lg">`;
-          lightbox?.classList.remove('hidden');
+    // Group photos by category
+    const photosByCategory: Record<string, Array<{
+      image: string;
+      alt: string;
+      title: string;
+      location?: string;
+      description?: string;
+    }>> = {};
+
+    portfolioPhotoButtons.forEach((button) => {
+      const btn = button as HTMLButtonElement;
+      const category = btn.dataset.category || '';
+      const photoData = {
+        image: btn.dataset.image || '',
+        alt: btn.dataset.alt || '',
+        title: btn.dataset.caption || '',
+        location: btn.dataset.location || '',
+        description: '', // Portfolio photos don't have descriptions
+      };
+
+      if (!photosByCategory[category]) {
+        photosByCategory[category] = [];
+      }
+      photosByCategory[category].push(photoData);
+    });
+
+    // Add click handlers
+    portfolioPhotoButtons.forEach((photo) => {
+      photo.addEventListener('click', (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+        const category = button.dataset.category || '';
+        const clickedIndex = parseInt(button.dataset.index || '0', 10);
+
+        if ((window as any).openLightbox && photosByCategory[category]) {
+          (window as any).openLightbox(photosByCategory[category], clickedIndex);
         }
       });
     });
+  }
 
-    closeBtn?.addEventListener('click', () => {
-      lightbox?.classList.add('hidden');
-    });
+  // Initialize on page load
+  initPortfolioPhotos();
 
-    lightbox?.addEventListener('click', (e) => {
-      if (e.target === lightbox) {
-        lightbox.classList.add('hidden');
-      }
-    });
-
-    // ESC key to close
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !lightbox?.classList.contains('hidden')) {
-        lightbox?.classList.add('hidden');
-      }
-    });
-  });
+  // Re-initialize on navigation (for Astro view transitions)
+  document.addEventListener('astro:page-load', initPortfolioPhotos);
 </script>
