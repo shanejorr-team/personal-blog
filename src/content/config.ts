@@ -38,6 +38,7 @@ const portfolio = defineCollection({
       alt: z.string(),
       caption: z.string().optional(),
       location: z.string().optional(),
+      country: z.string().optional(),
       date: z.coerce.date().optional(),
     })),
     order: z.number().default(0),

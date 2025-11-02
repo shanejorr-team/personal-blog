@@ -6,7 +6,7 @@ A modern, fast, and beautiful photography blog built with Astro, TypeScript, and
 
 - **Photography Journal**: Travel photo stories with embedded images
 - **Other Writings**: General blog posts and articles
-- **Portfolio Galleries**: Organized by category (Nature, Street, Concert, Other)
+- **Portfolio Galleries**: Organized by category (Nature, Street, Concert, Other) and by country/location
 - **Dark Mode**: Automatic theme switching with localStorage persistence
 - **Image Optimization**: Automatic WebP conversion and responsive images
 - **RSS Feeds**: Separate feeds for journal and writings
@@ -61,18 +61,22 @@ Your content...
 Add JSON files in `src/content/portfolio/{category}/`:
 ```json
 {
-  "title": "Gallery Name",
   "category": "nature",
   "images": [
     {
       "src": "/images/portfolio/nature/photo.jpg",
       "alt": "Description",
-      "caption": "Photo caption"
+      "caption": "Photo caption",
+      "location": "Banff National Park",
+      "country": "Canada",
+      "date": "2024-03-15"
     }
   ],
   "order": 0
 }
 ```
+
+Photos are organized both by category (Nature, Street Photography, Concert Photography, Other) and by country. The main portfolio page shows category-based browsing and country-based browsing. Clicking a country takes you to a dedicated page showing all photos from that country, organized by location.
 
 For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
 

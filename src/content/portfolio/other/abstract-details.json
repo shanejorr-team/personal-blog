@@ -5,7 +5,8 @@
       "src": "/images/placeholder.svg",
       "alt": "Architectural detail",
       "caption": "Modern architecture patterns",
-      "location": "Dubai, UAE",
+      "location": "Dubai",
+      "country": "UAE",
       "date": "2023-12-03"
     },
     {
@@ -18,7 +19,8 @@
       "src": "/images/placeholder.svg",
       "alt": "Colorful market spices",
       "caption": "Vibrant colors at the spice market",
-      "location": "Marrakech, Morocco",
+      "location": "Marrakech",
+      "country": "Morocco",
       "date": "2023-09-25"
     }
   ],

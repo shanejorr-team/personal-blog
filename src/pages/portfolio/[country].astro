@@ -1,0 +1,190 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Lightbox from '../../components/Lightbox.astro';
+
+export async function getStaticPaths() {
+  const allPortfolio = await getCollection('portfolio');
+
+  // Extract all unique countries
+  const countriesSet = new Set<string>();
+  allPortfolio.forEach(portfolio => {
+    portfolio.data.images.forEach(image => {
+      if (image.country) {
+        countriesSet.add(image.country);
+      }
+    });
+  });
+
+  return Array.from(countriesSet).map(country => ({
+    params: { country: country.toLowerCase().replace(/\s+/g, '-') },
+    props: { country },
+  }));
+}
+
+const { country } = Astro.props;
+
+// Get all portfolio collections
+const allPortfolio = await getCollection('portfolio');
+
+// Get all images for this country
+const countryImages = allPortfolio.flatMap(portfolio =>
+  portfolio.data.images
+    .filter(image => image.country === country)
+    .map(image => ({
+      ...image,
+      category: portfolio.data.category,
+    }))
+);
+
+// Group images by location
+const imagesByLocation = countryImages.reduce((acc, image) => {
+  const location = image.location || 'Other';
+  if (!acc[location]) {
+    acc[location] = [];
+  }
+  acc[location].push(image);
+  return acc;
+}, {} as Record<string, typeof countryImages>);
+
+// Sort locations alphabetically
+const sortedLocations = Object.entries(imagesByLocation).sort((a, b) =>
+  a[0].localeCompare(b[0])
+);
+---
+
+<BaseLayout
+  title={`${country} - Photography Portfolio`}
+  description={`Browse my photography from ${country}, organized by location.`}
+>
+  <div class="container mx-auto px-4 py-12">
+    <Breadcrumbs items={[
+      { label: 'Portfolio', href: '/portfolio' },
+      { label: country }
+    ]} />
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">{country}</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400">
+        {countryImages.length} {countryImages.length === 1 ? 'photo' : 'photos'} from {sortedLocations.length} {sortedLocations.length === 1 ? 'location' : 'locations'}
+      </p>
+    </div>
+
+    <!-- Images grouped by location -->
+    {sortedLocations.map(([location, images]) => {
+      // Flatten images for this location
+      const locationImages = images.map((image, index) => ({
+        ...image,
+        index,
+      }));
+
+      return (
+        <section class="mb-16" id={location.toLowerCase().replace(/\s+/g, '-')}>
+          <div class="mb-6">
+            <h2 class="text-3xl font-bold">{location}</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+              {images.length} {images.length === 1 ? 'photo' : 'photos'}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {locationImages.map((image, index) => (
+              <button
+                type="button"
+                class="country-photo group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer text-left w-full border-0 p-0"
+                data-location={location}
+                data-index={index}
+                data-image={image.src}
+                data-alt={image.alt}
+                data-caption={image.caption || ''}
+                data-location-name={image.location || ''}
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                {image.caption && (
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                      <p class="text-sm font-medium">{image.caption}</p>
+                      {image.location && (
+                        <p class="text-xs text-gray-300">{image.location}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
+      );
+    })}
+
+    {/* Show message if no photos found */}
+    {countryImages.length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-gray-600 dark:text-gray-400">
+          No photos found for {country}.
+        </p>
+      </div>
+    )}
+  </div>
+
+  <!-- Lightbox Component -->
+  <Lightbox />
+</BaseLayout>
+
+<script>
+  // Country page lightbox functionality
+  function initCountryPhotos() {
+    const countryPhotoButtons = document.querySelectorAll('.country-photo');
+
+    // Group photos by location
+    const photosByLocation: Record<string, Array<{
+      image: string;
+      alt: string;
+      title: string;
+      location?: string;
+      description?: string;
+    }>> = {};
+
+    countryPhotoButtons.forEach((button) => {
+      const btn = button as HTMLButtonElement;
+      const location = btn.dataset.location || '';
+      const photoData = {
+        image: btn.dataset.image || '',
+        alt: btn.dataset.alt || '',
+        title: btn.dataset.caption || '',
+        location: btn.dataset.locationName || '',
+        description: '', // Country photos don't have descriptions
+      };
+
+      if (!photosByLocation[location]) {
+        photosByLocation[location] = [];
+      }
+      photosByLocation[location].push(photoData);
+    });
+
+    // Add click handlers
+    countryPhotoButtons.forEach((photo) => {
+      photo.addEventListener('click', (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+        const location = button.dataset.location || '';
+        const clickedIndex = parseInt(button.dataset.index || '0', 10);
+
+        if ((window as any).openLightbox && photosByLocation[location]) {
+          (window as any).openLightbox(photosByLocation[location], clickedIndex);
+        }
+      });
+    });
+  }
+
+  // Initialize on page load
+  initCountryPhotos();
+
+  // Re-initialize on navigation (for Astro view transitions)
+  document.addEventListener('astro:page-load', initCountryPhotos);
+</script>

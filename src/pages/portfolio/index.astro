@@ -37,6 +37,17 @@ const categoryInfo = {
 
 // Get current category filter
 const currentCategory = Astro.url.searchParams.get('category') as keyof typeof categories | null;
+
+// Extract all unique countries
+const countriesSet = new Set<string>();
+allPortfolio.forEach(portfolio => {
+  portfolio.data.images.forEach(image => {
+    if (image.country) {
+      countriesSet.add(image.country);
+    }
+  });
+});
+const countries = Array.from(countriesSet).sort();
 ---
 
 <BaseLayout
@@ -55,7 +66,8 @@ const currentCategory = Astro.url.searchParams.get('category') as keyof typeof c
     </div>
 
     <!-- Category Filter -->
-    <div class="mb-12">
+    <div class="mb-8">
+      <h3 class="text-lg font-semibold text-center mb-4">Browse by Photo Type</h3>
       <div class="flex flex-wrap gap-4 justify-center">
         <a
           href="/portfolio"
@@ -81,6 +93,23 @@ const currentCategory = Astro.url.searchParams.get('category') as keyof typeof c
         ))}
       </div>
     </div>
+
+    <!-- Country Filter -->
+    {countries.length > 0 && (
+      <div class="mb-12">
+        <h3 class="text-lg font-semibold text-center mb-4">Browse by Country</h3>
+        <div class="flex flex-wrap gap-4 justify-center">
+          {countries.map(country => (
+            <a
+              href={`/portfolio/${country.toLowerCase().replace(/\s+/g, '-')}`}
+              class="px-6 py-3 rounded-lg font-medium transition-colors bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+            >
+              {country}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
 
     <!-- Portfolio Galleries -->
     {Object.entries(categories).map(([categoryKey, galleries]) => {
