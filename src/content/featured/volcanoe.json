@@ -1,9 +1,9 @@
 {
   "title": "Volcán de Agua",
-  "image": "/images/featured/volcanoe.jpg",
+  "image": "/images/photography/nature/volcanoe.jpg",
   "alt": "Volcán de Agua",
   "location": "Guatemala",
   "description": "Volcán de Agua rising in perfect symmetry. Taken from Acatenango.",
   "order": 2,
-  "link": "/portfolio?category=landscape"
+  "link": "/portfolio?category=nature"
 }

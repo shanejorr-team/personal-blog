@@ -29,6 +29,14 @@ npm run dev
 
 ## 📝 Adding Content
 
+### Image Organization
+This site uses a **single source of truth** approach for images:
+- **Photography**: Store all portfolio-worthy photos in `/images/photography/{category}/` (nature, street, concert, other)
+  - These images can be referenced by journal posts, portfolio galleries, and featured photos
+  - No duplication needed - one image, multiple uses
+- **Assets**: Store non-portfolio images in `/images/assets/` (screenshots, diagrams, etc.)
+  - Used primarily for writings posts that don't feature photography
+
 ### Photography Journal Posts
 Create Markdown files in `src/content/photography-journal/`:
 ```markdown
@@ -37,12 +45,14 @@ title: "Your Story"
 description: "Story description"
 date: 2024-03-15
 location: "Tokyo, Japan"
-featuredImage: "/images/journal/your-image.jpg"
+featuredImage: "/images/photography/street/tokyo-street.jpg"
 tags: ["travel", "japan"]
 ---
 
-Your content here with ![images](/path/to/image.jpg)
+Your content here with ![images](/images/photography/street/image.jpg)
 ```
+
+**Note:** Photography images are stored in `/images/photography/{category}/` and can be referenced by both journal posts and portfolio galleries.
 
 ### Other Writings
 Create Markdown files in `src/content/writings/`:
@@ -51,11 +61,14 @@ Create Markdown files in `src/content/writings/`:
 title: "Your Post"
 description: "Post description"
 date: 2024-03-15
+featuredImage: "/images/assets/featured.jpg"
 tags: ["tutorial", "tips"]
 ---
 
 Your content...
 ```
+
+**Note:** Writings can use `/images/assets/` for non-portfolio images (screenshots, diagrams, etc.) or reference `/images/photography/` when featuring photography.
 
 ### Portfolio Galleries
 Add JSON files in `src/content/portfolio/{category}/`:
@@ -64,7 +77,7 @@ Add JSON files in `src/content/portfolio/{category}/`:
   "category": "nature",
   "images": [
     {
-      "src": "/images/portfolio/nature/photo.jpg",
+      "src": "/images/photography/nature/photo.jpg",
       "alt": "Description",
       "caption": "Photo caption",
       "location": "Banff National Park",
@@ -104,7 +117,7 @@ To ensure images display correctly across the site, follow these aspect ratio an
 - **Featured Work Grid** (additional featured photos)
   - Aspect Ratio: **1:1 (Square)**
   - Recommended Size: 1200×1200px or larger
-  - Location: `public/images/featured/`
+  - Location: `public/images/photography/{category}/`
 
 - **Journal/Writings Thumbnails** (recent posts preview)
   - Aspect Ratio: **16:9 (Widescreen)**
@@ -115,7 +128,7 @@ To ensure images display correctly across the site, follow these aspect ratio an
 - **Featured Images** (post thumbnails on listing page)
   - Aspect Ratio: **16:9 (Widescreen)**
   - Recommended Size: 1920×1080px
-  - Location: `public/images/journal/`
+  - Location: `public/images/photography/{category}/`
 
 - **Inline Images** (within post content)
   - Aspect Ratio: Flexible (optimized by Astro)
@@ -126,13 +139,13 @@ To ensure images display correctly across the site, follow these aspect ratio an
 - **Featured Images** (post thumbnails)
   - Aspect Ratio: **16:9 (Widescreen)**
   - Recommended Size: 1920×1080px
-  - Location: `public/images/writings/`
+  - Location: `public/images/assets/` or `public/images/photography/{category}/`
 
 ### Portfolio
 - **Gallery Images**
   - Aspect Ratio: **4:3 (Landscape)**
   - Recommended Size: 1600×1200px or larger
-  - Location: `public/images/portfolio/{category}/`
+  - Location: `public/images/photography/{category}/`
   - Notes: Higher resolution recommended for lightbox view
 
 ### General Image Best Practices

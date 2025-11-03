@@ -15,10 +15,12 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 /
 ├── public/
 │   └── images/
-│       ├── journal/         # Photography journal images
-│       ├── writings/        # Blog post images
-│       ├── portfolio/       # Portfolio images organized by category
-│       └── featured/        # Featured photos for home page
+│       ├── photography/     # Single source of truth for all portfolio-worthy photos
+│       │   ├── nature/
+│       │   ├── street/
+│       │   ├── concert/
+│       │   └── other/
+│       └── assets/          # Non-portfolio images for blog posts
 ├── src/
 │   ├── components/
 │   │   ├── Header.astro
@@ -156,6 +158,19 @@ Display order determined by `order` field (lower numbers first).
 
 ## Key Patterns
 
+### Image Organization
+**Single Source of Truth:** All portfolio-worthy photography is stored once in `/images/photography/{category}/` and referenced by multiple content types:
+- **Photography journal posts**: Reference images via `featuredImage` field
+- **Portfolio galleries**: Reference images via `src` field in JSON
+- **Featured photos**: Reference images via `image` field in JSON
+- **Writings posts**: Can reference photography images when appropriate, or use `/images/assets/` for non-portfolio images
+
+**Benefits:**
+- No image duplication
+- Easy maintenance - update once, changes everywhere
+- Clear organization by photo type (nature, street, concert, other)
+- Writings posts can use both photography images and non-portfolio assets
+
 ### Routing
 - File-based routing in `src/pages/`
 - Dynamic routes use `[slug].astro` format
@@ -163,6 +178,8 @@ Display order determined by `order` field (lower numbers first).
 
 ### Image Paths
 - All image paths start with `/` and are relative to `public/`
+- Photography: `/images/photography/{category}/filename.jpg`
+- Assets: `/images/assets/filename.jpg`
 - Images automatically optimized (WebP conversion, responsive sizes, lazy loading)
 
 ### Dark Mode

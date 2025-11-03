@@ -2,7 +2,7 @@
   "category": "street",
   "images": [
     {
-      "src": "/images/placeholder.svg",
+      "src": "/images/photography/street/placeholder.svg",
       "alt": "Busy Tokyo street crossing",
       "caption": "Rush hour at Shibuya Crossing",
       "location": "Tokyo",
@@ -10,7 +10,7 @@
       "date": "2024-03-10"
     },
     {
-      "src": "/images/placeholder.svg",
+      "src": "/images/photography/street/placeholder.svg",
       "alt": "Street vendor preparing food",
       "caption": "Morning market in Bangkok",
       "location": "Bangkok",
@@ -18,7 +18,7 @@
       "date": "2023-11-05"
     },
     {
-      "src": "/images/placeholder.svg",
+      "src": "/images/photography/street/placeholder.svg",
       "alt": "Cyclist in narrow alley",
       "caption": "Hidden streets of Amsterdam",
       "location": "Amsterdam",

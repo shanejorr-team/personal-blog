@@ -2,7 +2,7 @@
   "category": "nature",
   "images": [
     {
-      "src": "/images/placeholder.svg",
+      "src": "/images/photography/nature/placeholder.svg",
       "alt": "Snow-capped mountain peaks at sunrise",
       "caption": "Alpine sunrise in the Swiss Alps",
       "location": "Swiss Alps",
@@ -10,7 +10,7 @@
       "date": "2024-01-15"
     },
     {
-      "src": "/images/placeholder.svg",
+      "src": "/images/photography/nature/placeholder.svg",
       "alt": "Mountain lake reflection",
       "caption": "Perfect reflection in a glacial lake",
       "location": "Banff National Park",
@@ -18,7 +18,7 @@
       "date": "2023-09-10"
     },
     {
-      "src": "/images/placeholder.svg",
+      "src": "/images/photography/nature/placeholder.svg",
       "alt": "Dramatic mountain ridge",
       "caption": "Rugged peaks in late afternoon light",
       "location": "Dolomites",
