@@ -40,6 +40,8 @@ const portfolio = defineCollection({
       location: z.string().optional(),
       country: z.string().optional(),
       date: z.coerce.date().optional(),
+      sub_category: z.string().optional(),
+      featured: z.boolean().optional(),
     })),
     order: z.number().default(0),
   }),

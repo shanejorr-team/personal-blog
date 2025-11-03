@@ -48,6 +48,7 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 │   │   │   └── [slug].astro
 │   │   ├── portfolio/
 │   │   │   ├── index.astro
+│   │   │   ├── [category].astro
 │   │   │   └── [country].astro
 │   │   ├── rss-journal.xml.ts
 │   │   └── rss-writings.xml.ts
@@ -106,21 +107,36 @@ Location: `src/content/portfolio/{category}/*.json`
       "caption"?: string,
       "location"?: string,
       "country"?: string,
-      "date"?: string
+      "date"?: string,
+      "sub_category"?: string,
+      "featured"?: boolean
     }
   ],
   "order": number
 }
 ```
 
-Portfolio displays all images from a category in a unified grid with interactive lightbox navigation.
+Portfolio displays images from a category in a unified grid with interactive lightbox navigation.
 
 **Portfolio Organization:**
-- **Main page** (`/portfolio`): Browse by photo type (Nature, Street Photography, Concert Photography, Other) or by country
-- **Category view**: Filter photos by clicking category buttons (query param: `?category=nature`)
+- **Main page** (`/portfolio`): Shows curated featured photos from each category, with links to browse by photo type or by country
+  - Only displays photos marked with `featured: true`
+  - Recommended: Select up to 6 featured photos per category for the main page
+  - Each category section includes a "View All" link to the full category page
+- **Category pages** (`/portfolio/[category]`): Dedicated pages showing all photos of a specific type, organized by sub-category sections
+  - Category pages group photos by their `sub_category` field
+  - Photos without a sub_category are grouped under "Other"
+  - Sub-categories are sorted alphabetically, with "Other" appearing last
+  - Displays all photos in the category, regardless of featured status
 - **Country pages** (`/portfolio/[country]`): Dedicated pages showing photos from each country, organized by location sub-headings
-- Country pages feature location-based sections, grouping photos by their specific location within the country
-- Country names are URL-friendly (lowercase, spaces replaced with hyphens)
+  - Country pages feature location-based sections, grouping photos by their specific location within the country
+  - Country names are URL-friendly (lowercase, spaces replaced with hyphens)
+  - Displays all photos from the country, regardless of featured status
+
+**Data Efficiency:**
+- Photos are stored once in category-organized JSON files
+- Main page, category pages, and country pages all filter from the same data source at build time
+- No photo duplication required - the same JSON files serve multiple views with different filters
 
 ### Featured Photos
 Location: `src/content/featured/*.json`

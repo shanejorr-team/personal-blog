@@ -69,14 +69,25 @@ Add JSON files in `src/content/portfolio/{category}/`:
       "caption": "Photo caption",
       "location": "Banff National Park",
       "country": "Canada",
-      "date": "2024-03-15"
+      "date": "2024-03-15",
+      "sub_category": "Mountains",
+      "featured": true
     }
   ],
   "order": 0
 }
 ```
 
-Photos are organized both by category (Nature, Street Photography, Concert Photography, Other) and by country. The main portfolio page shows category-based browsing and country-based browsing. Clicking a country takes you to a dedicated page showing all photos from that country, organized by location.
+**Portfolio Organization:**
+- **Main page** (`/portfolio`): Shows featured photos from each category with links to browse by photo type or by country
+  - Only displays photos marked with `"featured": true`
+  - Recommended: Select up to 6 featured photos per category for the main page
+- **Category pages** (`/portfolio/nature`, `/portfolio/street`, etc.): View all photos of a specific type, organized by sub-category
+- **Country pages** (`/portfolio/[country]`): View all photos from a specific country, organized by location
+
+**Optional Fields:**
+- `sub_category`: Recommended for better organization on category pages. Photos without a sub_category will be grouped under "Other".
+- `featured`: Set to `true` to display the photo on the main portfolio page. If not set or `false`, the photo will only appear on category and country pages.
 
 For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
 

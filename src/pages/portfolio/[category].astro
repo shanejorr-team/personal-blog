@@ -1,0 +1,200 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Lightbox from '../../components/Lightbox.astro';
+
+export async function getStaticPaths() {
+  // Define the available categories
+  const categories = ['nature', 'street', 'concert', 'other'];
+
+  return categories.map(category => ({
+    params: { category },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+
+// Get all portfolio collections
+const allPortfolio = await getCollection('portfolio');
+
+// Get all images for this category
+const categoryImages = allPortfolio
+  .filter(portfolio => portfolio.data.category === category)
+  .flatMap(portfolio =>
+    portfolio.data.images.map(image => ({
+      ...image,
+      category: portfolio.data.category,
+    }))
+  );
+
+// Group images by sub_category
+const imagesBySubCategory = categoryImages.reduce((acc, image) => {
+  const subCategory = image.sub_category || 'Other';
+  if (!acc[subCategory]) {
+    acc[subCategory] = [];
+  }
+  acc[subCategory].push(image);
+  return acc;
+}, {} as Record<string, typeof categoryImages>);
+
+// Sort sub-categories alphabetically, with "Other" at the end
+const sortedSubCategories = Object.entries(imagesBySubCategory).sort((a, b) => {
+  if (a[0] === 'Other') return 1;
+  if (b[0] === 'Other') return -1;
+  return a[0].localeCompare(b[0]);
+});
+
+// Category display names
+const categoryNames: Record<string, string> = {
+  nature: 'Nature',
+  street: 'Street Photography',
+  concert: 'Concert Photography',
+  other: 'Other',
+};
+
+const categoryName = categoryNames[category] || category;
+---
+
+<BaseLayout
+  title={`${categoryName} - Photography Portfolio`}
+  description={`Browse my ${categoryName.toLowerCase()} photography, organized by theme.`}
+>
+  <div class="container mx-auto px-4 py-12">
+    <Breadcrumbs items={[
+      { label: 'Portfolio', href: '/portfolio' },
+      { label: categoryName }
+    ]} />
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">{categoryName}</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400">
+        {categoryImages.length} {categoryImages.length === 1 ? 'photo' : 'photos'}
+        {sortedSubCategories.length > 0 && ` across ${sortedSubCategories.length} ${sortedSubCategories.length === 1 ? 'theme' : 'themes'}`}
+      </p>
+    </div>
+
+    <!-- Images grouped by sub-category -->
+    {sortedSubCategories.map(([subCategory, images]) => {
+      // Flatten images for this sub-category
+      const subCategoryImages = images.map((image, index) => ({
+        ...image,
+        index,
+      }));
+
+      return (
+        <section class="mb-16" id={subCategory.toLowerCase().replace(/\s+/g, '-')}>
+          <div class="mb-6">
+            <h2 class="text-3xl font-bold">{subCategory}</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+              {images.length} {images.length === 1 ? 'photo' : 'photos'}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {subCategoryImages.map((image, index) => (
+              <button
+                type="button"
+                class="category-photo group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer text-left w-full border-0 p-0"
+                data-subcategory={subCategory}
+                data-index={index}
+                data-image={image.src}
+                data-alt={image.alt}
+                data-caption={image.caption || ''}
+                data-location-name={image.location || ''}
+                data-country-name={image.country || ''}
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                {image.caption && (
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                      <p class="text-sm font-medium">{image.caption}</p>
+                      {(image.location || image.country) && (
+                        <p class="text-xs text-gray-300">
+                          {[image.location, image.country].filter(Boolean).join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
+      );
+    })}
+
+    {/* Show message if no photos found */}
+    {categoryImages.length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-gray-600 dark:text-gray-400">
+          No photos found in {categoryName}.
+        </p>
+      </div>
+    )}
+  </div>
+
+  <!-- Lightbox Component -->
+  <Lightbox />
+</BaseLayout>
+
+<script>
+  // Category page lightbox functionality
+  function initCategoryPhotos() {
+    const categoryPhotoButtons = document.querySelectorAll('.category-photo');
+
+    // Group photos by sub-category
+    const photosBySubCategory: Record<string, Array<{
+      image: string;
+      alt: string;
+      title: string;
+      location?: string;
+      description?: string;
+    }>> = {};
+
+    categoryPhotoButtons.forEach((button) => {
+      const btn = button as HTMLButtonElement;
+      const subCategory = btn.dataset.subcategory || '';
+      const locationParts = [btn.dataset.locationName, btn.dataset.countryName]
+        .filter(Boolean);
+
+      const photoData = {
+        image: btn.dataset.image || '',
+        alt: btn.dataset.alt || '',
+        title: btn.dataset.caption || '',
+        location: locationParts.join(', '),
+        description: '', // Category photos don't have descriptions
+      };
+
+      if (!photosBySubCategory[subCategory]) {
+        photosBySubCategory[subCategory] = [];
+      }
+      photosBySubCategory[subCategory].push(photoData);
+    });
+
+    // Add click handlers
+    categoryPhotoButtons.forEach((photo) => {
+      photo.addEventListener('click', (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+        const subCategory = button.dataset.subcategory || '';
+        const clickedIndex = parseInt(button.dataset.index || '0', 10);
+
+        if ((window as any).openLightbox && photosBySubCategory[subCategory]) {
+          (window as any).openLightbox(photosBySubCategory[subCategory], clickedIndex);
+        }
+      });
+    });
+  }
+
+  // Initialize on page load
+  initCategoryPhotos();
+
+  // Re-initialize on navigation (for Astro view transitions)
+  document.addEventListener('astro:page-load', initCategoryPhotos);
+</script>

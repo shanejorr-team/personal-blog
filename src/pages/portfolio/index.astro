@@ -35,9 +35,6 @@ const categoryInfo = {
   },
 };
 
-// Get current category filter
-const currentCategory = Astro.url.searchParams.get('category') as keyof typeof categories | null;
-
 // Extract all unique countries
 const countriesSet = new Set<string>();
 allPortfolio.forEach(portfolio => {
@@ -69,24 +66,10 @@ const countries = Array.from(countriesSet).sort();
     <div class="mb-8">
       <h3 class="text-lg font-semibold text-center mb-4">Browse by Photo Type</h3>
       <div class="flex flex-wrap gap-4 justify-center">
-        <a
-          href="/portfolio"
-          class={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            !currentCategory
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          All
-        </a>
         {Object.entries(categoryInfo).map(([key, info]) => (
           <a
-            href={`/portfolio?category=${key}`}
-            class={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              currentCategory === key
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
+            href={`/portfolio/${key}`}
+            class="px-6 py-3 rounded-lg font-medium transition-colors bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
           >
             {info.title}
           </a>
@@ -114,26 +97,38 @@ const countries = Array.from(countriesSet).sort();
     <!-- Portfolio Galleries -->
     {Object.entries(categories).map(([categoryKey, galleries]) => {
       const key = categoryKey as keyof typeof categories;
-      if (currentCategory && currentCategory !== key) return null;
       if (galleries.length === 0) return null;
 
-      // Flatten all images from all galleries in this category
+      // Flatten all images from all galleries in this category and filter for featured
       const allImages = galleries.flatMap((gallery, galleryIndex) =>
-        gallery.data.images.map((image, imageIndex) => ({
-          ...image,
-          galleryId: gallery.id,
-          galleryIndex,
-          imageIndex,
-        }))
+        gallery.data.images
+          .filter(image => image.featured === true)
+          .map((image, imageIndex) => ({
+            ...image,
+            galleryId: gallery.id,
+            galleryIndex,
+            imageIndex,
+          }))
       );
+
+      // Skip category if no featured images
+      if (allImages.length === 0) return null;
 
       return (
         <section class="mb-20" id={key}>
-          <div class="mb-8">
-            <h2 class="text-3xl font-bold mb-2">{categoryInfo[key].title}</h2>
-            <p class="text-gray-600 dark:text-gray-400">
-              {categoryInfo[key].description}
-            </p>
+          <div class="mb-8 flex justify-between items-end">
+            <div>
+              <h2 class="text-3xl font-bold mb-2">{categoryInfo[key].title}</h2>
+              <p class="text-gray-600 dark:text-gray-400">
+                {categoryInfo[key].description}
+              </p>
+            </div>
+            <a
+              href={`/portfolio/${key}`}
+              class="text-blue-600 dark:text-blue-400 hover:underline font-medium whitespace-nowrap"
+            >
+              View All →
+            </a>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -169,15 +164,6 @@ const countries = Array.from(countriesSet).sort();
         </section>
       );
     })}
-
-    {/* Show message if no galleries in selected category */}
-    {currentCategory && categories[currentCategory].length === 0 && (
-      <div class="text-center py-12">
-        <p class="text-gray-600 dark:text-gray-400">
-          No galleries found in this category.
-        </p>
-      </div>
-    )}
   </div>
 
   <!-- Lightbox Component -->
