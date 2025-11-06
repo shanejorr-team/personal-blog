@@ -9,5 +9,14 @@ export default defineConfig({
   integrations: [tailwind(), sitemap()],
   image: {
     remotePatterns: [{ protocol: "https" }],
+    service: {
+      entrypoint: 'astro/assets/services/sharp',
+      config: {
+        limitInputPixels: false,
+      }
+    },
+    domains: [],
+    formats: ['webp', 'avif'],
+    quality: 80,
   },
 });
