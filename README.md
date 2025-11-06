@@ -106,55 +106,99 @@ For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
 
 ## 📐 Image Size & Aspect Ratio Guidelines
 
-To ensure images display correctly across the site, follow these aspect ratio and size recommendations:
+All images are automatically optimized by Astro with WebP conversion and responsive sizing. Recommended dimensions below provide **2x retina display coverage** for crisp images on modern devices (MacBooks, high-DPI displays, 4K monitors).
+
+### Optimized Image Dimensions by Context
+
+| Page/Context | Aspect Ratio | Optimized Dimensions | Retina Coverage | Notes |
+|-------------|--------------|---------------------|-----------------|-------|
+| **Homepage Hero** | 3:2 | 3840×2560px | 2x @ 1920px, 1.5x @ 4K | Full-screen background |
+| **Featured Work Grid** | 1:1 | 1200×1200px+ | 2x | Square thumbnails |
+| **Portfolio Grids** | 4:3 | 1600×1200px+ | 2x | Category/country pages |
+| **Journal Thumbnails** | 16:9 | 1920×1080px | 2x | Listing page cards |
+| **Journal Hero** | 16:9 | 3072×1728px | 2x @ 1536px | Detail page featured image |
+| **Writings Thumbnails** | 16:9 | 1920×1080px | 2x | Listing page cards |
+| **Writings Hero** | 16:9 | 1792×1008px | 2x @ 896px | Detail page featured image |
 
 ### Home Page
 - **Hero/Main Featured Photo** (first featured image)
-  - Aspect Ratio: Flexible (landscape recommended, e.g., 16:9 or 3:2)
-  - Recommended Size: 2400×1350px or larger
-  - Notes: Displayed at 80vh height, full width with cover
+  - Aspect Ratio: 3:2 (flexible landscape)
+  - Optimized Size: **3840×2560px**
+  - Retina Coverage: 2x @ 1920px viewport, 1.5x @ 4K displays
+  - Location: `public/images/photography/{category}/`
+  - Notes: Full viewport width, displayed at 80vh height
 
 - **Featured Work Grid** (additional featured photos)
   - Aspect Ratio: **1:1 (Square)**
   - Recommended Size: 1200×1200px or larger
+  - Retina Coverage: 2x across all breakpoints
   - Location: `public/images/photography/{category}/`
+  - Notes: Displayed in 1-3 column grid
 
 - **Journal/Writings Thumbnails** (recent posts preview)
-  - Aspect Ratio: **16:9 (Widescreen)**
+  - Aspect Ratio: **16:9**
   - Recommended Size: 1920×1080px
-  - Notes: Displayed with consistent aspect ratio across all devices
+  - Retina Coverage: 2x+
+  - Notes: Two-column layout on desktop
 
 ### Photography Journal
-- **Featured Images** (post thumbnails on listing page)
-  - Aspect Ratio: **16:9 (Widescreen)**
+- **Listing Page Thumbnails**
+  - Aspect Ratio: **16:9**
   - Recommended Size: 1920×1080px
+  - Retina Coverage: 2x across 1-3 column grid
   - Location: `public/images/photography/{category}/`
+
+- **Detail Page Hero**
+  - Aspect Ratio: **16:9**
+  - Optimized Size: **3072×1728px**
+  - Retina Coverage: 2x @ 1536px container
+  - Notes: Large showcase image, max-w-6xl container
 
 - **Inline Images** (within post content)
-  - Aspect Ratio: Flexible (optimized by Astro)
-  - Recommended Width: 1200px or larger
-  - Notes: Maintain original aspect ratio
+  - Aspect Ratio: Flexible (maintains original)
+  - Recommended Width: 2400px+ for full-width images
+  - Notes: Astro automatically optimizes based on context
 
 ### Other Writings
-- **Featured Images** (post thumbnails)
-  - Aspect Ratio: **16:9 (Widescreen)**
+- **Listing Page Thumbnails**
+  - Aspect Ratio: **16:9**
   - Recommended Size: 1920×1080px
+  - Retina Coverage: 2x
   - Location: `public/images/assets/` or `public/images/photography/{category}/`
 
+- **Detail Page Hero**
+  - Aspect Ratio: **16:9**
+  - Optimized Size: **1792×1008px**
+  - Retina Coverage: 2x @ 896px container
+  - Notes: max-w-4xl container
+
 ### Portfolio
-- **Gallery Images**
-  - Aspect Ratio: **4:3 (Landscape)**
+- **Gallery Images** (category/country grids)
+  - Aspect Ratio: **4:3**
   - Recommended Size: 1600×1200px or larger
+  - Retina Coverage: 2x across 1-3 column grid
   - Location: `public/images/photography/{category}/`
-  - Notes: Higher resolution recommended for lightbox view
+  - Notes: Also displayed in lightbox at full resolution
 
 ### General Image Best Practices
-- Use JPG format for photographs
-- Maintain high quality (85-90% quality for JPG)
-- Source images should be at least 1200px on the longest edge
-- Astro automatically optimizes and converts to WebP
-- Use descriptive filenames (e.g., `sunset-grand-canyon.jpg`)
-- Always provide descriptive alt text for accessibility
+- **Format**: Upload JPG or PNG - Astro automatically converts to WebP/AVIF
+- **Quality**: Keep source images at 85-95% quality
+- **Resolution**: Upload high-resolution source images (see dimensions above)
+- **Retina Support**: The site automatically handles 2x retina displays
+- **Performance**: Astro optimizes all images at build time
+  - Automatic resizing to optimal dimensions
+  - WebP/AVIF conversion for 50-70% file size reduction
+  - Lazy loading for below-the-fold images
+  - Responsive images for different screen sizes
+- **Naming**: Use descriptive filenames (e.g., `sunset-grand-canyon.jpg`)
+- **Accessibility**: Always provide descriptive alt text
+
+### Why These Dimensions?
+Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x or 3x pixel density. The optimized dimensions ensure:
+- **Sharp images** on all retina displays
+- **Efficient delivery** through WebP compression and responsive sizing
+- **Future-proof** quality for 4K/5K displays
+- **No manual optimization needed** - Astro handles it automatically at build time
 
 ## 🧞 Commands
 
