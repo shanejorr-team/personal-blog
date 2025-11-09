@@ -182,6 +182,26 @@ Display order determined by `order` field (lower numbers first).
 - Assets: `/images/assets/filename.jpg`
 - Images automatically optimized (WebP conversion, responsive sizes, lazy loading)
 
+### Image Display Behavior
+
+**Thumbnail Grids:**
+
+- All thumbnail grids use `object-fit: contain` to preserve complete image compositions
+- Image containers have `bg-white dark:bg-gray-900` backgrounds
+- Images maintain their original aspect ratio without cropping
+- Letterboxing/pillarboxing (white or dark gray bars) appear when image aspect ratios don't match container aspect ratios
+- Hover effects include `scale-110` transform on compatible devices
+
+**Lightbox:**
+
+- Uses raw `<img>` tag (not Astro Image component)
+- Displays full-resolution original images with `object-fit: contain`
+- No image optimization applied (shows original JPG/PNG files)
+- Letterboxing/pillarboxing preserves aspect ratios
+- Max constraints: 100% width, 70vh height (60vh on mobile)
+
+**Key Principle:** Images are never cropped or stretched - full compositions are always visible in both thumbnail and lightbox views.
+
 ### Dark Mode
 - Implemented with Tailwind's `dark:` classes
 - Toggle in header, preference saved to localStorage

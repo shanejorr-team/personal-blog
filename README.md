@@ -193,6 +193,16 @@ All images are automatically optimized by Astro with WebP conversion and respons
 - **Naming**: Use descriptive filenames (e.g., `sunset-grand-canyon.jpg`)
 - **Accessibility**: Always provide descriptive alt text
 
+### Image Display Behavior
+- **Thumbnails/Grids**: All thumbnail grids use `object-fit: contain` to preserve full image compositions
+  - Images maintain their original aspect ratio
+  - White bars (light mode) or dark gray bars (dark mode) appear for aspect ratio mismatches
+  - No cropping occurs - you always see the complete photograph
+  - Best practice: Match image aspect ratios to container requirements for optimal display
+- **Lightbox**: Full-resolution images displayed with `object-fit: contain`
+  - Letterboxing/pillarboxing for aspect ratio preservation
+  - No image optimization - shows original files at full quality
+
 ### Why These Dimensions?
 Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x or 3x pixel density. The optimized dimensions ensure:
 - **Sharp images** on all retina displays
