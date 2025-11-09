@@ -113,11 +113,11 @@ All images are automatically optimized by Astro with WebP conversion and respons
 | Page/Context | Aspect Ratio | Optimized Dimensions | Retina Coverage | Notes |
 |-------------|--------------|---------------------|-----------------|-------|
 | **Homepage Hero** | 3:2 | 3840×2560px | 2x @ 1920px, 1.5x @ 4K | Full-screen background |
-| **Featured Work Grid** | 1:1 | 1200×1200px+ | 2x | Square thumbnails |
-| **Portfolio Grids** | 4:3 | 1600×1200px+ | 2x | Category/country pages |
-| **Journal Thumbnails** | 16:9 | 1920×1080px | 2x | Listing page cards |
+| **Featured Work Grid** | 1:1 | 800×800px | 2x @ 400px | Square thumbnails |
+| **Portfolio Grids** | 4:3 | 800×600px | 2x @ 400px | Category/country pages |
+| **Journal Thumbnails** | 16:9 | 800×450px | 2x @ 400px | Listing page cards |
 | **Journal Hero** | 16:9 | 3072×1728px | 2x @ 1536px | Detail page featured image |
-| **Writings Thumbnails** | 16:9 | 1920×1080px | 2x | Listing page cards |
+| **Writings Thumbnails** | 16:9 | 800×450px | 2x @ 400px | Listing page cards |
 | **Writings Hero** | 16:9 | 1792×1008px | 2x @ 896px | Detail page featured image |
 
 ### Home Page
@@ -130,22 +130,22 @@ All images are automatically optimized by Astro with WebP conversion and respons
 
 - **Featured Work Grid** (additional featured photos)
   - Aspect Ratio: **1:1 (Square)**
-  - Recommended Size: 1200×1200px or larger
-  - Retina Coverage: 2x across all breakpoints
+  - Recommended Size: 800×800px
+  - Retina Coverage: 2x @ 400px
   - Location: `public/images/photography/{category}/`
   - Notes: Displayed in 1-3 column grid
 
 - **Journal/Writings Thumbnails** (recent posts preview)
   - Aspect Ratio: **16:9**
-  - Recommended Size: 1920×1080px
-  - Retina Coverage: 2x+
+  - Recommended Size: 800×450px
+  - Retina Coverage: 2x @ 400px
   - Notes: Two-column layout on desktop
 
 ### Photography Journal
 - **Listing Page Thumbnails**
   - Aspect Ratio: **16:9**
-  - Recommended Size: 1920×1080px
-  - Retina Coverage: 2x across 1-3 column grid
+  - Recommended Size: 800×450px
+  - Retina Coverage: 2x @ 400px across 1-3 column grid
   - Location: `public/images/photography/{category}/`
 
 - **Detail Page Hero**
@@ -162,8 +162,8 @@ All images are automatically optimized by Astro with WebP conversion and respons
 ### Other Writings
 - **Listing Page Thumbnails**
   - Aspect Ratio: **16:9**
-  - Recommended Size: 1920×1080px
-  - Retina Coverage: 2x
+  - Recommended Size: 800×450px
+  - Retina Coverage: 2x @ 400px
   - Location: `public/images/assets/` or `public/images/photography/{category}/`
 
 - **Detail Page Hero**
@@ -175,8 +175,8 @@ All images are automatically optimized by Astro with WebP conversion and respons
 ### Portfolio
 - **Gallery Images** (category/country grids)
   - Aspect Ratio: **4:3**
-  - Recommended Size: 1600×1200px or larger
-  - Retina Coverage: 2x across 1-3 column grid
+  - Recommended Size: 800×600px
+  - Retina Coverage: 2x @ 400px across 1-3 column grid
   - Location: `public/images/photography/{category}/`
   - Notes: Also displayed in lightbox at full resolution
 
