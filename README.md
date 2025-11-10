@@ -30,8 +30,10 @@ npm run dev
 ## 📝 Adding Content
 
 ### Image Organization
+
 This site uses a **single source of truth** approach for images:
-- **Photography**: Store all portfolio-worthy photos in `/images/photography/{category}/` (nature, street, concert, other)
+
+- **Photography**: Store all portfolio-worthy photos in `src/images/photography/{category}/` (nature, street, concert, other)
   - These images can be referenced by journal posts, portfolio galleries, and featured photos
   - No duplication needed - one image, multiple uses
 - **Assets**: Store non-portfolio images in `/images/assets/` (screenshots, diagrams, etc.)
@@ -52,7 +54,7 @@ tags: ["travel", "japan"]
 Your content here with ![images](/images/photography/street/image.jpg)
 ```
 
-**Note:** Photography images are stored in `/images/photography/{category}/` and can be referenced by both journal posts and portfolio galleries.
+**Note:** Photography images are stored in `src/images/photography/{category}/` and referenced using paths like `/images/photography/{category}/filename.jpg` in content files. Astro automatically optimizes these images at build time.
 
 ### Other Writings
 Create Markdown files in `src/content/writings/`:
@@ -68,7 +70,7 @@ tags: ["tutorial", "tips"]
 Your content...
 ```
 
-**Note:** Writings can use `/images/assets/` for non-portfolio images (screenshots, diagrams, etc.) or reference `/images/photography/` when featuring photography.
+**Note:** Writings can use `/images/assets/` for non-portfolio images (screenshots, diagrams, etc.) stored in `public/images/assets/`, or reference optimized photography from `src/images/photography/` using `/images/photography/` paths.
 
 ### Portfolio Galleries
 Add JSON files in `src/content/portfolio/{category}/`:
@@ -112,9 +114,9 @@ All images are automatically optimized by Astro with WebP conversion and respons
 
 | Page/Context | Aspect Ratio | Optimized Dimensions | Retina Coverage | Notes |
 |-------------|--------------|---------------------|-----------------|-------|
-| **Homepage Hero** | 3:2 | 3840×2560px | 2x @ 1920px, 1.5x @ 4K | Full-screen background |
-| **Featured Work Grid** | 1:1 | 800×800px | 2x @ 400px | Square thumbnails |
-| **Portfolio Grids** | Native (flexible) | Variable | 2x @ 280px height | Justified grid layout |
+| **Homepage Hero** | 3:2 | 3840×2560px | 2x @ 1920px, 1.5x @ 4K | Full-screen background, quality=85 |
+| **Featured Work Grid** | Native (flexible) | Variable | 2x @ 280px height | Justified grid layout, quality=80 |
+| **Portfolio Grids** | Native (flexible) | Variable | 2x @ 280px height | Justified grid layout, quality=80 |
 | **Journal Thumbnails** | 16:9 | 800×450px | 2x @ 400px | Listing page cards |
 | **Journal Hero** | 16:9 | 3072×1728px | 2x @ 1536px | Detail page featured image |
 | **Writings Thumbnails** | 16:9 | 800×450px | 2x @ 400px | Listing page cards |
@@ -125,15 +127,15 @@ All images are automatically optimized by Astro with WebP conversion and respons
   - Aspect Ratio: 3:2 (flexible landscape)
   - Optimized Size: **3840×2560px**
   - Retina Coverage: 2x @ 1920px viewport, 1.5x @ 4K displays
-  - Location: `public/images/photography/{category}/`
-  - Notes: Full viewport width, displayed at 80vh height
+  - Location: `src/images/photography/{category}/`
+  - Notes: Full viewport width, displayed at 80vh height, automatically optimized to WebP
 
 - **Featured Work Grid** (additional featured photos)
-  - Aspect Ratio: **1:1 (Square)**
-  - Recommended Size: 800×800px
-  - Retina Coverage: 2x @ 400px
-  - Location: `public/images/photography/{category}/`
-  - Notes: Displayed in 1-3 column grid
+  - Aspect Ratio: **Native (flexible)**
+  - Row Height: 280px (widths calculated automatically based on aspect ratio)
+  - Retina Coverage: 2x @ 280px height (560px passed to Image component)
+  - Location: `src/images/photography/{category}/`
+  - Notes: Uses justified grid layout - dimensions read at build time, optimized to WebP
 
 - **Journal/Writings Thumbnails** (recent posts preview)
   - Aspect Ratio: **16:9**
@@ -146,7 +148,7 @@ All images are automatically optimized by Astro with WebP conversion and respons
   - Aspect Ratio: **16:9**
   - Recommended Size: 800×450px
   - Retina Coverage: 2x @ 400px across 1-3 column grid
-  - Location: `public/images/photography/{category}/`
+  - Location: `src/images/photography/{category}/`
 
 - **Detail Page Hero**
   - Aspect Ratio: **16:9**
@@ -164,7 +166,7 @@ All images are automatically optimized by Astro with WebP conversion and respons
   - Aspect Ratio: **16:9**
   - Recommended Size: 800×450px
   - Retina Coverage: 2x @ 400px
-  - Location: `public/images/assets/` or `public/images/photography/{category}/`
+  - Location: `public/images/assets/` or `src/images/photography/{category}/`
 
 - **Detail Page Hero**
   - Aspect Ratio: **16:9**
@@ -174,23 +176,24 @@ All images are automatically optimized by Astro with WebP conversion and respons
 
 ### Portfolio
 - **Main Portfolio Page** (featured photos grid)
-  - Aspect Ratio: **4:3**
-  - Recommended Size: 800×600px
-  - Retina Coverage: 2x @ 400px
-  - Uses `object-fit: cover` for clean thumbnails
+  - Aspect Ratio: **Native (flexible)**
+  - Row Height: 280px (widths calculated automatically based on aspect ratio)
+  - Retina Coverage: 2x @ 280px height (560px passed to Image component)
+  - Uses `object-fit: cover` for clean fills
+  - Notes: Uses justified grid layout - dimensions read at build time via Sharp
 
 - **Category & Country Pages** (justified grid)
   - Aspect Ratio: **Native (any aspect ratio)**
   - Row Height: 280px (flexible widths calculated automatically)
   - Retina Coverage: 2x @ 280px height
-  - Location: `public/images/photography/{category}/`
+  - Location: `src/images/photography/{category}/`
   - **No aspect ratio restrictions** - images preserve their native ratios
   - Widths calculated automatically: `width = 280px × aspect_ratio`
   - Examples:
     - 3:2 image → 420px wide
     - 4:3 image → 373px wide
     - 16:9 image → 498px wide
-  - Notes: Full images displayed in lightbox at full resolution
+  - Notes: Lightbox displays optimized images (~500-800KB) resized to 1920px max width, WebP format at 85% quality
 
 ### General Image Best Practices
 - **Format**: Upload JPG or PNG - Astro automatically converts to WebP/AVIF
@@ -215,12 +218,18 @@ All images are automatically optimized by Astro with WebP conversion and respons
 - Target row height: 280px, widths adjust based on each image's aspect ratio
 - Uses `object-fit: cover` to ensure images fill their calculated dimensions
 
-**Homepage & Listing Pages (Fixed Grids):**
-- **Featured Work Grid**: 1:1 square thumbnails with `object-fit: cover`
+**Homepage Featured Work Grid & Main Portfolio Page (Justified Grid):**
+- **Featured Work Grid (Homepage)**: Native aspect ratio with justified grid layout
+- **Main Portfolio Page**: Native aspect ratio with justified grid layout
+- Uses `object-fit: cover` to fill calculated dimensions cleanly
+- Row height: 280px, widths calculated based on each image's aspect ratio
+- Dimensions read at build time via Sharp library
+- Full images shown in lightbox at full resolution
+
+**Listing Pages (Fixed Aspect Ratio Grids):**
 - **Journal/Writings Thumbnails**: 16:9 aspect ratio with `object-fit: cover`
-- **Main Portfolio Page**: 4:3 aspect ratio with `object-fit: cover`
 - Thumbnails crop to fill containers cleanly (no letterboxing)
-- Full images shown in lightbox or detail pages
+- Full images shown on detail pages
 
 **Lightbox:**
 - Full-resolution images displayed with `object-fit: contain`

@@ -15,11 +15,6 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 /
 ├── public/
 │   └── images/
-│       ├── photography/     # Single source of truth for all portfolio-worthy photos
-│       │   ├── nature/
-│       │   ├── street/
-│       │   ├── concert/
-│       │   └── other/
 │       └── assets/          # Non-portfolio images for blog posts
 ├── src/
 │   ├── components/
@@ -37,6 +32,12 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 │   │   │   ├── concert/
 │   │   │   └── other/
 │   │   └── featured/        # JSON featured photos
+│   ├── images/
+│   │   └── photography/     # Single source of truth for all portfolio-worthy photos
+│   │       ├── nature/
+│   │       ├── street/
+│   │       ├── concert/
+│   │       └── other/
 │   ├── layouts/
 │   │   └── BaseLayout.astro
 │   ├── pages/               # File-based routing
@@ -57,7 +58,8 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 │   ├── styles/
 │   │   └── global.css
 │   └── utils/
-│       └── helpers.ts
+│       ├── helpers.ts
+│       └── imageLoader.ts   # Dynamic image imports using Vite glob
 ```
 
 ## Content Schemas
@@ -159,17 +161,25 @@ Display order determined by `order` field (lower numbers first).
 ## Key Patterns
 
 ### Image Organization
-**Single Source of Truth:** All portfolio-worthy photography is stored once in `/images/photography/{category}/` and referenced by multiple content types:
+**Single Source of Truth:** All portfolio-worthy photography is stored once in `src/images/photography/{category}/` and referenced by multiple content types:
 - **Photography journal posts**: Reference images via `featuredImage` field
 - **Portfolio galleries**: Reference images via `src` field in JSON
 - **Featured photos**: Reference images via `image` field in JSON
-- **Writings posts**: Can reference photography images when appropriate, or use `/images/assets/` for non-portfolio images
+- **Writings posts**: Can reference photography images when appropriate, or use `public/images/assets/` for non-portfolio images
+
+**Technical Implementation:**
+- Images stored in `src/images/photography/` for Astro optimization
+- Loaded dynamically using Vite's `import.meta.glob()` in `src/utils/imageLoader.ts`
+- Content files reference images using paths like `/images/photography/{category}/filename.jpg`
+- The image loader maps these public paths to imported image objects at build time
 
 **Benefits:**
+- Automatic image optimization (WebP conversion, resizing, quality adjustment)
 - No image duplication
 - Easy maintenance - update once, changes everywhere
 - Clear organization by photo type (nature, street, concert, other)
-- Writings posts can use both photography images and non-portfolio assets
+- Lightbox images optimized to ~500-800KB (down from 2-3MB originals)
+- Writings posts can use both photography images and non-portfolio assets from `public/images/assets/`
 
 ### Routing
 - File-based routing in `src/pages/`
@@ -177,10 +187,15 @@ Display order determined by `order` field (lower numbers first).
 - Content fetched via Astro Content Collections API
 
 ### Image Paths
-- All image paths start with `/` and are relative to `public/`
-- Photography: `/images/photography/{category}/filename.jpg`
-- Assets: `/images/assets/filename.jpg`
-- Images automatically optimized (WebP conversion, responsive sizes, lazy loading)
+- **Photography images (portfolio-worthy):**
+  - Physical location: `src/images/photography/{category}/filename.jpg`
+  - Reference path in content: `/images/photography/{category}/filename.jpg`
+  - Automatically optimized at build time (WebP conversion, responsive sizes, lazy loading)
+  - Lightbox optimization: Resized to max 1920px width, WebP format, 85% quality
+- **Non-portfolio assets:**
+  - Physical location: `public/images/assets/filename.jpg`
+  - Reference path: `/images/assets/filename.jpg`
+  - Served as-is from public folder
 
 ### Image Display Behavior
 

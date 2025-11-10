@@ -1,33 +1,62 @@
 ---
 import { getCollection } from 'astro:content';
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { sortByDate, filterDrafts } from '../utils/helpers';
-import sharp from 'sharp';
-import path from 'path';
+import { getImageByPath } from '../utils/imageLoader';
 
 // Get featured photos with dimensions
 const featuredPhotos = await getCollection('featured');
 const featuredWithDimensions = await Promise.all(
   featuredPhotos.map(async (photo) => {
-    // Calculate absolute path to image
-    const imagePath = path.join(process.cwd(), 'public', photo.data.image);
+    // Get imported image from src/images
+    const importedImage = getImageByPath(photo.data.image);
 
-    // Get dimensions using Sharp
-    let aspectRatio = 1.5; // fallback
-    try {
-      const metadata = await sharp(imagePath).metadata();
-      if (metadata.width && metadata.height) {
-        aspectRatio = metadata.width / metadata.height;
+    if (!importedImage) {
+      console.warn(`Could not find imported image for ${photo.data.image}`);
+      return {
+        ...photo,
+        aspectRatio: 1.5,
+        lightboxSrc: photo.data.image,
+        originalSrc: photo.data.image,
+        importedImage: undefined,
+      };
+    }
+
+    // Get aspect ratio from imported image metadata
+    const aspectRatio = importedImage.width / importedImage.height;
+
+    // Generate optimized lightbox version (skip for SVG files)
+    const isSvg = photo.data.image.toLowerCase().endsWith('.svg');
+    let lightboxSrc = photo.data.image;
+
+    if (!isSvg) {
+      try {
+        // Calculate target height based on aspect ratio
+        const targetHeight = Math.round(1920 / aspectRatio);
+
+        const lightboxImage = await getImage({
+          src: importedImage,
+          width: 1920,
+          height: targetHeight,
+          format: 'webp',
+          quality: 85,
+        });
+        lightboxSrc = lightboxImage.src;
+      } catch (error) {
+        console.warn(`Could not optimize lightbox image for ${photo.data.image}:`, error.message);
+        // Fall back to original image
+        lightboxSrc = photo.data.image;
       }
-    } catch (error) {
-      console.warn(`Could not read dimensions for ${photo.data.image}:`, error.message);
     }
 
     return {
       ...photo,
       aspectRatio,
+      lightboxSrc,
+      originalSrc: photo.data.image,
+      importedImage,
     };
   })
 );
@@ -52,7 +81,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
 
     {sortedFeatured.length > 0 && (
       <Image
-        src={sortedFeatured[0].data.image}
+        src={sortedFeatured[0].importedImage || sortedFeatured[0].data.image}
         alt={sortedFeatured[0].data.alt}
         width={3840}
         height={2560}
@@ -103,14 +132,15 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               class="featured-photo group relative overflow-hidden rounded-lg text-left border-0 p-0 bg-transparent flex-grow-0"
               style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
               data-index={index}
-              data-image={photo.data.image}
+              data-lightbox-src={photo.lightboxSrc}
+              data-original-src={photo.originalSrc}
               data-alt={photo.data.alt}
               data-title={photo.data.title}
               data-location={photo.data.location || ''}
               data-description={photo.data.description || ''}
             >
               <Image
-                src={photo.data.image}
+                src={photo.importedImage || photo.data.image}
                 alt={photo.data.alt}
                 width={Math.round(flexBasis * 2)}
                 height={Math.round(targetHeight * 2)}
@@ -280,7 +310,8 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
     const photosData = Array.from(featuredPhotoButtons).map((button) => {
       const btn = button as HTMLButtonElement;
       return {
-        image: btn.dataset.image || '',
+        image: btn.dataset.lightboxSrc || '',
+        original: btn.dataset.originalSrc || '',
         alt: btn.dataset.alt || '',
         title: btn.dataset.title || '',
         location: btn.dataset.location || '',

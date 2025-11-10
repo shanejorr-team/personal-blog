@@ -1,11 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
-import sharp from 'sharp';
-import path from 'path';
+import { getImageByPath } from '../../utils/imageLoader';
 
 export async function getStaticPaths() {
   // Define the available categories
@@ -28,24 +27,55 @@ const categoryImages = await Promise.all(
     .filter(portfolio => portfolio.data.category === category)
     .flatMap(portfolio =>
       portfolio.data.images.map(async (image) => {
-        // Calculate absolute path to image
-        const imagePath = path.join(process.cwd(), 'public', image.src);
+        // Get imported image from src/images
+        const importedImage = getImageByPath(image.src);
 
-        // Get dimensions using Sharp
-        let aspectRatio = 1.5; // fallback
-        try {
-          const metadata = await sharp(imagePath).metadata();
-          if (metadata.width && metadata.height) {
-            aspectRatio = metadata.width / metadata.height;
+        if (!importedImage) {
+          console.warn(`Could not find imported image for ${image.src}`);
+          return {
+            ...image,
+            category: portfolio.data.category,
+            aspectRatio: 1.5,
+            lightboxSrc: image.src,
+            originalSrc: image.src,
+            importedImage: undefined,
+          };
+        }
+
+        // Get aspect ratio from imported image metadata
+        const aspectRatio = importedImage.width / importedImage.height;
+
+        // Generate optimized lightbox version (skip for SVG files)
+        const isSvg = image.src.toLowerCase().endsWith('.svg');
+        let lightboxSrc = image.src;
+
+        if (!isSvg) {
+          try {
+            // Calculate target height based on aspect ratio
+            const targetHeight = Math.round(1920 / aspectRatio);
+
+            const lightboxImage = await getImage({
+              src: importedImage,
+              width: 1920,
+              height: targetHeight,
+              format: 'webp',
+              quality: 85,
+            });
+            lightboxSrc = lightboxImage.src;
+          } catch (error) {
+            console.warn(`Could not optimize lightbox image for ${image.src}:`, error.message);
+            // Fall back to original image
+            lightboxSrc = image.src;
           }
-        } catch (error) {
-          console.warn(`Could not read dimensions for ${image.src}:`, error.message);
         }
 
         return {
           ...image,
           category: portfolio.data.category,
           aspectRatio,
+          lightboxSrc,
+          originalSrc: image.src,
+          importedImage,
         };
       })
     )
@@ -163,14 +193,15 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
                   style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
                   data-subcategory={subCategory}
                   data-index={index}
-                  data-image={image.src}
+                  data-lightbox-src={image.lightboxSrc}
+                  data-original-src={image.originalSrc}
                   data-alt={image.alt}
                   data-caption={image.caption || ''}
                   data-location-name={image.location || ''}
                   data-country-name={image.country || ''}
                 >
                   <Image
-                    src={image.src}
+                    src={image.importedImage || image.src}
                     alt={image.alt}
                     width={Math.round(flexBasis * 2)}
                     height={Math.round(targetHeight * 2)}
@@ -221,6 +252,7 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
     // Group photos by sub-category
     const photosBySubCategory: Record<string, Array<{
       image: string;
+      original: string;
       alt: string;
       title: string;
       location?: string;
@@ -234,7 +266,8 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
         .filter(Boolean);
 
       const photoData = {
-        image: btn.dataset.image || '',
+        image: btn.dataset.lightboxSrc || '',
+        original: btn.dataset.originalSrc || '',
         alt: btn.dataset.alt || '',
         title: btn.dataset.caption || '',
         location: locationParts.join(', '),
