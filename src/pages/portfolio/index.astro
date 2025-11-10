@@ -4,6 +4,8 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
+import sharp from 'sharp';
+import path from 'path';
 
 // Get all portfolio collections
 const allPortfolio = await getCollection('portfolio');
@@ -46,6 +48,50 @@ allPortfolio.forEach(portfolio => {
   });
 });
 const countries = Array.from(countriesSet).sort();
+
+// Pre-process categories with dimensions
+const processedCategories = await Promise.all(
+  Object.entries(categories).map(async ([categoryKey, galleries]) => {
+    const key = categoryKey as keyof typeof categories;
+    if (galleries.length === 0) return null;
+
+    // Flatten all images from all galleries in this category and filter for featured
+    const allImagesWithDimensions = await Promise.all(
+      galleries.flatMap((gallery, galleryIndex) =>
+        gallery.data.images
+          .filter(image => image.featured === true)
+          .map(async (image, imageIndex) => {
+            // Calculate absolute path to image
+            const imagePath = path.join(process.cwd(), 'public', image.src);
+
+            // Get dimensions using Sharp
+            let aspectRatio = 1.5; // fallback
+            try {
+              const metadata = await sharp(imagePath).metadata();
+              if (metadata.width && metadata.height) {
+                aspectRatio = metadata.width / metadata.height;
+              }
+            } catch (error) {
+              console.warn(`Could not read dimensions for ${image.src}:`, error.message);
+            }
+
+            return {
+              ...image,
+              galleryId: gallery.id,
+              galleryIndex,
+              imageIndex,
+              aspectRatio,
+            };
+          })
+      )
+    );
+
+    // Skip category if no featured images
+    if (allImagesWithDimensions.length === 0) return null;
+
+    return { key, images: allImagesWithDimensions };
+  })
+).then(results => results.filter(Boolean)); // Remove nulls
 ---
 
 <BaseLayout
@@ -96,26 +142,7 @@ const countries = Array.from(countriesSet).sort();
     )}
 
     <!-- Portfolio Galleries -->
-    {Object.entries(categories).map(([categoryKey, galleries]) => {
-      const key = categoryKey as keyof typeof categories;
-      if (galleries.length === 0) return null;
-
-      // Flatten all images from all galleries in this category and filter for featured
-      const allImages = galleries.flatMap((gallery, galleryIndex) =>
-        gallery.data.images
-          .filter(image => image.featured === true)
-          .map((image, imageIndex) => ({
-            ...image,
-            galleryId: gallery.id,
-            galleryIndex,
-            imageIndex,
-          }))
-      );
-
-      // Skip category if no featured images
-      if (allImages.length === 0) return null;
-
-      return (
+    {processedCategories.map(({ key, images: allImages }) => (
         <section class="mb-20" id={key}>
           <div class="mb-8 flex justify-between items-end">
             <div>
@@ -132,30 +159,38 @@ const countries = Array.from(countriesSet).sort();
             </a>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {allImages.map((image, index) => (
-              <button
-                type="button"
-                class="portfolio-photo group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer text-left w-full border-0 p-0 bg-transparent"
-                data-category={key}
-                data-index={index}
-                data-image={image.src}
-                data-alt={image.alt}
-                data-caption={image.caption || ''}
-                data-location={image.location || ''}
-              >
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  width={800}
-                  height={600}
-                  format="webp"
-                  quality={80}
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  loading="lazy"
-                />
-                {image.caption && (
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <!-- Justified grid layout -->
+          <div class="flex flex-wrap gap-4 justify-start">
+            {allImages.map((image, index) => {
+              // Calculate flex-basis based on aspect ratio
+              // Target row height of ~280px, adjust width based on aspect ratio
+              const targetHeight = 280;
+              const flexBasis = targetHeight * image.aspectRatio;
+
+              return (
+                <button
+                  type="button"
+                  class="portfolio-photo group relative overflow-hidden rounded-lg cursor-pointer text-left border-0 p-0 bg-transparent flex-grow-0"
+                  style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
+                  data-category={key}
+                  data-index={index}
+                  data-image={image.src}
+                  data-alt={image.alt}
+                  data-caption={image.caption || ''}
+                  data-location={image.location || ''}
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    width={Math.round(flexBasis * 2)}
+                    height={Math.round(targetHeight * 2)}
+                    format="webp"
+                    quality={80}
+                    class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  {image.caption && (
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
                     <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
                       <p class="text-sm font-medium">{image.caption}</p>
                       {image.location && (
@@ -163,13 +198,13 @@ const countries = Array.from(countriesSet).sort();
                       )}
                     </div>
                   </div>
-                )}
-              </button>
-            ))}
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
-      );
-    })}
+    ))}
   </div>
 
   <!-- Lightbox Component -->

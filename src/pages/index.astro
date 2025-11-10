@@ -4,10 +4,34 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { sortByDate, filterDrafts } from '../utils/helpers';
+import sharp from 'sharp';
+import path from 'path';
 
-// Get featured photos
+// Get featured photos with dimensions
 const featuredPhotos = await getCollection('featured');
-const sortedFeatured = featuredPhotos.sort((a, b) => a.data.order - b.data.order);
+const featuredWithDimensions = await Promise.all(
+  featuredPhotos.map(async (photo) => {
+    // Calculate absolute path to image
+    const imagePath = path.join(process.cwd(), 'public', photo.data.image);
+
+    // Get dimensions using Sharp
+    let aspectRatio = 1.5; // fallback
+    try {
+      const metadata = await sharp(imagePath).metadata();
+      if (metadata.width && metadata.height) {
+        aspectRatio = metadata.width / metadata.height;
+      }
+    } catch (error) {
+      console.warn(`Could not read dimensions for ${photo.data.image}:`, error.message);
+    }
+
+    return {
+      ...photo,
+      aspectRatio,
+    };
+  })
+);
+const sortedFeatured = featuredWithDimensions.sort((a, b) => a.data.order - b.data.order);
 
 // Get recent journal posts
 const journalPosts = await getCollection('photography-journal');
@@ -65,38 +89,47 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
   {sortedFeatured.length > 1 && (
     <section class="container mx-auto px-4 py-16">
       <h2 class="text-3xl font-bold mb-8 text-center">Featured Work</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedFeatured.slice(1, 7).map((photo, index) => (
-          <button
-            type="button"
-            class="featured-photo group relative aspect-square overflow-hidden rounded-lg text-left w-full border-0 p-0 bg-transparent"
-            data-index={index}
-            data-image={photo.data.image}
-            data-alt={photo.data.alt}
-            data-title={photo.data.title}
-            data-location={photo.data.location || ''}
-            data-description={photo.data.description || ''}
-          >
-            <Image
-              src={photo.data.image}
-              alt={photo.data.alt}
-              width={800}
-              height={800}
-              format="webp"
-              quality={80}
-              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-              loading="lazy"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <h3 class="font-semibold text-lg">{photo.data.title}</h3>
-                {photo.data.location && (
-                  <p class="text-sm text-gray-300">{photo.data.location}</p>
-                )}
+      <!-- Justified grid layout -->
+      <div class="flex flex-wrap gap-4 justify-start">
+        {sortedFeatured.slice(1, 7).map((photo, index) => {
+          // Calculate flex-basis based on aspect ratio
+          // Target row height of ~280px, adjust width based on aspect ratio
+          const targetHeight = 280;
+          const flexBasis = targetHeight * photo.aspectRatio;
+
+          return (
+            <button
+              type="button"
+              class="featured-photo group relative overflow-hidden rounded-lg text-left border-0 p-0 bg-transparent flex-grow-0"
+              style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
+              data-index={index}
+              data-image={photo.data.image}
+              data-alt={photo.data.alt}
+              data-title={photo.data.title}
+              data-location={photo.data.location || ''}
+              data-description={photo.data.description || ''}
+            >
+              <Image
+                src={photo.data.image}
+                alt={photo.data.alt}
+                width={Math.round(flexBasis * 2)}
+                height={Math.round(targetHeight * 2)}
+                format="webp"
+                quality={80}
+                class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <h3 class="font-semibold text-lg">{photo.data.title}</h3>
+                  {photo.data.location && (
+                    <p class="text-sm text-gray-300">{photo.data.location}</p>
+                  )}
+                </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </section>
   )}

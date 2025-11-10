@@ -4,6 +4,8 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
+import sharp from 'sharp';
+import path from 'path';
 
 export async function getStaticPaths() {
   const allPortfolio = await getCollection('portfolio');
@@ -29,14 +31,33 @@ const { country } = Astro.props;
 // Get all portfolio collections
 const allPortfolio = await getCollection('portfolio');
 
-// Get all images for this country
-const countryImages = allPortfolio.flatMap(portfolio =>
-  portfolio.data.images
-    .filter(image => image.country === country)
-    .map(image => ({
-      ...image,
-      category: portfolio.data.category,
-    }))
+// Get all images for this country with actual dimensions
+const countryImages = await Promise.all(
+  allPortfolio.flatMap(portfolio =>
+    portfolio.data.images
+      .filter(image => image.country === country)
+      .map(async (image) => {
+        // Calculate absolute path to image
+        const imagePath = path.join(process.cwd(), 'public', image.src);
+
+        // Get dimensions using Sharp
+        let aspectRatio = 1.5; // fallback
+        try {
+          const metadata = await sharp(imagePath).metadata();
+          if (metadata.width && metadata.height) {
+            aspectRatio = metadata.width / metadata.height;
+          }
+        } catch (error) {
+          console.warn(`Could not read dimensions for ${image.src}:`, error.message);
+        }
+
+        return {
+          ...image,
+          category: portfolio.data.category,
+          aspectRatio,
+        };
+      })
+  )
 );
 
 // Group images by location
@@ -75,10 +96,9 @@ const sortedLocations = Object.entries(imagesByLocation).sort((a, b) =>
 
     <!-- Images grouped by location -->
     {sortedLocations.map(([location, images]) => {
-      // Add aspect ratio to images (default to common ratios if not available)
+      // Images already have aspectRatio from Sharp metadata
       const locationImages = images.map((image, index) => ({
         ...image,
-        aspectRatio: 1.5, // Default 3:2 ratio
         index,
       }));
 

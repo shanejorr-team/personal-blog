@@ -4,7 +4,8 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
-import { getImageDimensions } from 'astro:assets';
+import sharp from 'sharp';
+import path from 'path';
 
 export async function getStaticPaths() {
   // Define the available categories
@@ -21,15 +22,34 @@ const { category } = Astro.props;
 // Get all portfolio collections
 const allPortfolio = await getCollection('portfolio');
 
-// Get all images for this category
-const categoryImages = allPortfolio
-  .filter(portfolio => portfolio.data.category === category)
-  .flatMap(portfolio =>
-    portfolio.data.images.map(image => ({
-      ...image,
-      category: portfolio.data.category,
-    }))
-  );
+// Get all images for this category with actual dimensions
+const categoryImages = await Promise.all(
+  allPortfolio
+    .filter(portfolio => portfolio.data.category === category)
+    .flatMap(portfolio =>
+      portfolio.data.images.map(async (image) => {
+        // Calculate absolute path to image
+        const imagePath = path.join(process.cwd(), 'public', image.src);
+
+        // Get dimensions using Sharp
+        let aspectRatio = 1.5; // fallback
+        try {
+          const metadata = await sharp(imagePath).metadata();
+          if (metadata.width && metadata.height) {
+            aspectRatio = metadata.width / metadata.height;
+          }
+        } catch (error) {
+          console.warn(`Could not read dimensions for ${image.src}:`, error.message);
+        }
+
+        return {
+          ...image,
+          category: portfolio.data.category,
+          aspectRatio,
+        };
+      })
+    )
+).then(results => Promise.all(results));
 
 // Group images by sub_category
 const imagesBySubCategory = categoryImages.reduce((acc, image) => {
@@ -112,10 +132,9 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
 
     <!-- Images grouped by sub-category -->
     {sortedSubCategories.map(([subCategory, images]) => {
-      // Add aspect ratio to images (default to common ratios if not available)
+      // Images already have aspectRatio from Sharp metadata
       const subCategoryImages = images.map((image, index) => ({
         ...image,
-        aspectRatio: 1.5, // Default 3:2 ratio, will be accurate for native ratios
         index,
       }));
 

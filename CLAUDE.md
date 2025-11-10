@@ -184,24 +184,31 @@ Display order determined by `order` field (lower numbers first).
 
 ### Image Display Behavior
 
-**Portfolio Category & Country Pages (Justified Grid):**
+**All Portfolio Pages (Justified Grid):**
 
-- Uses **justified grid layout** (similar to Flickr/Google Photos)
+- **Homepage Featured Work Grid**: Uses justified grid layout
+- **Main Portfolio Page**: Uses justified grid layout for featured photos
+- **Category Pages**: Uses justified grid layout for all category photos
+- **Country Pages**: Uses justified grid layout for all country photos
+
+**Justified Grid Implementation:**
+- Layout similar to Flickr/Google Photos
 - Images maintain their **native aspect ratios** without forced cropping
 - Flexbox-based layout with calculated dimensions
-- Row height: 280px (fixed), widths vary based on aspect ratio
+- Row height: 280px (fixed), widths vary based on actual image aspect ratio
 - Formula: `width = 280px × image_aspect_ratio`
+- Aspect ratios calculated at build time using Sharp
 - Uses `object-fit: cover` to ensure clean fills
+- Retina display support: 2x dimensions passed to Astro Image component
 - Hover effects include `scale-110` transform on compatible devices
-- Clean, professional rows without letterboxing
+- Clean, professional rows preserving original compositions
 
-**Main Portfolio Page & Homepage:**
-
-- **Featured Work Grid** (homepage): 1:1 square thumbnails with `object-fit: cover`
-- **Main Portfolio Page**: 4:3 aspect ratio thumbnails with `object-fit: cover`
-- Thumbnails crop to fill containers cleanly
-- No letterboxing - professional appearance
-- Hover effects with `scale-110` transform
+**Technical Details:**
+- Image dimensions read automatically at build time using Sharp library
+- No manual dimension entry required in JSON files
+- Fallback to 3:2 aspect ratio if image cannot be read
+- Images optimized to WebP format at 80% quality
+- Lazy loading applied (except hero image)
 
 **Journal & Writings Listing Pages:**
 
@@ -217,7 +224,7 @@ Display order determined by `order` field (lower numbers first).
 - Letterboxing/pillarboxing preserves aspect ratios
 - Max constraints: 100% width, 70vh height (60vh on mobile)
 
-**Key Principle:** Portfolio category/country pages preserve native aspect ratios using justified grid. Other pages use fixed aspect ratios with `object-fit: cover` for clean thumbnails. Full images always visible in lightbox.
+**Key Principle:** All portfolio pages preserve native aspect ratios using justified grid layout. Journal and writings listing pages use fixed aspect ratios with `object-fit: cover` for clean thumbnails. Full images always visible in lightbox with proper aspect ratios.
 
 ### Dark Mode
 - Implemented with Tailwind's `dark:` classes
