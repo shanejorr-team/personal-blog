@@ -58,7 +58,7 @@ const processedCategories = await Promise.all(
     const allImagesWithDimensions = await Promise.all(
       galleries.flatMap((gallery, galleryIndex) =>
         gallery.data.images
-          .filter(image => image.featured === true)
+          .filter(image => image.featured !== undefined)
           .map(async (image, imageIndex) => {
             // Get imported image from src/images
             const importedImage = getImageByPath(image.src);
@@ -121,7 +121,10 @@ const processedCategories = await Promise.all(
     // Skip category if no featured images
     if (allImagesWithDimensions.length === 0) return null;
 
-    return { key, images: allImagesWithDimensions };
+    // Sort by featured number
+    const sortedImages = allImagesWithDimensions.sort((a, b) => (a.featured || 0) - (b.featured || 0));
+
+    return { key, images: sortedImages };
   })
 ).then(results => results.filter(Boolean)); // Remove nulls
 ---

@@ -86,7 +86,7 @@ Add JSON files in `src/content/portfolio/{category}/`:
       "country": "Canada",
       "date": "2024-03-15",
       "sub_category": "Mountains",
-      "featured": true
+      "featured": 1
     }
   ],
   "order": 0
@@ -94,15 +94,20 @@ Add JSON files in `src/content/portfolio/{category}/`:
 ```
 
 **Portfolio Organization:**
-- **Main page** (`/portfolio`): Shows featured photos from each category with links to browse by photo type or by country
-  - Only displays photos marked with `"featured": true`
-  - Recommended: Select up to 6 featured photos per category for the main page
+
+- **Homepage Featured Work**: Shows the top featured photos across all categories
+  - Hero image: Photo with `"featured": 1`
+  - Featured work grid: Photos with `"featured": 2-7` (or next 6 lowest numbers)
+  - Photos sorted by featured number (lower = higher priority)
+- **Main portfolio page** (`/portfolio`): Shows all featured photos from each category with links to browse by photo type or by country
+  - Only displays photos with a `featured` number (any value)
+  - Photos sorted by featured number within each category
 - **Category pages** (`/portfolio/nature`, `/portfolio/street`, etc.): View all photos of a specific type, organized by sub-category
 - **Country pages** (`/portfolio/[country]`): View all photos from a specific country, organized by location
 
 **Optional Fields:**
 - `sub_category`: Recommended for better organization on category pages. Photos without a sub_category will be grouped under "Other".
-- `featured`: Set to `true` to display the photo on the main portfolio page. If not set or `false`, the photo will only appear on category and country pages.
+- `featured`: Assign a number (1, 2, 3, etc.) to feature the photo on homepage and main portfolio page. Lower numbers appear first. Photos without a featured number only appear on category and country pages.
 
 For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
 
@@ -282,8 +287,7 @@ Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x 
 │   ├── content/          # Content collections
 │   │   ├── photography-journal/
 │   │   ├── writings/
-│   │   ├── portfolio/
-│   │   └── featured/
+│   │   └── portfolio/
 │   ├── layouts/          # Page layouts
 │   ├── pages/            # Routes
 │   └── styles/           # Global CSS

@@ -2,6 +2,38 @@
   "category": "nature",
   "images": [
     {
+      "src": "/images/photography/nature/volcanoe.jpg",
+      "alt": "Volcán de Agua",
+      "caption": "Volcán de Agua rising in perfect symmetry. Taken from Acatenango.",
+      "location": "Guatemala",
+      "country": "Guatemala",
+      "featured": 3
+    },
+    {
+      "src": "/images/photography/nature/lighthouse.jpg",
+      "alt": "Maiden's Tower in Istanbul, Turkey",
+      "caption": "Cruise ship passing iconic Maiden's Tower as it leave the Bosporus.",
+      "location": "Istanbul",
+      "country": "Turkey",
+      "featured": 4
+    },
+    {
+      "src": "/images/photography/nature/ship.jpg",
+      "alt": "Puerto Madero in Buenos Aires, Argentina",
+      "caption": "Lively ship moored in Buenos Aires' revitalized waterfront district.",
+      "location": "Buenos Aires",
+      "country": "Argentina",
+      "featured": 5
+    },
+    {
+      "src": "/images/photography/nature/atitlan.jpg",
+      "alt": "Lake Atitlan in Guatemala",
+      "caption": "Lake views are nice. Volcano views are great. But lake and volcano views are majestic.",
+      "location": "Lake Atitlan",
+      "country": "Guatemala",
+      "featured": 7
+    },
+    {
       "src": "/images/photography/nature/placeholder.svg",
       "alt": "Snow-capped mountain peaks at sunrise",
       "caption": "Alpine sunrise in the Swiss Alps",

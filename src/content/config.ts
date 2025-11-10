@@ -41,23 +41,9 @@ const portfolio = defineCollection({
       country: z.string().optional(),
       date: z.coerce.date().optional(),
       sub_category: z.string().optional(),
-      featured: z.boolean().optional(),
+      featured: z.number().optional(),
     })),
     order: z.number().default(0),
-  }),
-});
-
-// Featured photos for home page
-const featured = defineCollection({
-  type: 'data',
-  schema: () => z.object({
-    title: z.string(),
-    image: z.string(),
-    alt: z.string(),
-    location: z.string().optional(),
-    description: z.string().optional(),
-    order: z.number().default(0),
-    link: z.string().optional(),
   }),
 });
 
@@ -65,5 +51,4 @@ export const collections = {
   'photography-journal': photographyJournal,
   'writings': writings,
   'portfolio': portfolio,
-  'featured': featured,
 };

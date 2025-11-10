@@ -6,20 +6,29 @@ import Lightbox from '../components/Lightbox.astro';
 import { sortByDate, filterDrafts } from '../utils/helpers';
 import { getImageByPath } from '../utils/imageLoader';
 
-// Get featured photos with dimensions
-const featuredPhotos = await getCollection('featured');
+// Get featured photos from portfolio collection
+const portfolioCollections = await getCollection('portfolio');
+// Flatten all portfolio images and filter for featured ones
+const allPortfolioImages = portfolioCollections.flatMap((collection) =>
+  collection.data.images.map((image) => ({
+    ...image,
+    category: collection.data.category,
+  }))
+);
+const featuredImages = allPortfolioImages.filter((image) => image.featured !== undefined);
+
 const featuredWithDimensions = await Promise.all(
-  featuredPhotos.map(async (photo) => {
+  featuredImages.map(async (image) => {
     // Get imported image from src/images
-    const importedImage = getImageByPath(photo.data.image);
+    const importedImage = getImageByPath(image.src);
 
     if (!importedImage) {
-      console.warn(`Could not find imported image for ${photo.data.image}`);
+      console.warn(`Could not find imported image for ${image.src}`);
       return {
-        ...photo,
+        ...image,
         aspectRatio: 1.5,
-        lightboxSrc: photo.data.image,
-        originalSrc: photo.data.image,
+        lightboxSrc: image.src,
+        originalSrc: image.src,
         importedImage: undefined,
       };
     }
@@ -28,8 +37,8 @@ const featuredWithDimensions = await Promise.all(
     const aspectRatio = importedImage.width / importedImage.height;
 
     // Generate optimized lightbox version (skip for SVG files)
-    const isSvg = photo.data.image.toLowerCase().endsWith('.svg');
-    let lightboxSrc = photo.data.image;
+    const isSvg = image.src.toLowerCase().endsWith('.svg');
+    let lightboxSrc = image.src;
 
     if (!isSvg) {
       try {
@@ -45,22 +54,22 @@ const featuredWithDimensions = await Promise.all(
         });
         lightboxSrc = lightboxImage.src;
       } catch (error) {
-        console.warn(`Could not optimize lightbox image for ${photo.data.image}:`, error.message);
+        console.warn(`Could not optimize lightbox image for ${image.src}:`, error.message);
         // Fall back to original image
-        lightboxSrc = photo.data.image;
+        lightboxSrc = image.src;
       }
     }
 
     return {
-      ...photo,
+      ...image,
       aspectRatio,
       lightboxSrc,
-      originalSrc: photo.data.image,
+      originalSrc: image.src,
       importedImage,
     };
   })
 );
-const sortedFeatured = featuredWithDimensions.sort((a, b) => a.data.order - b.data.order);
+const sortedFeatured = featuredWithDimensions.sort((a, b) => (a.featured || 0) - (b.featured || 0));
 
 // Get recent journal posts
 const journalPosts = await getCollection('photography-journal');
@@ -81,8 +90,8 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
 
     {sortedFeatured.length > 0 && (
       <Image
-        src={sortedFeatured[0].importedImage || sortedFeatured[0].data.image}
-        alt={sortedFeatured[0].data.alt}
+        src={sortedFeatured[0].importedImage || sortedFeatured[0].src}
+        alt={sortedFeatured[0].alt}
         width={3840}
         height={2560}
         format="webp"
@@ -134,14 +143,14 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               data-index={index}
               data-lightbox-src={photo.lightboxSrc}
               data-original-src={photo.originalSrc}
-              data-alt={photo.data.alt}
-              data-title={photo.data.title}
-              data-location={photo.data.location || ''}
-              data-description={photo.data.description || ''}
+              data-alt={photo.alt}
+              data-title={photo.caption || photo.alt}
+              data-location={photo.location || ''}
+              data-description={photo.caption || ''}
             >
               <Image
-                src={photo.importedImage || photo.data.image}
-                alt={photo.data.alt}
+                src={photo.importedImage || photo.src}
+                alt={photo.alt}
                 width={Math.round(flexBasis * 2)}
                 height={Math.round(targetHeight * 2)}
                 format="webp"
@@ -151,9 +160,9 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               />
               <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
                 <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 class="font-semibold text-lg">{photo.data.title}</h3>
-                  {photo.data.location && (
-                    <p class="text-sm text-gray-300">{photo.data.location}</p>
+                  <h3 class="font-semibold text-lg">{photo.caption || photo.alt}</h3>
+                  {photo.location && (
+                    <p class="text-sm text-gray-300">{photo.location}</p>
                   )}
                 </div>
               </div>

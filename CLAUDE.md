@@ -31,7 +31,6 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 │   │   │   ├── street/
 │   │   │   ├── concert/
 │   │   │   └── other/
-│   │   └── featured/        # JSON featured photos
 │   ├── images/
 │   │   └── photography/     # Single source of truth for all portfolio-worthy photos
 │   │       ├── nature/
@@ -113,7 +112,7 @@ Location: `src/content/portfolio/{category}/*.json`
       "country"?: string,
       "date"?: string,
       "sub_category"?: string,
-      "featured"?: boolean
+      "featured"?: number
     }
   ],
   "order": number
@@ -123,9 +122,13 @@ Location: `src/content/portfolio/{category}/*.json`
 Portfolio displays images from a category in a unified grid with interactive lightbox navigation.
 
 **Portfolio Organization:**
-- **Main page** (`/portfolio`): Shows curated featured photos from each category, with links to browse by photo type or by country
-  - Only displays photos marked with `featured: true`
-  - Recommended: Select up to 6 featured photos per category for the main page
+- **Homepage Featured Work**: Shows the top featured photos (lowest featured numbers) across all categories
+  - Hero image: Photo with `featured: 1`
+  - Featured work grid: Photos with `featured: 2-7` (or next 6 lowest numbers)
+  - Photos sorted by featured number (lower numbers appear first)
+- **Main portfolio page** (`/portfolio`): Shows all featured photos from each category, with links to browse by photo type or by country
+  - Only displays photos with a `featured` number (any value)
+  - Photos sorted by featured number within each category
   - Each category section includes a "View All" link to the full category page
 - **Category pages** (`/portfolio/[category]`): Dedicated pages showing all photos of a specific type, organized by sub-category sections
   - Category pages group photos by their `sub_category` field
@@ -139,24 +142,9 @@ Portfolio displays images from a category in a unified grid with interactive lig
 
 **Data Efficiency:**
 - Photos are stored once in category-organized JSON files
-- Main page, category pages, and country pages all filter from the same data source at build time
+- Homepage, main portfolio page, category pages, and country pages all filter from the same data source at build time
 - No photo duplication required - the same JSON files serve multiple views with different filters
-
-### Featured Photos
-Location: `src/content/featured/*.json`
-
-```json
-{
-  "title": string,
-  "image": string,
-  "alt": string,
-  "location"?: string,
-  "order": number,
-  "link": string
-}
-```
-
-Display order determined by `order` field (lower numbers first).
+- Featured photos are identified by the `featured` number field (lower numbers = higher priority)
 
 ## Key Patterns
 
@@ -164,7 +152,6 @@ Display order determined by `order` field (lower numbers first).
 **Single Source of Truth:** All portfolio-worthy photography is stored once in `src/images/photography/{category}/` and referenced by multiple content types:
 - **Photography journal posts**: Reference images via `featuredImage` field
 - **Portfolio galleries**: Reference images via `src` field in JSON
-- **Featured photos**: Reference images via `image` field in JSON
 - **Writings posts**: Can reference photography images when appropriate, or use `public/images/assets/` for non-portfolio images
 
 **Technical Implementation:**

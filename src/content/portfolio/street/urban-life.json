@@ -2,6 +2,22 @@
   "category": "street",
   "images": [
     {
+      "src": "/images/photography/street/atlanta-traffic.jpg",
+      "alt": "Atlanta skyline",
+      "caption": "Atlanta's rising skyline from Jackson Street Bridge.",
+      "location": "Atlanta",
+      "country": "USA",
+      "featured": 2
+    },
+    {
+      "src": "/images/photography/street/guanajuato-street.jpg",
+      "alt": "Guanajuato, Mexico colorful streets",
+      "caption": "The narrow, colorful, and hilly streets of Guanajuato. My favorite Mexican city.",
+      "location": "Guanajuato",
+      "country": "Mexico",
+      "featured": 6
+    },
+    {
       "src": "/images/photography/street/placeholder.svg",
       "alt": "Busy Tokyo street crossing",
       "caption": "Rush hour at Shibuya Crossing",
