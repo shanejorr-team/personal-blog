@@ -114,7 +114,7 @@ All images are automatically optimized by Astro with WebP conversion and respons
 |-------------|--------------|---------------------|-----------------|-------|
 | **Homepage Hero** | 3:2 | 3840×2560px | 2x @ 1920px, 1.5x @ 4K | Full-screen background |
 | **Featured Work Grid** | 1:1 | 800×800px | 2x @ 400px | Square thumbnails |
-| **Portfolio Grids** | 4:3 | 800×600px | 2x @ 400px | Category/country pages |
+| **Portfolio Grids** | Native (flexible) | Variable | 2x @ 280px height | Justified grid layout |
 | **Journal Thumbnails** | 16:9 | 800×450px | 2x @ 400px | Listing page cards |
 | **Journal Hero** | 16:9 | 3072×1728px | 2x @ 1536px | Detail page featured image |
 | **Writings Thumbnails** | 16:9 | 800×450px | 2x @ 400px | Listing page cards |
@@ -173,12 +173,24 @@ All images are automatically optimized by Astro with WebP conversion and respons
   - Notes: max-w-4xl container
 
 ### Portfolio
-- **Gallery Images** (category/country grids)
+- **Main Portfolio Page** (featured photos grid)
   - Aspect Ratio: **4:3**
   - Recommended Size: 800×600px
-  - Retina Coverage: 2x @ 400px across 1-3 column grid
+  - Retina Coverage: 2x @ 400px
+  - Uses `object-fit: cover` for clean thumbnails
+
+- **Category & Country Pages** (justified grid)
+  - Aspect Ratio: **Native (any aspect ratio)**
+  - Row Height: 280px (flexible widths calculated automatically)
+  - Retina Coverage: 2x @ 280px height
   - Location: `public/images/photography/{category}/`
-  - Notes: Also displayed in lightbox at full resolution
+  - **No aspect ratio restrictions** - images preserve their native ratios
+  - Widths calculated automatically: `width = 280px × aspect_ratio`
+  - Examples:
+    - 3:2 image → 420px wide
+    - 4:3 image → 373px wide
+    - 16:9 image → 498px wide
+  - Notes: Full images displayed in lightbox at full resolution
 
 ### General Image Best Practices
 - **Format**: Upload JPG or PNG - Astro automatically converts to WebP/AVIF
@@ -194,14 +206,26 @@ All images are automatically optimized by Astro with WebP conversion and respons
 - **Accessibility**: Always provide descriptive alt text
 
 ### Image Display Behavior
-- **Thumbnails/Grids**: All thumbnail grids use `object-fit: contain` to preserve full image compositions
-  - Images maintain their original aspect ratio
-  - White bars (light mode) or dark gray bars (dark mode) appear for aspect ratio mismatches
-  - No cropping occurs - you always see the complete photograph
-  - Best practice: Match image aspect ratios to container requirements for optimal display
-- **Lightbox**: Full-resolution images displayed with `object-fit: contain`
-  - Letterboxing/pillarboxing for aspect ratio preservation
-  - No image optimization - shows original files at full quality
+
+**Portfolio Category & Country Pages (Justified Grid):**
+- Uses **justified grid layout** (similar to Flickr/Google Photos)
+- Images maintain their **native aspect ratios** without cropping or letterboxing
+- Rows are perfectly aligned horizontally with varying image widths
+- Clean, professional appearance while preserving full compositions
+- Target row height: 280px, widths adjust based on each image's aspect ratio
+- Uses `object-fit: cover` to ensure images fill their calculated dimensions
+
+**Homepage & Listing Pages (Fixed Grids):**
+- **Featured Work Grid**: 1:1 square thumbnails with `object-fit: cover`
+- **Journal/Writings Thumbnails**: 16:9 aspect ratio with `object-fit: cover`
+- **Main Portfolio Page**: 4:3 aspect ratio with `object-fit: cover`
+- Thumbnails crop to fill containers cleanly (no letterboxing)
+- Full images shown in lightbox or detail pages
+
+**Lightbox:**
+- Full-resolution images displayed with `object-fit: contain`
+- Letterboxing/pillarboxing for aspect ratio preservation
+- No image optimization - shows original files at full quality
 
 ### Why These Dimensions?
 Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x or 3x pixel density. The optimized dimensions ensure:

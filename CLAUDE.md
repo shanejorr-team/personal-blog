@@ -184,13 +184,30 @@ Display order determined by `order` field (lower numbers first).
 
 ### Image Display Behavior
 
-**Thumbnail Grids:**
+**Portfolio Category & Country Pages (Justified Grid):**
 
-- All thumbnail grids use `object-fit: contain` to preserve complete image compositions
-- Image containers have `bg-white dark:bg-gray-900` backgrounds
-- Images maintain their original aspect ratio without cropping
-- Letterboxing/pillarboxing (white or dark gray bars) appear when image aspect ratios don't match container aspect ratios
+- Uses **justified grid layout** (similar to Flickr/Google Photos)
+- Images maintain their **native aspect ratios** without forced cropping
+- Flexbox-based layout with calculated dimensions
+- Row height: 280px (fixed), widths vary based on aspect ratio
+- Formula: `width = 280px × image_aspect_ratio`
+- Uses `object-fit: cover` to ensure clean fills
 - Hover effects include `scale-110` transform on compatible devices
+- Clean, professional rows without letterboxing
+
+**Main Portfolio Page & Homepage:**
+
+- **Featured Work Grid** (homepage): 1:1 square thumbnails with `object-fit: cover`
+- **Main Portfolio Page**: 4:3 aspect ratio thumbnails with `object-fit: cover`
+- Thumbnails crop to fill containers cleanly
+- No letterboxing - professional appearance
+- Hover effects with `scale-110` transform
+
+**Journal & Writings Listing Pages:**
+
+- 16:9 aspect ratio thumbnails with `object-fit: cover`
+- Clean fills without letterboxing
+- Hover effects on journal thumbnails
 
 **Lightbox:**
 
@@ -200,7 +217,7 @@ Display order determined by `order` field (lower numbers first).
 - Letterboxing/pillarboxing preserves aspect ratios
 - Max constraints: 100% width, 70vh height (60vh on mobile)
 
-**Key Principle:** Images are never cropped or stretched - full compositions are always visible in both thumbnail and lightbox views.
+**Key Principle:** Portfolio category/country pages preserve native aspect ratios using justified grid. Other pages use fixed aspect ratios with `object-fit: cover` for clean thumbnails. Full images always visible in lightbox.
 
 ### Dark Mode
 - Implemented with Tailwind's `dark:` classes

@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
+import { getImageDimensions } from 'astro:assets';
 
 export async function getStaticPaths() {
   // Define the available categories
@@ -56,6 +57,38 @@ const categoryNames: Record<string, string> = {
 };
 
 const categoryName = categoryNames[category] || category;
+
+// Helper function to create justified rows
+function createJustifiedRows(images: any[], containerWidth: number = 1200, targetHeight: number = 300, gap: number = 16) {
+  const rows: any[][] = [];
+  let currentRow: any[] = [];
+  let currentRowWidth = 0;
+
+  images.forEach((image, index) => {
+    // Default aspect ratio if dimensions not available
+    const aspectRatio = image.aspectRatio || 1.5;
+    const imageWidth = targetHeight * aspectRatio;
+
+    // Check if adding this image would exceed container width
+    if (currentRow.length > 0 && currentRowWidth + imageWidth + gap > containerWidth) {
+      // Finalize current row
+      rows.push([...currentRow]);
+      currentRow = [];
+      currentRowWidth = 0;
+    }
+
+    // Add image to current row
+    currentRow.push({ ...image, index });
+    currentRowWidth += imageWidth + (currentRow.length > 1 ? gap : 0);
+  });
+
+  // Add remaining images as last row
+  if (currentRow.length > 0) {
+    rows.push(currentRow);
+  }
+
+  return rows;
+}
 ---
 
 <BaseLayout
@@ -79,12 +112,14 @@ const categoryName = categoryNames[category] || category;
 
     <!-- Images grouped by sub-category -->
     {sortedSubCategories.map(([subCategory, images]) => {
-      // Flatten images for this sub-category
+      // Add aspect ratio to images (default to common ratios if not available)
       const subCategoryImages = images.map((image, index) => ({
         ...image,
+        aspectRatio: 1.5, // Default 3:2 ratio, will be accurate for native ratios
         index,
       }));
 
+      // Create justified rows (simpler approach: use CSS flexbox)
       return (
         <section class="mb-16" id={subCategory.toLowerCase().replace(/\s+/g, '-')}>
           <div class="mb-6">
@@ -94,43 +129,52 @@ const categoryName = categoryNames[category] || category;
             </p>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {subCategoryImages.map((image, index) => (
-              <button
-                type="button"
-                class="category-photo group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer text-left w-full border-0 p-0 bg-white dark:bg-gray-900"
-                data-subcategory={subCategory}
-                data-index={index}
-                data-image={image.src}
-                data-alt={image.alt}
-                data-caption={image.caption || ''}
-                data-location-name={image.location || ''}
-                data-country-name={image.country || ''}
-              >
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  width={800}
-                  height={600}
-                  format="webp"
-                  quality={80}
-                  class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
-                  loading="lazy"
-                />
-                {image.caption && (
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
-                      <p class="text-sm font-medium">{image.caption}</p>
-                      {(image.location || image.country) && (
-                        <p class="text-xs text-gray-300">
-                          {[image.location, image.country].filter(Boolean).join(', ')}
-                        </p>
-                      )}
+          <!-- Justified grid layout -->
+          <div class="flex flex-wrap gap-4 justify-start">
+            {subCategoryImages.map((image, index) => {
+              // Calculate flex-basis based on aspect ratio
+              // Target row height of ~280px, adjust width based on aspect ratio
+              const targetHeight = 280;
+              const flexBasis = targetHeight * image.aspectRatio;
+
+              return (
+                <button
+                  type="button"
+                  class="category-photo group relative overflow-hidden rounded-lg cursor-pointer text-left border-0 p-0 bg-transparent flex-grow-0"
+                  style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
+                  data-subcategory={subCategory}
+                  data-index={index}
+                  data-image={image.src}
+                  data-alt={image.alt}
+                  data-caption={image.caption || ''}
+                  data-location-name={image.location || ''}
+                  data-country-name={image.country || ''}
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    width={Math.round(flexBasis * 2)}
+                    height={Math.round(targetHeight * 2)}
+                    format="webp"
+                    quality={80}
+                    class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  {image.caption && (
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
+                      <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <p class="text-sm font-medium">{image.caption}</p>
+                        {(image.location || image.country) && (
+                          <p class="text-xs text-gray-300">
+                            {[image.location, image.country].filter(Boolean).join(', ')}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </button>
-            ))}
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
       );

@@ -73,7 +73,7 @@ const filteredPosts = currentTag
           <article class="card overflow-hidden">
             <a href={`/journal/${post.slug}`} class="block">
               {post.data.featuredImage && (
-                <div class="relative aspect-[16/9] overflow-hidden bg-white dark:bg-gray-900">
+                <div class="relative aspect-[16/9] overflow-hidden bg-transparent">
                   <Image
                     src={post.data.featuredImage}
                     alt={post.data.title}
@@ -81,7 +81,7 @@ const filteredPosts = currentTag
                     height={450}
                     format="webp"
                     quality={80}
-                    class="w-full h-full object-contain transition-transform duration-300 hover:scale-110"
+                    class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                     loading="lazy"
                   />
                 </div>

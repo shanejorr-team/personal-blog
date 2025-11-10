@@ -69,7 +69,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
         {sortedFeatured.slice(1, 7).map((photo, index) => (
           <button
             type="button"
-            class="featured-photo group relative aspect-square overflow-hidden rounded-lg text-left w-full border-0 p-0 bg-white dark:bg-gray-900"
+            class="featured-photo group relative aspect-square overflow-hidden rounded-lg text-left w-full border-0 p-0 bg-transparent"
             data-index={index}
             data-image={photo.data.image}
             data-alt={photo.data.alt}
@@ -84,7 +84,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               height={800}
               format="webp"
               quality={80}
-              class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               loading="lazy"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -121,7 +121,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               <article class="card p-4">
                 <a href={`/journal/${post.slug}`} class="block">
                   {post.data.featuredImage && (
-                    <div class="w-full aspect-[16/9] rounded-lg mb-4 overflow-hidden bg-white dark:bg-gray-900">
+                    <div class="w-full aspect-[16/9] rounded-lg mb-4 overflow-hidden bg-transparent">
                       <Image
                         src={post.data.featuredImage}
                         alt={post.data.title}
@@ -129,7 +129,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
                         height={450}
                         format="webp"
                         quality={80}
-                        class="w-full h-full object-contain"
+                        class="w-full h-full object-cover"
                         loading="lazy"
                       />
                     </div>
@@ -166,7 +166,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               <article class="card p-4">
                 <a href={`/writings/${post.slug}`} class="block">
                   {post.data.featuredImage && (
-                    <div class="w-full aspect-[16/9] rounded-lg mb-4 overflow-hidden bg-white dark:bg-gray-900">
+                    <div class="w-full aspect-[16/9] rounded-lg mb-4 overflow-hidden bg-transparent">
                       <Image
                         src={post.data.featuredImage}
                         alt={post.data.title}
@@ -174,7 +174,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
                         height={450}
                         format="webp"
                         quality={80}
-                        class="w-full h-full object-contain"
+                        class="w-full h-full object-cover"
                         loading="lazy"
                       />
                     </div>

@@ -101,4 +101,30 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Justified grid layout - Flickr-style rows */
+  .justified-grid {
+    @apply flex flex-wrap gap-4;
+  }
+
+  .justified-grid-row {
+    @apply flex gap-4 w-full;
+  }
+
+  .justified-grid-item {
+    @apply flex-grow-0 flex-shrink-0;
+    @apply rounded-lg overflow-hidden;
+    @apply transition-all duration-200;
+  }
+
+  .justified-grid-item:hover {
+    @apply transform scale-105 shadow-xl;
+  }
+
+  /* Disable hover effects on mobile */
+  @media (hover: none) {
+    .justified-grid-item:hover {
+      @apply transform-none scale-100;
+    }
+  }
 }
