@@ -8,6 +8,117 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 - **Tailwind CSS** - Utility-first CSS framework with dark mode support
 - **TypeScript** - Strict mode enabled
 - **Content Collections** - Type-safe content management
+- **Git LFS** - Large File Storage for managing high-resolution photography
+
+## Git Large File Storage (LFS)
+
+This repository uses **Git LFS** to efficiently manage large photo files. All photography images (JPG, PNG, WebP, AVIF, etc.) are stored in Git LFS rather than directly in the Git repository.
+
+### Why Git LFS?
+
+With 100+ high-resolution photos (15-22MB each), storing images directly in Git would:
+- Create a multi-gigabyte repository
+- Slow down git operations (clone, pull, status)
+- Bloat the `.git` folder with every photo version in history
+
+Git LFS solves this by:
+- Storing only small pointer files (~150 bytes) in the Git repository
+- Keeping actual photos in LFS storage
+- Downloading photos on-demand when needed
+- Maintaining fast git operations regardless of photo collection size
+
+### Files Tracked by LFS
+
+The following file types are automatically tracked by LFS (configured in [.gitattributes](.gitattributes)):
+
+**Photography formats:**
+- `*.jpg`, `*.jpeg` - JPEG images (primary format)
+- `*.png` - PNG images
+- `*.webp`, `*.avif` - Modern web formats
+- `*.tif`, `*.tiff` - High-quality formats
+
+**Video formats** (for future use):
+- `*.mp4`, `*.mov`, `*.avi`, `*.webm`
+
+**Design files** (for future use):
+- `*.psd`, `*.ai`, `*.sketch`, `*.fig`
+
+**Note:** SVG files are NOT in LFS as they are text-based and Git handles them efficiently.
+
+### Setup for New Contributors
+
+If you're cloning this repository:
+
+1. **Install Git LFS** (one-time setup):
+   ```bash
+   # macOS
+   brew install git-lfs
+
+   # Linux
+   apt-get install git-lfs  # Debian/Ubuntu
+   yum install git-lfs      # RedHat/CentOS
+
+   # Windows
+   # Download from https://git-lfs.github.com/
+   ```
+
+2. **Initialize Git LFS**:
+   ```bash
+   git lfs install
+   ```
+
+3. **Clone the repository**:
+   ```bash
+   git clone https://github.com/shanejorr/personal-blog.git
+   cd personal-blog
+   ```
+
+   Git LFS will automatically download the photo files during clone.
+
+4. **Verify LFS files**:
+   ```bash
+   git lfs ls-files
+   # Should show all tracked photos
+   ```
+
+### Working with LFS Files
+
+**Normal git commands work as expected:**
+```bash
+git add src/images/photography/nature/new-photo.jpg
+git commit -m "Add new photo"
+git push
+```
+
+Git LFS handles the large file transfer automatically.
+
+**Checking LFS status:**
+```bash
+git lfs ls-files              # List all LFS-tracked files
+git lfs status                # Show LFS file status
+```
+
+### Deployment Considerations
+
+**Vercel/Netlify:** Both platforms support Git LFS automatically. They will:
+1. Download LFS pointer files from GitHub
+2. Fetch actual photos from LFS storage during build
+3. Process images through Astro's optimization pipeline
+
+**GitHub LFS Costs:**
+- **Free Plan**: 1GB storage + 1GB/month bandwidth
+- **Team Plan ($4/month)**: 250GB storage + 250GB/month bandwidth (recommended)
+- Each Vercel deployment downloads all photos, consuming bandwidth
+
+With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is required** to avoid bandwidth overage charges.
+
+### Important Notes
+
+- Build outputs in `dist/` are **not** in LFS (already in `.gitignore`)
+- LFS files appear as normal files in your working directory
+- First clone may take several minutes to download all photos
+- Your local `.git` folder includes LFS cache but stays relatively small
+- History rewrites (like the initial LFS migration) require force push
 
 ## Project Structure
 

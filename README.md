@@ -17,7 +17,29 @@ A modern, fast, and beautiful photography blog built with Astro, TypeScript, and
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+This repository uses **Git LFS** for managing large photo files. Install it first:
+
 ```bash
+# macOS
+brew install git-lfs
+
+# Linux
+apt-get install git-lfs  # Debian/Ubuntu
+yum install git-lfs      # RedHat/CentOS
+
+# Initialize Git LFS
+git lfs install
+```
+
+### Setup
+
+```bash
+# Clone the repository (LFS files download automatically)
+git clone https://github.com/shanejorr/personal-blog.git
+cd personal-blog
+
 # Install dependencies
 npm install
 
@@ -264,10 +286,22 @@ Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x 
 2. Import repository in Vercel
 3. Deploy automatically
 
+**Note:** Vercel automatically supports Git LFS. Photo files will be downloaded during build.
+
 ### Netlify
 1. Connect GitHub repository
 2. Build command: `npm run build`
 3. Publish directory: `dist`
+
+**Note:** Netlify automatically supports Git LFS. Photo files will be downloaded during build.
+
+### Git LFS Bandwidth
+
+With 100+ photos (~15GB), each deployment downloads all LFS files. Consider:
+- **GitHub Team plan** ($4/month): 250GB storage + 250GB/month bandwidth
+- **Free plan**: 1GB storage + 1GB/month bandwidth (insufficient for regular deployments)
+
+See [CLAUDE.md](./CLAUDE.md#git-large-file-storage-lfs) for detailed LFS documentation.
 
 ## 🎨 Customization
 
@@ -308,6 +342,7 @@ Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x 
 - **[Tailwind CSS](https://tailwindcss.com)** - Styling
 - **[TypeScript](https://www.typescriptlang.org/)** - Type safety
 - **Content Collections** - Type-safe content management
+- **[Git LFS](https://git-lfs.github.com/)** - Large file storage for high-resolution photos
 
 ## 📄 License
 
