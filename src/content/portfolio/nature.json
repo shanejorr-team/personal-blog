@@ -2,19 +2,19 @@
   "category": "nature",
   "images": [
     {
-      "src": "/images/photography/nature/volcanoe.jpg",
-      "alt": "Volcán de Agua",
-      "caption": "Volcán de Agua rising in perfect symmetry. Taken from Acatenango.",
-      "location": "Guatemala",
-      "country": "Guatemala",
+      "src": "/images/photography/nature/us-georgia-nature-1.jpg",
+      "alt": "Blood Mountain, Georgia sunset in autumn",
+      "caption": "Fall colors at sunset atop Blood Mountain.",
+      "location": "Northern Georgia",
+      "country": "United States",
       "featured": 3
     },
     {
-      "src": "/images/photography/nature/lighthouse.jpg",
-      "alt": "Maiden's Tower in Istanbul, Turkey",
-      "caption": "Cruise ship passing iconic Maiden's Tower as it leave the Bosporus.",
-      "location": "Istanbul",
-      "country": "Turkey",
+      "src": "/images/photography/nature/us-georgia-nature-1.jpg",
+      "alt": "Blood Mountain, Georgia sunset in autumn",
+      "caption": "Blood Mountain revealing its autumn colors.",
+      "location": "Northern Georgia",
+      "country": "United States",
       "featured": 4
     },
     {

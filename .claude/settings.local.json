@@ -16,7 +16,15 @@
       "Bash(brew install:*)",
       "Bash(export PATH=\"/usr/local/opt/node@22/bin:$PATH\":*)",
       "Bash(npm run build:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(xargs:*)",
+      "Bash(du:*)",
+      "Bash(find:*)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog ls-files:*)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog status --short)",
+      "Bash(while read file size)",
+      "Bash(do ls -lh $file)",
+      "Bash(git lfs:*)"
     ],
     "deny": [],
     "ask": []
