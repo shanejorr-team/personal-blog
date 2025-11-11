@@ -26,11 +26,11 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 │   │   ├── config.ts        # Content collection schemas
 │   │   ├── photography-journal/  # Markdown posts
 │   │   ├── writings/        # Markdown posts
-│   │   ├── portfolio/       # JSON galleries by category
-│   │   │   ├── nature/
-│   │   │   ├── street/
-│   │   │   ├── concert/
-│   │   │   └── other/
+│   │   ├── portfolio/       # JSON files, one per category
+│   │   │   ├── nature.json
+│   │   │   ├── street.json
+│   │   │   ├── concert.json
+│   │   │   └── other.json
 │   ├── images/
 │   │   └── photography/     # Single source of truth for all portfolio-worthy photos
 │   │       ├── nature/
@@ -98,7 +98,7 @@ Content in standard Markdown format.
 ```
 
 ### Portfolio Galleries
-Location: `src/content/portfolio/{category}/*.json`
+Location: `src/content/portfolio/{category}.json`
 
 ```json
 {

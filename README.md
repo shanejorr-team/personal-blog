@@ -73,7 +73,7 @@ Your content...
 **Note:** Writings can use `/images/assets/` for non-portfolio images (screenshots, diagrams, etc.) stored in `public/images/assets/`, or reference optimized photography from `src/images/photography/` using `/images/photography/` paths.
 
 ### Portfolio Galleries
-Add JSON files in `src/content/portfolio/{category}/`:
+Edit the JSON files in `src/content/portfolio/` (one file per category: `nature.json`, `street.json`, `concert.json`, `other.json`):
 ```json
 {
   "category": "nature",
