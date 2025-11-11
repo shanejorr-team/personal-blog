@@ -10,7 +10,7 @@
       "featured": 3
     },
     {
-      "src": "/images/photography/nature/us-georgia-nature-1.jpg",
+      "src": "/images/photography/nature/us-georgia-nature-2.jpg",
       "alt": "Blood Mountain, Georgia sunset in autumn",
       "caption": "Blood Mountain revealing its autumn colors.",
       "location": "Northern Georgia",
@@ -18,44 +18,12 @@
       "featured": 4
     },
     {
-      "src": "/images/photography/nature/ship.jpg",
-      "alt": "Puerto Madero in Buenos Aires, Argentina",
-      "caption": "Lively ship moored in Buenos Aires' revitalized waterfront district.",
-      "location": "Buenos Aires",
-      "country": "Argentina",
+      "src": "/images/photography/nature/us-georgia-nature-3.jpg",
+      "alt": "Blood Mountain, Georgia sunset in autumn",
+      "caption": "Sun dipping behind the north Georgia mountains.",
+      "location": "Northern Georgia",
+      "country": "United States",
       "featured": 5
-    },
-    {
-      "src": "/images/photography/nature/atitlan.jpg",
-      "alt": "Lake Atitlan in Guatemala",
-      "caption": "Lake views are nice. Volcano views are great. But lake and volcano views are majestic.",
-      "location": "Lake Atitlan",
-      "country": "Guatemala",
-      "featured": 7
-    },
-    {
-      "src": "/images/photography/nature/placeholder.svg",
-      "alt": "Snow-capped mountain peaks at sunrise",
-      "caption": "Alpine sunrise in the Swiss Alps",
-      "location": "Swiss Alps",
-      "country": "Switzerland",
-      "date": "2024-01-15"
-    },
-    {
-      "src": "/images/photography/nature/placeholder.svg",
-      "alt": "Mountain lake reflection",
-      "caption": "Perfect reflection in a glacial lake",
-      "location": "Banff National Park",
-      "country": "Canada",
-      "date": "2023-09-10"
-    },
-    {
-      "src": "/images/photography/nature/placeholder.svg",
-      "alt": "Dramatic mountain ridge",
-      "caption": "Rugged peaks in late afternoon light",
-      "location": "Dolomites",
-      "country": "Italy",
-      "date": "2023-07-22"
     }
   ],
   "order": 0
