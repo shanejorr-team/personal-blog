@@ -125,8 +125,6 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 ```
 /
 ├── public/
-│   └── images/
-│       └── assets/          # Non-portfolio images for blog posts
 ├── src/
 │   ├── components/
 │   │   ├── Header.astro
@@ -143,11 +141,12 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   │   ├── concert.json
 │   │   │   └── other.json
 │   ├── images/
-│   │   └── photography/     # Single source of truth for all portfolio-worthy photos
-│   │       ├── nature/
-│   │       ├── street/
-│   │       ├── concert/
-│   │       └── other/
+│   │   ├── photography/     # Portfolio-worthy photos
+│   │   │   ├── nature/
+│   │   │   ├── street/
+│   │   │   ├── concert/
+│   │   │   └── other/
+│   │   └── assets/          # Non-portfolio images for blog posts
 │   ├── layouts/
 │   │   └── BaseLayout.astro
 │   ├── pages/               # File-based routing
@@ -182,15 +181,17 @@ Location: `src/content/photography-journal/*.md`
 title: string
 description: string
 date: Date
-location: string
-country: string
-featuredImage: string
+location?: string
+country?: string
+featuredImage?: relative path to image (e.g., ../../images/photography/nature/photo.jpg)
 tags: string[]
 draft: boolean
 ---
 
 Content in standard Markdown format.
 ```
+
+**Note:** `featuredImage` uses Astro's `image()` helper for type-safe, optimized image handling. Reference images using relative paths from the markdown file.
 
 ### Writings Posts
 Location: `src/content/writings/*.md`
@@ -200,13 +201,15 @@ Location: `src/content/writings/*.md`
 title: string
 description: string
 date: Date
-featuredImage?: string
+featuredImage?: relative path to image (e.g., ../../images/assets/image.png)
 tags: string[]
 draft: boolean
 ---
 
 Content in standard Markdown format.
 ```
+
+**Note:** `featuredImage` uses Astro's `image()` helper for type-safe, optimized image handling. Reference images using relative paths from the markdown file.
 
 ### Portfolio Galleries
 Location: `src/content/portfolio/{category}.json`
@@ -260,24 +263,32 @@ Portfolio displays images from a category in a unified grid with interactive lig
 ## Key Patterns
 
 ### Image Organization
-**Single Source of Truth:** All portfolio-worthy photography is stored once in `src/images/photography/{category}/` and referenced by multiple content types:
-- **Photography journal posts**: Reference images via `featuredImage` field
-- **Portfolio galleries**: Reference images via `src` field in JSON
-- **Writings posts**: Can reference photography images when appropriate, or use `public/images/assets/` for non-portfolio images
+**Single Source of Truth:** All images are stored in `src/images/` with automatic optimization:
+- **Portfolio photos**: `src/images/photography/{category}/` - organized by photo type
+- **Non-portfolio assets**: `src/images/assets/` - for writings and other content
+
+**Content Type Image Usage:**
+- **Photography journal posts**: Reference portfolio images via relative paths using Astro's `image()` helper
+- **Portfolio galleries**: Reference images via `src` field in JSON, loaded through `imageLoader.ts`
+- **Writings posts**: Reference assets via relative paths using Astro's `image()` helper
 
 **Technical Implementation:**
-- Images stored in `src/images/photography/` for Astro optimization
-- Loaded dynamically using Vite's `import.meta.glob()` in `src/utils/imageLoader.ts`
-- Content files reference images using paths like `/images/photography/{category}/filename.jpg`
-- The image loader maps these public paths to imported image objects at build time
+- **Portfolio images**: Loaded dynamically using Vite's `import.meta.glob()` in `src/utils/imageLoader.ts`
+  - Content files reference images using paths like `/images/photography/{category}/filename.jpg`
+  - The image loader maps these public paths to imported image objects at build time
+- **Journal & writings images**: Use Astro's `image()` schema helper for direct imports
+  - Content files use relative paths like `../../images/assets/filename.jpg`
+  - Astro automatically imports and optimizes images at build time
+  - Type-safe with build-time validation
 
 **Benefits:**
 - Automatic image optimization (WebP conversion, resizing, quality adjustment)
+- Dramatic file size reductions (1.1MB → ~200-400KB for assets, 2-3MB → ~500-800KB for portfolio)
 - No image duplication
+- Type-safe image references with build failures on missing images
 - Easy maintenance - update once, changes everywhere
-- Clear organization by photo type (nature, street, concert, other)
-- Lightbox images optimized to ~500-800KB (down from 2-3MB originals)
-- Writings posts can use both photography images and non-portfolio assets from `public/images/assets/`
+- Clear organization by content type and photo category
+- Better Core Web Vitals and performance scores
 
 ### Routing
 - File-based routing in `src/pages/`
@@ -285,15 +296,19 @@ Portfolio displays images from a category in a unified grid with interactive lig
 - Content fetched via Astro Content Collections API
 
 ### Image Paths
-- **Photography images (portfolio-worthy):**
+- **Portfolio images (used in portfolio JSON files):**
   - Physical location: `src/images/photography/{category}/filename.jpg`
-  - Reference path in content: `/images/photography/{category}/filename.jpg`
+  - Reference path in JSON: `/images/photography/{category}/filename.jpg`
+  - Loaded via `imageLoader.ts` utility
   - Automatically optimized at build time (WebP conversion, responsive sizes, lazy loading)
   - Lightbox optimization: Resized to max 1920px width, WebP format, 85% quality
-- **Non-portfolio assets:**
-  - Physical location: `public/images/assets/filename.jpg`
-  - Reference path: `/images/assets/filename.jpg`
-  - Served as-is from public folder
+
+- **Journal & Writings featured images:**
+  - Physical location: `src/images/photography/{category}/` or `src/images/assets/`
+  - Reference path in frontmatter: Relative path (e.g., `../../images/assets/filename.jpg`)
+  - Loaded via Astro's `image()` schema helper
+  - Automatically optimized at build time (WebP/AVIF conversion, responsive sizes, lazy loading)
+  - Type-safe with build-time validation
 
 ### Image Display Behavior
 

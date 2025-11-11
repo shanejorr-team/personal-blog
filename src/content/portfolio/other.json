@@ -2,35 +2,118 @@
   "category": "other",
   "images": [
     {
-      "src": "/images/photography/other/_cover-photo.jpg",
-      "alt": "Hot air ballons in Capadocia, Turkey",
-      "caption": "Sunrise hot air balloon flight in Cappadocia. One of those surreal experiences.",
-      "location": "Capadocia",
+      "src": "/images/photography/other/turkey-cappadocia-other-08.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Ballons silhouetted across the sky",
+      "location": "Cappadocia",
       "country": "Turkey",
-      "featured": 1
+      "featured": 0
     },
     {
-      "src": "/images/photography/other/placeholder.svg",
-      "alt": "Architectural detail",
-      "caption": "Modern architecture patterns",
-      "location": "Dubai",
-      "country": "UAE",
-      "date": "2023-12-03"
+      "src": "/images/photography/other/turkey-cappadocia-other-01.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Liftoff!",
+      "location": "Cappadocia",
+      "country": "Turkey"
     },
     {
-      "src": "/images/photography/other/placeholder.svg",
-      "alt": "Water droplets macro",
-      "caption": "Morning dew on leaf",
-      "date": "2023-05-18"
+      "src": "/images/photography/other/turkey-cappadocia-other-02.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Silhouette",
+      "location": "Cappadocia",
+      "country": "Turkey"
     },
     {
-      "src": "/images/photography/other/placeholder.svg",
-      "alt": "Colorful market spices",
-      "caption": "Vibrant colors at the spice market",
-      "location": "Marrakech",
-      "country": "Morocco",
-      "date": "2023-09-25"
+      "src": "/images/photography/other/turkey-cappadocia-other-03.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Waiting to rise",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-04.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Ballons peppering the sky",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-05.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Hiding the sun",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-06.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Solitude",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-07.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Crowded airspace",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-09.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Ballons rising with the sun",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-10.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "First light",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-11.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Glowing sky muting the ballon",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-12.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Fire",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-13.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "More gas",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-14.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Gotta get up",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-15.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Above the mountain we go",
+      "location": "Cappadocia",
+      "country": "Turkey"
+    },
+    {
+      "src": "/images/photography/other/turkey-cappadocia-other-16.jpg",
+      "alt": "Ballons rising over Cappadocia, Turkey",
+      "caption": "Race",
+      "location": "Cappadocia",
+      "country": "Turkey"
     }
   ],
-  "order": 0
+  "order": 4
 }

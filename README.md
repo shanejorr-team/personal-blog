@@ -53,13 +53,14 @@ npm run dev
 
 ### Image Organization
 
-This site uses a **single source of truth** approach for images:
+This site uses a **single source of truth** approach with all images stored in `src/images/` for automatic optimization:
 
 - **Photography**: Store all portfolio-worthy photos in `src/images/photography/{category}/` (nature, street, concert, other)
   - These images can be referenced by journal posts, portfolio galleries, and featured photos
   - No duplication needed - one image, multiple uses
-- **Assets**: Store non-portfolio images in `/images/assets/` (screenshots, diagrams, etc.)
+- **Assets**: Store non-portfolio images in `src/images/assets/` (screenshots, diagrams, etc.)
   - Used primarily for writings posts that don't feature photography
+  - All images automatically optimized at build time (WebP conversion, responsive sizing)
 
 ### Photography Journal Posts
 Create Markdown files in `src/content/photography-journal/`:
@@ -69,14 +70,14 @@ title: "Your Story"
 description: "Story description"
 date: 2024-03-15
 location: "Tokyo, Japan"
-featuredImage: "/images/photography/street/tokyo-street.jpg"
+featuredImage: ../../images/photography/street/tokyo-street.jpg
 tags: ["travel", "japan"]
 ---
 
 Your content here with ![images](/images/photography/street/image.jpg)
 ```
 
-**Note:** Photography images are stored in `src/images/photography/{category}/` and referenced using paths like `/images/photography/{category}/filename.jpg` in content files. Astro automatically optimizes these images at build time.
+**Note:** Featured images use relative paths from the markdown file (e.g., `../../images/photography/{category}/filename.jpg`) and are loaded via Astro's `image()` helper for type-safe, optimized image handling with automatic WebP conversion. Inline images in content still use absolute paths like `/images/photography/{category}/filename.jpg` and are processed through the `imageLoader.ts` utility.
 
 ### Other Writings
 Create Markdown files in `src/content/writings/`:
@@ -85,14 +86,14 @@ Create Markdown files in `src/content/writings/`:
 title: "Your Post"
 description: "Post description"
 date: 2024-03-15
-featuredImage: "/images/assets/featured.jpg"
+featuredImage: ../../images/assets/featured.jpg
 tags: ["tutorial", "tips"]
 ---
 
 Your content...
 ```
 
-**Note:** Writings can use `/images/assets/` for non-portfolio images (screenshots, diagrams, etc.) stored in `public/images/assets/`, or reference optimized photography from `src/images/photography/` using `/images/photography/` paths.
+**Note:** Featured images use relative paths from the markdown file. Writings can use `../../images/assets/` for non-portfolio images (screenshots, diagrams, etc.) stored in `src/images/assets/`, or reference portfolio photography from `src/images/photography/` using `../../images/photography/{category}/` paths. All images are automatically optimized at build time with type-safe validation.
 
 ### Portfolio Galleries
 Edit the JSON files in `src/content/portfolio/` (one file per category: `nature.json`, `street.json`, `concert.json`, `other.json`):
@@ -193,7 +194,7 @@ All images are automatically optimized by Astro with WebP conversion and respons
   - Aspect Ratio: **16:9**
   - Recommended Size: 800×450px
   - Retina Coverage: 2x @ 400px
-  - Location: `public/images/assets/` or `src/images/photography/{category}/`
+  - Location: `src/images/assets/` or `src/images/photography/{category}/`
 
 - **Detail Page Hero**
   - Aspect Ratio: **16:9**
@@ -315,13 +316,16 @@ See [CLAUDE.md](./CLAUDE.md#git-large-file-storage-lfs) for detailed LFS documen
 
 ```
 /
-├── public/images/        # Image assets
+├── public/               # Static assets
 ├── src/
 │   ├── components/       # Reusable components
 │   ├── content/          # Content collections
 │   │   ├── photography-journal/
 │   │   ├── writings/
 │   │   └── portfolio/
+│   ├── images/           # Optimized images
+│   │   ├── photography/  # Portfolio photos by category
+│   │   └── assets/       # Non-portfolio images
 │   ├── layouts/          # Page layouts
 │   ├── pages/            # Routes
 │   └── styles/           # Global CSS
@@ -330,7 +334,7 @@ See [CLAUDE.md](./CLAUDE.md#git-large-file-storage-lfs) for detailed LFS documen
 
 ## ⚠️ Before Deploying
 
-1. Replace placeholder images in `public/images/`
+1. Add your photography to `src/images/photography/{category}/`
 2. Update personal info in About page
 3. Configure domain in `astro.config.mjs`
 4. Update social media links in footer

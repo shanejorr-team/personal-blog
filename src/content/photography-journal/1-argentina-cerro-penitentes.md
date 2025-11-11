@@ -4,7 +4,6 @@ description: "Hiking up Cerro Penitentes in Argentina provides breathtaking view
 date: 2025-10-30
 location: "Penitentes, Argentina"
 country: "Argentina"
-featuredImage: ""
 tags: ["argentina", "mountains", "landscape", "hiking"]
 draft: false
 ---
