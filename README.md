@@ -7,6 +7,7 @@ A modern, fast, and beautiful photography blog built with Astro, TypeScript, and
 - **Photography Journal**: Travel photo stories with embedded images
 - **Other Writings**: General blog posts and articles
 - **Portfolio Galleries**: Organized by category (Nature, Street, Concert, Other) and by country/location
+- **SQLite Database**: Scalable photo metadata management with CLI tools
 - **Dark Mode**: Automatic theme switching with localStorage persistence
 - **Image Optimization**: Automatic WebP conversion and responsive images
 - **RSS Feeds**: Separate feeds for journal and writings
@@ -96,41 +97,78 @@ Your content...
 **Note:** Featured images use relative paths from the markdown file. Writings can use `../../images/assets/` for non-portfolio images (screenshots, diagrams, etc.) stored in `src/images/assets/`, or reference portfolio photography from `src/images/photography/` using `../../images/photography/{category}/` paths. All images are automatically optimized at build time with type-safe validation.
 
 ### Portfolio Galleries
-Edit the JSON files in `src/content/portfolio/` (one file per category: `nature.json`, `street.json`, `concert.json`, `other.json`):
-```json
-{
-  "category": "nature",
-  "images": [
-    {
-      "src": "/images/photography/nature/photo.jpg",
-      "alt": "Description",
-      "caption": "Photo caption",
-      "location": "Banff National Park",
-      "country": "Canada",
-      "date": "2024-03-15",
-      "sub_category": "Mountains",
-      "featured": 1
-    }
-  ],
-  "order": 0
-}
+
+Portfolio photo metadata is stored in a SQLite database (`src/db/photos.db`) for scalability and ease of management.
+
+**Add single photos using the interactive CLI:**
+
+```bash
+npm run photo:add
 ```
+
+This will prompt you for:
+- Filename (photo must already exist in `src/images/photography/{category}/`)
+- Category (nature, street, concert, other)
+- Alt text (required)
+- Caption, location, country, date, sub-category (optional)
+- Homepage featured (1-7 for homepage hero and grid)
+- Category featured (any number for category portfolio pages)
+
+**Bulk import photos via CSV:**
+
+For adding multiple photos at once, use CSV import:
+
+```bash
+npm run photo:import photos.csv
+```
+
+**CSV Format:**
+Use the provided template ([photo-import-template.csv](photo-import-template.csv)) or create your own with these columns:
+
+```csv
+filename,category,alt,caption,location,country,date,sub_category,homepage_featured,category_featured
+us-example-nature-1.jpg,nature,Mountain sunset,Golden hour,Colorado,United States,2024-03-15,Rocky Mountains,,1
+```
+
+**Required columns:** `filename`, `category`, `alt`
+**Optional columns:** `caption`, `location`, `country`, `date`, `sub_category`, `homepage_featured`, `category_featured`
+
+The import tool will:
+- ✅ Validate all data before importing
+- ✅ Check that photo files exist
+- ✅ Prevent duplicate filenames
+- ✅ Show detailed error messages with row numbers
+- ✅ Support dry-run mode: `npm run photo:import photos.csv --dry-run`
+
+**Workflow:**
+1. Copy photos to `src/images/photography/{category}/`
+2. Prepare CSV in Excel/Google Sheets using template
+3. Export as CSV
+4. Run `npm run photo:import photos.csv`
+5. Review validation results and confirm import
 
 **Portfolio Organization:**
 
-- **Homepage Featured Work**: Shows the top featured photos across all categories
-  - Hero image: Photo with `"featured": 1`
-  - Featured work grid: Photos with `"featured": 2-7` (or next 6 lowest numbers)
-  - Photos sorted by featured number (lower = higher priority)
-- **Main portfolio page** (`/portfolio`): Shows all featured photos from each category with links to browse by photo type or by country
-  - Only displays photos with a `featured` number (any value)
-  - Photos sorted by featured number within each category
+- **Homepage Featured Work**: Shows exactly 7 featured photos
+  - Hero image: Photo with `homepage_featured: 1`
+  - Featured grid: Photos with `homepage_featured: 2-7`
+- **Main portfolio page** (`/portfolio`): Shows all category featured photos
+  - Only displays photos with `category_featured` number
+  - Photos sorted by priority within each category
 - **Category pages** (`/portfolio/nature`, `/portfolio/street`, etc.): View all photos of a specific type, organized by sub-category
 - **Country pages** (`/portfolio/[country]`): View all photos from a specific country, organized by location
 
-**Optional Fields:**
-- `sub_category`: Recommended for better organization on category pages. Photos without a sub_category will be grouped under "Other".
-- `featured`: Assign a number (1, 2, 3, etc.) to feature the photo on homepage and main portfolio page. Lower numbers appear first. Photos without a featured number only appear on category and country pages.
+**Featured System:**
+- `homepage_featured`: Fixed 7 photos (1-7) for homepage
+- `category_featured`: Separate priority for category portfolio pages
+- Photos can be featured on homepage, category page, both, or neither
+
+**Bulk Operations:**
+
+For advanced users, use [DB Browser for SQLite](https://sqlitebrowser.org/) to:
+- Edit photo metadata in a GUI
+- Perform bulk updates with SQL queries
+- Example: `UPDATE photos SET sub_category = 'Istanbul' WHERE location LIKE '%Istanbul%'`
 
 For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
 
@@ -279,6 +317,10 @@ Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x 
 | `npm run dev` | Start dev server at `localhost:4321` |
 | `npm run build` | Build production site to `./dist/` |
 | `npm run preview` | Preview production build locally |
+| `npm run photo:add` | Interactive CLI to add new photos to database |
+| `npm run photo:import <file.csv>` | Bulk import photos from CSV file |
+| `npm run db:export` | Export database to JSON backup files |
+| `npm run db:migrate` | Migrate JSON files to database (one-time) |
 
 ## 🚢 Deployment
 
@@ -316,19 +358,29 @@ See [CLAUDE.md](./CLAUDE.md#git-large-file-storage-lfs) for detailed LFS documen
 
 ```
 /
+├── backups/              # Database exports (gitignored)
 ├── public/               # Static assets
 ├── src/
 │   ├── components/       # Reusable components
 │   ├── content/          # Content collections
 │   │   ├── photography-journal/
-│   │   ├── writings/
-│   │   └── portfolio/
+│   │   └── writings/
+│   ├── db/               # SQLite database
+│   │   ├── photos.db     # Photo metadata
+│   │   └── schema.sql    # Database schema
 │   ├── images/           # Optimized images
 │   │   ├── photography/  # Portfolio photos by category
 │   │   └── assets/       # Non-portfolio images
 │   ├── layouts/          # Page layouts
 │   ├── pages/            # Routes
-│   └── styles/           # Global CSS
+│   ├── scripts/          # CLI tools
+│   │   ├── add-photo.ts
+│   │   ├── export-backup.ts
+│   │   └── migrate-json-to-db.ts
+│   ├── styles/           # Global CSS
+│   └── utils/            # Helper functions
+│       ├── db.ts         # Database queries
+│       └── imageLoader.ts
 └── CLAUDE.md            # Detailed documentation
 ```
 
@@ -345,7 +397,8 @@ See [CLAUDE.md](./CLAUDE.md#git-large-file-storage-lfs) for detailed LFS documen
 - **[Astro](https://astro.build)** - Static site generator
 - **[Tailwind CSS](https://tailwindcss.com)** - Styling
 - **[TypeScript](https://www.typescriptlang.org/)** - Type safety
-- **Content Collections** - Type-safe content management
+- **Content Collections** - Type-safe content management for blog posts
+- **[SQLite](https://www.sqlite.org/)** - Database for portfolio photo metadata (via [better-sqlite3](https://github.com/WiseLibs/better-sqlite3))
 - **[Git LFS](https://git-lfs.github.com/)** - Large file storage for high-resolution photos
 
 ## 📄 License

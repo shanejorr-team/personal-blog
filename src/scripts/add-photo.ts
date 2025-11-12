@@ -1,0 +1,187 @@
+#!/usr/bin/env node
+
+/**
+ * Interactive CLI tool for adding new photos to the database.
+ *
+ * This script provides a user-friendly interface to add photo metadata
+ * without manually editing the database.
+ *
+ * Usage: npm run photo:add
+ */
+
+import Database from 'better-sqlite3';
+import prompts from 'prompts';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const DB_PATH = join(__dirname, '..', 'db', 'photos.db');
+
+async function addPhoto() {
+  console.log('\n📸 Add New Photo to Database\n');
+
+  const answers = await prompts(
+    [
+      {
+        type: 'text',
+        name: 'filename',
+        message: 'Filename (e.g., us-georgia-nature-1.jpg):',
+        validate: (val: string) => {
+          if (!val) return 'Filename is required';
+          if (!val.match(/\.(jpg|jpeg|png|webp|avif)$/i)) {
+            return 'Filename must end with .jpg, .jpeg, .png, .webp, or .avif';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'select',
+        name: 'category',
+        message: 'Category:',
+        choices: [
+          { title: 'Nature', value: 'nature' },
+          { title: 'Street', value: 'street' },
+          { title: 'Concert', value: 'concert' },
+          { title: 'Other', value: 'other' },
+        ],
+      },
+      {
+        type: 'text',
+        name: 'alt',
+        message: 'Alt text (required):',
+        validate: (val: string) => (val ? true : 'Alt text is required'),
+      },
+      {
+        type: 'text',
+        name: 'caption',
+        message: 'Caption (optional):',
+      },
+      {
+        type: 'text',
+        name: 'location',
+        message: 'Location (optional):',
+      },
+      {
+        type: 'text',
+        name: 'country',
+        message: 'Country (optional):',
+      },
+      {
+        type: 'text',
+        name: 'sub_category',
+        message: 'Sub-category (optional):',
+      },
+      {
+        type: 'text',
+        name: 'date',
+        message: 'Date (YYYY-MM-DD, optional):',
+        validate: (val: string) => {
+          if (!val) return true;
+          if (!val.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            return 'Date must be in YYYY-MM-DD format';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'confirm',
+        name: 'add_homepage_featured',
+        message: 'Add to homepage featured (1-7)?',
+        initial: false,
+      },
+      {
+        type: (prev: boolean) => (prev ? 'number' : null),
+        name: 'homepage_featured',
+        message: 'Homepage featured priority (1-7):',
+        validate: (val: number) => {
+          if (val < 1 || val > 7) return 'Priority must be between 1 and 7';
+          return true;
+        },
+      },
+      {
+        type: 'confirm',
+        name: 'add_category_featured',
+        message: 'Add to category featured?',
+        initial: false,
+      },
+      {
+        type: (prev: boolean) => (prev ? 'number' : null),
+        name: 'category_featured',
+        message: 'Category featured priority (lower = higher priority):',
+        validate: (val: number) => {
+          if (val < 1) return 'Priority must be 1 or greater';
+          return true;
+        },
+      },
+      {
+        type: 'confirm',
+        name: 'confirm',
+        message: 'Add this photo to the database?',
+        initial: true,
+      },
+    ],
+    {
+      onCancel: () => {
+        console.log('\n❌ Cancelled');
+        process.exit(0);
+      },
+    }
+  );
+
+  if (!answers.confirm) {
+    console.log('\n❌ Cancelled');
+    return;
+  }
+
+  // Open database (not readonly)
+  const db = new Database(DB_PATH);
+
+  try {
+    // Check if filename already exists
+    const existing = db
+      .prepare('SELECT id FROM photos WHERE filename = ?')
+      .get(answers.filename);
+
+    if (existing) {
+      console.error(`\n❌ Error: Photo with filename "${answers.filename}" already exists`);
+      db.close();
+      process.exit(1);
+    }
+
+    // Insert photo
+    const insert = db.prepare(`
+      INSERT INTO photos (
+        filename, category, alt, caption, location, country,
+        date, sub_category, homepage_featured, category_featured
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const result = insert.run(
+      answers.filename,
+      answers.category,
+      answers.alt,
+      answers.caption || null,
+      answers.location || null,
+      answers.country || null,
+      answers.date || null,
+      answers.sub_category || null,
+      answers.add_homepage_featured ? answers.homepage_featured : null,
+      answers.add_category_featured ? answers.category_featured : null
+    );
+
+    console.log(`\n✅ Photo added successfully! (ID: ${result.lastInsertRowid})`);
+    console.log(`\n📁 Make sure the photo exists at:`);
+    console.log(`   src/images/photography/${answers.category}/${answers.filename}`);
+  } catch (error) {
+    console.error('\n❌ Error adding photo:', error);
+    process.exit(1);
+  } finally {
+    db.close();
+  }
+}
+
+// Run the CLI
+addPhoto();

@@ -1,25 +1,16 @@
 ---
-import { getCollection } from 'astro:content';
 import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import { getImageByPath } from '../../utils/imageLoader';
+import { getAllCountries, getCountryPhotos, getPhotoPath } from '../../utils/db';
 
 export async function getStaticPaths() {
-  const allPortfolio = await getCollection('portfolio');
+  // Get all countries from database
+  const countries = getAllCountries();
 
-  // Extract all unique countries
-  const countriesSet = new Set<string>();
-  allPortfolio.forEach(portfolio => {
-    portfolio.data.images.forEach(image => {
-      if (image.country) {
-        countriesSet.add(image.country);
-      }
-    });
-  });
-
-  return Array.from(countriesSet).map(country => ({
+  return countries.map(country => ({
     params: { country: country.toLowerCase().replace(/\s+/g, '-') },
     props: { country },
   }));
@@ -27,67 +18,69 @@ export async function getStaticPaths() {
 
 const { country } = Astro.props;
 
-// Get all portfolio collections
-const allPortfolio = await getCollection('portfolio');
+// Get all photos for this country from database
+const photos = getCountryPhotos(country);
 
-// Get all images for this country with actual dimensions
+// Process photos with dimensions
 const countryImages = await Promise.all(
-  allPortfolio.flatMap(portfolio =>
-    portfolio.data.images
-      .filter(image => image.country === country)
-      .map(async (image) => {
-        // Get imported image from src/images
-        const importedImage = getImageByPath(image.src);
+  photos.map(async (photo) => {
+    const imagePath = getPhotoPath(photo);
 
-        if (!importedImage) {
-          console.warn(`Could not find imported image for ${image.src}`);
-          return {
-            ...image,
-            category: portfolio.data.category,
-            aspectRatio: 1.5,
-            lightboxSrc: image.src,
-            originalSrc: image.src,
-            importedImage: undefined,
-          };
-        }
+    // Get imported image from src/images
+    const importedImage = getImageByPath(imagePath);
 
-        // Get aspect ratio from imported image metadata
-        const aspectRatio = importedImage.width / importedImage.height;
+    if (!importedImage) {
+      console.warn(`Could not find imported image for ${imagePath}`);
+      return {
+        src: imagePath,
+        alt: photo.alt,
+        caption: photo.caption,
+        location: photo.location,
+        aspectRatio: 1.5,
+        lightboxSrc: imagePath,
+        originalSrc: imagePath,
+        importedImage: undefined,
+      };
+    }
 
-        // Generate optimized lightbox version (skip for SVG files)
-        const isSvg = image.src.toLowerCase().endsWith('.svg');
-        let lightboxSrc = image.src;
+    // Get aspect ratio from imported image metadata
+    const aspectRatio = importedImage.width / importedImage.height;
 
-        if (!isSvg) {
-          try {
-            // Calculate target height based on aspect ratio
-            const targetHeight = Math.round(1920 / aspectRatio);
+    // Generate optimized lightbox version (skip for SVG files)
+    const isSvg = imagePath.toLowerCase().endsWith('.svg');
+    let lightboxSrc = imagePath;
 
-            const lightboxImage = await getImage({
-              src: importedImage,
-              width: 1920,
-              height: targetHeight,
-              format: 'webp',
-              quality: 85,
-            });
-            lightboxSrc = lightboxImage.src;
-          } catch (error) {
-            console.warn(`Could not optimize lightbox image for ${image.src}:`, error.message);
-            // Fall back to original image
-            lightboxSrc = image.src;
-          }
-        }
+    if (!isSvg) {
+      try {
+        // Calculate target height based on aspect ratio
+        const targetHeight = Math.round(1920 / aspectRatio);
 
-        return {
-          ...image,
-          category: portfolio.data.category,
-          aspectRatio,
-          lightboxSrc,
-          originalSrc: image.src,
-          importedImage,
-        };
-      })
-  )
+        const lightboxImage = await getImage({
+          src: importedImage,
+          width: 1920,
+          height: targetHeight,
+          format: 'webp',
+          quality: 85,
+        });
+        lightboxSrc = lightboxImage.src;
+      } catch (error) {
+        console.warn(`Could not optimize lightbox image for ${imagePath}:`, error.message);
+        // Fall back to original image
+        lightboxSrc = imagePath;
+      }
+    }
+
+    return {
+      src: imagePath,
+      alt: photo.alt,
+      caption: photo.caption,
+      location: photo.location,
+      aspectRatio,
+      lightboxSrc,
+      originalSrc: imagePath,
+      importedImage,
+    };
+  })
 );
 
 // Group images by location

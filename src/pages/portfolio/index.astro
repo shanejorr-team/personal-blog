@@ -1,22 +1,10 @@
 ---
-import { getCollection } from 'astro:content';
 import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import { getImageByPath } from '../../utils/imageLoader';
-
-// Get all portfolio collections
-const allPortfolio = await getCollection('portfolio');
-const sortedPortfolio = allPortfolio.sort((a, b) => a.data.order - b.data.order);
-
-// Group by category
-const categories = {
-  nature: sortedPortfolio.filter(p => p.data.category === 'nature'),
-  street: sortedPortfolio.filter(p => p.data.category === 'street'),
-  concert: sortedPortfolio.filter(p => p.data.category === 'concert'),
-  other: sortedPortfolio.filter(p => p.data.category === 'other'),
-};
+import { getCategoryFeatured, getAllCountries, getAllCategories, getPhotoPath } from '../../utils/db';
 
 const categoryInfo = {
   nature: {
@@ -37,94 +25,84 @@ const categoryInfo = {
   },
 };
 
-// Extract all unique countries
-const countriesSet = new Set<string>();
-allPortfolio.forEach(portfolio => {
-  portfolio.data.images.forEach(image => {
-    if (image.country) {
-      countriesSet.add(image.country);
-    }
-  });
-});
-const countries = Array.from(countriesSet).sort();
+// Get all countries from database
+const countries = getAllCountries();
+
+// Get all categories
+const allCategories = getAllCategories();
 
 // Pre-process categories with dimensions
 const processedCategories = await Promise.all(
-  Object.entries(categories).map(async ([categoryKey, galleries]) => {
-    const key = categoryKey as keyof typeof categories;
-    if (galleries.length === 0) return null;
+  allCategories.map(async (category) => {
+    // Get featured photos for this category from database
+    const photos = getCategoryFeatured(category);
 
-    // Flatten all images from all galleries in this category and filter for featured
-    const allImagesWithDimensions = await Promise.all(
-      galleries.flatMap((gallery, galleryIndex) =>
-        gallery.data.images
-          .filter(image => image.featured !== undefined)
-          .map(async (image, imageIndex) => {
-            // Get imported image from src/images
-            const importedImage = getImageByPath(image.src);
+    // Skip category if no featured photos
+    if (photos.length === 0) return null;
 
-            if (!importedImage) {
-              console.warn(`Could not find imported image for ${image.src}`);
-              return {
-                ...image,
-                galleryId: gallery.id,
-                galleryIndex,
-                imageIndex,
-                aspectRatio: 1.5,
-                lightboxSrc: image.src,
-                originalSrc: image.src,
-                importedImage: undefined,
-              };
-            }
+    // Process photos with dimensions
+    const imagesWithDimensions = await Promise.all(
+      photos.map(async (photo) => {
+        const imagePath = getPhotoPath(photo);
 
-            // Get aspect ratio from imported image metadata
-            const aspectRatio = importedImage.width / importedImage.height;
+        // Get imported image from src/images
+        const importedImage = getImageByPath(imagePath);
 
-            // Generate optimized lightbox version (skip for SVG files)
-            const isSvg = image.src.toLowerCase().endsWith('.svg');
-            let lightboxSrc = image.src;
+        if (!importedImage) {
+          console.warn(`Could not find imported image for ${imagePath}`);
+          return {
+            src: imagePath,
+            alt: photo.alt,
+            caption: photo.caption,
+            location: photo.location,
+            aspectRatio: 1.5,
+            lightboxSrc: imagePath,
+            originalSrc: imagePath,
+            importedImage: undefined,
+          };
+        }
 
-            if (!isSvg) {
-              try {
-                // Calculate target height based on aspect ratio
-                const targetHeight = Math.round(1920 / aspectRatio);
+        // Get aspect ratio from imported image metadata
+        const aspectRatio = importedImage.width / importedImage.height;
 
-                const lightboxImage = await getImage({
-                  src: importedImage,
-                  width: 1920,
-                  height: targetHeight,
-                  format: 'webp',
-                  quality: 85,
-                });
-                lightboxSrc = lightboxImage.src;
-              } catch (error) {
-                console.warn(`Could not optimize lightbox image for ${image.src}:`, error.message);
-                // Fall back to original image
-                lightboxSrc = image.src;
-              }
-            }
+        // Generate optimized lightbox version (skip for SVG files)
+        const isSvg = imagePath.toLowerCase().endsWith('.svg');
+        let lightboxSrc = imagePath;
 
-            return {
-              ...image,
-              galleryId: gallery.id,
-              galleryIndex,
-              imageIndex,
-              aspectRatio,
-              lightboxSrc,
-              originalSrc: image.src,
-              importedImage,
-            };
-          })
-      )
+        if (!isSvg) {
+          try {
+            // Calculate target height based on aspect ratio
+            const targetHeight = Math.round(1920 / aspectRatio);
+
+            const lightboxImage = await getImage({
+              src: importedImage,
+              width: 1920,
+              height: targetHeight,
+              format: 'webp',
+              quality: 85,
+            });
+            lightboxSrc = lightboxImage.src;
+          } catch (error) {
+            console.warn(`Could not optimize lightbox image for ${imagePath}:`, error.message);
+            // Fall back to original image
+            lightboxSrc = imagePath;
+          }
+        }
+
+        return {
+          src: imagePath,
+          alt: photo.alt,
+          caption: photo.caption,
+          location: photo.location,
+          aspectRatio,
+          lightboxSrc,
+          originalSrc: imagePath,
+          importedImage,
+        };
+      })
     );
 
-    // Skip category if no featured images
-    if (allImagesWithDimensions.length === 0) return null;
-
-    // Sort by featured number
-    const sortedImages = allImagesWithDimensions.sort((a, b) => (a.featured || 0) - (b.featured || 0));
-
-    return { key, images: sortedImages };
+    return { key: category, images: imagesWithDimensions };
   })
 ).then(results => results.filter(Boolean)); // Remove nulls
 ---

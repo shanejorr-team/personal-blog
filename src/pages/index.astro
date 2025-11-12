@@ -5,30 +5,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { sortByDate, filterDrafts } from '../utils/helpers';
 import { getImageByPath } from '../utils/imageLoader';
+import { getHomepageFeatured, getPhotoPath } from '../utils/db';
 
-// Get featured photos from portfolio collection
-const portfolioCollections = await getCollection('portfolio');
-// Flatten all portfolio images and filter for featured ones
-const allPortfolioImages = portfolioCollections.flatMap((collection) =>
-  collection.data.images.map((image) => ({
-    ...image,
-    category: collection.data.category,
-  }))
-);
-const featuredImages = allPortfolioImages.filter((image) => image.featured !== undefined);
+// Get featured photos from database
+const featuredPhotos = getHomepageFeatured();
 
 const featuredWithDimensions = await Promise.all(
-  featuredImages.map(async (image) => {
+  featuredPhotos.map(async (photo) => {
+    const imagePath = getPhotoPath(photo);
+
     // Get imported image from src/images
-    const importedImage = getImageByPath(image.src);
+    const importedImage = getImageByPath(imagePath);
 
     if (!importedImage) {
-      console.warn(`Could not find imported image for ${image.src}`);
+      console.warn(`Could not find imported image for ${imagePath}`);
       return {
-        ...image,
+        src: imagePath,
+        alt: photo.alt,
+        caption: photo.caption,
+        location: photo.location,
         aspectRatio: 1.5,
-        lightboxSrc: image.src,
-        originalSrc: image.src,
+        lightboxSrc: imagePath,
+        originalSrc: imagePath,
         importedImage: undefined,
       };
     }
@@ -37,8 +35,8 @@ const featuredWithDimensions = await Promise.all(
     const aspectRatio = importedImage.width / importedImage.height;
 
     // Generate optimized lightbox version (skip for SVG files)
-    const isSvg = image.src.toLowerCase().endsWith('.svg');
-    let lightboxSrc = image.src;
+    const isSvg = imagePath.toLowerCase().endsWith('.svg');
+    let lightboxSrc = imagePath;
 
     if (!isSvg) {
       try {
@@ -54,22 +52,25 @@ const featuredWithDimensions = await Promise.all(
         });
         lightboxSrc = lightboxImage.src;
       } catch (error) {
-        console.warn(`Could not optimize lightbox image for ${image.src}:`, error.message);
+        console.warn(`Could not optimize lightbox image for ${imagePath}:`, error.message);
         // Fall back to original image
-        lightboxSrc = image.src;
+        lightboxSrc = imagePath;
       }
     }
 
     return {
-      ...image,
+      src: imagePath,
+      alt: photo.alt,
+      caption: photo.caption,
+      location: photo.location,
       aspectRatio,
       lightboxSrc,
-      originalSrc: image.src,
+      originalSrc: imagePath,
       importedImage,
     };
   })
 );
-const sortedFeatured = featuredWithDimensions.sort((a, b) => (a.featured || 0) - (b.featured || 0));
+const sortedFeatured = featuredWithDimensions;
 
 // Get recent journal posts
 const journalPosts = await getCollection('photography-journal');

@@ -28,27 +28,10 @@ const writings = defineCollection({
   }),
 });
 
-// Portfolio collection - organized by category
-const portfolio = defineCollection({
-  type: 'data',
-  schema: () => z.object({
-    category: z.enum(['nature', 'street', 'concert', 'other']),
-    images: z.array(z.object({
-      src: z.string(),
-      alt: z.string(),
-      caption: z.string().optional(),
-      location: z.string().optional(),
-      country: z.string().optional(),
-      date: z.coerce.date().optional(),
-      sub_category: z.string().optional(),
-      featured: z.number().optional(),
-    })),
-    order: z.number().default(0),
-  }),
-});
+// Portfolio collection removed - now using SQLite database (src/db/photos.db)
+// See src/utils/db.ts for database query functions
 
 export const collections = {
   'photography-journal': photographyJournal,
   'writings': writings,
-  'portfolio': portfolio,
 };

@@ -7,7 +7,8 @@ An Astro-based photography blog with TypeScript and Tailwind CSS.
 - **Astro** - Static site generator with file-based routing
 - **Tailwind CSS** - Utility-first CSS framework with dark mode support
 - **TypeScript** - Strict mode enabled
-- **Content Collections** - Type-safe content management
+- **Content Collections** - Type-safe content management for blog posts
+- **SQLite** - Database for portfolio photo metadata (via better-sqlite3)
 - **Git LFS** - Large File Storage for managing high-resolution photography
 
 ## Git Large File Storage (LFS)
@@ -124,6 +125,7 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 
 ```
 /
+├── backups/                 # JSON exports from database (gitignored)
 ├── public/
 ├── src/
 │   ├── components/
@@ -134,12 +136,10 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   ├── content/
 │   │   ├── config.ts        # Content collection schemas
 │   │   ├── photography-journal/  # Markdown posts
-│   │   ├── writings/        # Markdown posts
-│   │   ├── portfolio/       # JSON files, one per category
-│   │   │   ├── nature.json
-│   │   │   ├── street.json
-│   │   │   ├── concert.json
-│   │   │   └── other.json
+│   │   └── writings/        # Markdown posts
+│   ├── db/
+│   │   ├── photos.db        # SQLite database with photo metadata
+│   │   └── schema.sql       # Database schema definition
 │   ├── images/
 │   │   ├── photography/     # Portfolio-worthy photos
 │   │   │   ├── nature/
@@ -164,9 +164,14 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   │   └── [country].astro
 │   │   ├── rss-journal.xml.ts
 │   │   └── rss-writings.xml.ts
+│   ├── scripts/             # CLI tools for database management
+│   │   ├── migrate-json-to-db.ts  # One-time migration from JSON
+│   │   ├── add-photo.ts     # Interactive CLI for adding photos
+│   │   └── export-backup.ts # Export database to JSON
 │   ├── styles/
 │   │   └── global.css
 │   └── utils/
+│       ├── db.ts            # Database query functions
 │       ├── helpers.ts
 │       └── imageLoader.ts   # Dynamic image imports using Vite glob
 ```
@@ -211,54 +216,53 @@ Content in standard Markdown format.
 
 **Note:** `featuredImage` uses Astro's `image()` helper for type-safe, optimized image handling. Reference images using relative paths from the markdown file.
 
-### Portfolio Galleries
-Location: `src/content/portfolio/{category}.json`
+### Portfolio Database
+Location: `src/db/photos.db` (SQLite database)
 
-```json
-{
-  "category": "nature" | "street" | "concert" | "other",
-  "images": [
-    {
-      "src": string,
-      "alt": string,
-      "caption"?: string,
-      "location"?: string,
-      "country"?: string,
-      "date"?: string,
-      "sub_category"?: string,
-      "featured"?: number
-    }
-  ],
-  "order": number
-}
+**Database Schema:**
+```sql
+CREATE TABLE photos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  filename TEXT UNIQUE NOT NULL,         -- e.g., us-georgia-nature-1.jpg
+  category TEXT NOT NULL,                -- 'nature' | 'street' | 'concert' | 'other'
+  alt TEXT NOT NULL,
+  caption TEXT,
+  location TEXT,                         -- Specific location within country
+  country TEXT,
+  date TEXT,                             -- ISO 8601 date string
+  sub_category TEXT,                     -- Grouping within category
+  homepage_featured INTEGER,             -- 1-7 for homepage, NULL if not featured
+  category_featured INTEGER,             -- Priority for category page, NULL if not featured
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
 ```
 
-Portfolio displays images from a category in a unified grid with interactive lightbox navigation.
+**Featured System:**
+- `homepage_featured`: Fixed 7 photos (1-7) for homepage hero + grid
+- `category_featured`: Separate priority system for category portfolio pages
+- Photos can be featured on homepage, category page, both, or neither
+- Lower numbers = higher priority (featured: 1 appears before featured: 2)
 
 **Portfolio Organization:**
-- **Homepage Featured Work**: Shows the top featured photos (lowest featured numbers) across all categories
-  - Hero image: Photo with `featured: 1`
-  - Featured work grid: Photos with `featured: 2-7` (or next 6 lowest numbers)
-  - Photos sorted by featured number (lower numbers appear first)
-- **Main portfolio page** (`/portfolio`): Shows all featured photos from each category, with links to browse by photo type or by country
-  - Only displays photos with a `featured` number (any value)
-  - Photos sorted by featured number within each category
-  - Each category section includes a "View All" link to the full category page
-- **Category pages** (`/portfolio/[category]`): Dedicated pages showing all photos of a specific type, organized by sub-category sections
-  - Category pages group photos by their `sub_category` field
-  - Photos without a sub_category are grouped under "Other"
-  - Sub-categories are sorted alphabetically, with "Other" appearing last
-  - Displays all photos in the category, regardless of featured status
-- **Country pages** (`/portfolio/[country]`): Dedicated pages showing photos from each country, organized by location sub-headings
-  - Country pages feature location-based sections, grouping photos by their specific location within the country
-  - Country names are URL-friendly (lowercase, spaces replaced with hyphens)
-  - Displays all photos from the country, regardless of featured status
+- **Homepage Featured Work**: Queries `homepage_featured IS NOT NULL` and limits to 7
+  - Hero image: `homepage_featured: 1`
+  - Featured grid: `homepage_featured: 2-7`
+- **Main portfolio page** (`/portfolio`): Shows all category featured photos
+  - Queries `category_featured IS NOT NULL` per category
+  - Photos sorted by `category_featured` priority within each category
+- **Category pages** (`/portfolio/[category]`): Shows all photos in category
+  - Groups by `sub_category` field (alphabetically, "Other" last)
+  - Displays all photos regardless of featured status
+- **Country pages** (`/portfolio/[country]`): Shows all photos from country
+  - Groups by `location` field within country
+  - Displays all photos regardless of featured status
 
 **Data Efficiency:**
-- Photos are stored once in category-organized JSON files
-- Homepage, main portfolio page, category pages, and country pages all filter from the same data source at build time
-- No photo duplication required - the same JSON files serve multiple views with different filters
-- Featured photos are identified by the `featured` number field (lower numbers = higher priority)
+- Single source of truth: One database for all portfolio metadata
+- Indexed queries load only needed data per page
+- Scales to thousands of photos without performance degradation
+- Build-time queries ensure fast runtime performance
 
 ## Key Patterns
 
@@ -269,13 +273,15 @@ Portfolio displays images from a category in a unified grid with interactive lig
 
 **Content Type Image Usage:**
 - **Photography journal posts**: Reference portfolio images via relative paths using Astro's `image()` helper
-- **Portfolio galleries**: Reference images via `src` field in JSON, loaded through `imageLoader.ts`
+- **Portfolio galleries**: Metadata stored in SQLite database, images loaded through `imageLoader.ts`
 - **Writings posts**: Reference assets via relative paths using Astro's `image()` helper
 
 **Technical Implementation:**
 - **Portfolio images**: Loaded dynamically using Vite's `import.meta.glob()` in `src/utils/imageLoader.ts`
-  - Content files reference images using paths like `/images/photography/{category}/filename.jpg`
-  - The image loader maps these public paths to imported image objects at build time
+  - Database stores filename only (e.g., `us-georgia-nature-1.jpg`)
+  - Full path constructed as `/images/photography/{category}/{filename}`
+  - The image loader maps these paths to imported image objects at build time
+  - Database queries in `src/utils/db.ts` provide type-safe metadata access
 - **Journal & writings images**: Use Astro's `image()` schema helper for direct imports
   - Content files use relative paths like `../../images/assets/filename.jpg`
   - Astro automatically imports and optimizes images at build time
@@ -296,9 +302,10 @@ Portfolio displays images from a category in a unified grid with interactive lig
 - Content fetched via Astro Content Collections API
 
 ### Image Paths
-- **Portfolio images (used in portfolio JSON files):**
+- **Portfolio images (metadata in SQLite database):**
   - Physical location: `src/images/photography/{category}/filename.jpg`
-  - Reference path in JSON: `/images/photography/{category}/filename.jpg`
+  - Database stores: `filename` (e.g., `us-georgia-nature-1.jpg`) and `category`
+  - Full path constructed by `getPhotoPath()`: `/images/photography/{category}/{filename}`
   - Loaded via `imageLoader.ts` utility
   - Automatically optimized at build time (WebP conversion, responsive sizes, lazy loading)
   - Lightbox optimization: Resized to max 1920px width, WebP format, 85% quality
@@ -359,16 +366,192 @@ Portfolio displays images from a category in a unified grid with interactive lig
 - Toggle in header, preference saved to localStorage
 - Configure with `darkMode: 'class'` in `tailwind.config.js`
 
-### Content Collections
-- All schemas defined in `src/content/config.ts`
-- Type-safe content querying with `getCollection()` and `getEntry()`
-- Collections: `photography-journal`, `writings`, `portfolio`, `featured`
+### Content Collections & Database
+- **Content Collections**: Blog posts use Astro Content Collections
+  - Schemas defined in `src/content/config.ts`
+  - Type-safe querying with `getCollection()` and `getEntry()`
+  - Collections: `photography-journal`, `writings`
+- **Portfolio Database**: Photos use SQLite database
+  - Schema defined in `src/db/schema.sql`
+  - Type-safe queries in `src/utils/db.ts`
+  - Indexed for fast querying at scale
 
 ### Customization Locations
 - Site metadata: `src/layouts/BaseLayout.astro`
 - Site domain: `astro.config.mjs`
 - Branding: `src/components/Header.astro`, `src/components/Footer.astro`
 - Styles: `tailwind.config.js`, `src/styles/global.css`
+
+## Photo Management Tools
+
+### Adding New Photos
+
+**Interactive CLI Tool** (for single photos):
+```bash
+npm run photo:add
+```
+
+Prompts for all photo metadata:
+- Filename (must be in `src/images/photography/{category}/`)
+- Category (nature, street, concert, other)
+- Alt text (required for accessibility)
+- Caption, location, country, date, sub-category (all optional)
+- Homepage featured (1-7 for homepage)
+- Category featured (any number for category portfolio)
+
+**CSV Bulk Import** (recommended for multiple photos):
+```bash
+npm run photo:import photos.csv
+npm run photo:import photos.csv --dry-run  # Preview without importing
+```
+
+**CSV Format:**
+```csv
+filename,category,alt,caption,location,country,date,sub_category,homepage_featured,category_featured
+us-example-nature-1.jpg,nature,Mountain sunset,Golden hour,Colorado,United States,2024-03-15,Rocky Mountains,,1
+turkey-istanbul-street-1.jpg,street,Street scene,Market street,Istanbul,Turkey,2024-06-10,Istanbul,4,2
+```
+
+**Required columns:** `filename`, `category`, `alt`
+**Optional columns:** All others can be empty
+
+**Validation:**
+The import tool validates:
+- ✅ All required columns present
+- ✅ Category is valid (`nature`, `street`, `concert`, `other`)
+- ✅ Date format is `YYYY-MM-DD`
+- ✅ `homepage_featured` is 1-7 or empty
+- ✅ `category_featured` is a positive number or empty
+- ✅ Photo files exist in correct directories
+- ✅ No duplicate filenames (in CSV or database)
+
+**Import Features:**
+- Transaction-based (all succeed or all fail - atomic operation)
+- Detailed error messages with row and column numbers
+- Summary statistics by category
+- Dry-run mode to preview changes
+- Confirmation prompt before importing
+
+**Template:**
+Use `photo-import-template.csv` in the project root as a starting point.
+
+**Workflow:**
+1. Copy photos to `src/images/photography/{category}/`
+2. Prepare CSV in Excel/Google Sheets using template
+3. Export as CSV
+4. Run `npm run photo:import photos.csv --dry-run` to validate
+5. Run `npm run photo:import photos.csv` to import
+6. Confirm and import completes
+
+**Direct Database Access** (advanced):
+Use [DB Browser for SQLite](https://sqlitebrowser.org/) to open `src/db/photos.db`:
+- GUI interface for viewing and editing photos
+- Bulk operations with SQL queries
+- Example: `UPDATE photos SET sub_category = 'Appalachian Trail' WHERE location LIKE '%Blood Mountain%'`
+
+### Bulk Updates
+
+**Common SQL Operations:**
+```sql
+-- Set sub-category for all photos from a location
+UPDATE photos SET sub_category = 'Istanbul' WHERE location LIKE '%Istanbul%';
+
+-- Make photo homepage featured
+UPDATE photos SET homepage_featured = 7 WHERE filename = 'photo.jpg';
+
+-- Remove homepage featured status
+UPDATE photos SET homepage_featured = NULL WHERE id = 123;
+
+-- Set category featured for all photos in a country
+UPDATE photos
+SET category_featured = id
+WHERE country = 'Turkey' AND category_featured IS NULL;
+```
+
+### Backup & Export
+
+**Export to JSON** (for version control review):
+```bash
+npm run db:export
+```
+
+Creates JSON files in `backups/`:
+- `nature.json`, `street.json`, `concert.json`, `other.json` - By category
+- `complete-backup.json` - Full database with all metadata
+
+**Note:** Backup files are gitignored but useful for:
+- Reviewing changes in human-readable format
+- Migrating to another system
+- Disaster recovery
+
+### Database Queries in Code
+
+**Available Query Functions** (in `src/utils/db.ts`):
+
+```typescript
+// Homepage (7 featured photos)
+getHomepageFeatured(): Photo[]
+
+// Category portfolio page (featured photos only)
+getCategoryFeatured(category: string): Photo[]
+
+// Category detail page (all photos)
+getAllCategoryPhotos(category: string): Photo[]
+
+// Country pages
+getCountryPhotos(country: string): Photo[]
+getAllCountries(): string[]
+
+// Utility
+getPhotoPath(photo: Photo): string  // Constructs full image path
+getPhotoById(id: number): Photo | null
+getPhotoByFilename(filename: string): Photo | null
+```
+
+### Workflow for Adding Photos
+
+1. **Add photo file** to `src/images/photography/{category}/`
+   - Use descriptive filename: `{country}-{location}-{category}-{number}.jpg`
+   - Example: `us-georgia-nature-1.jpg`, `turkey-istanbul-street-12.jpg`
+
+2. **Add metadata** using CLI:
+   ```bash
+   npm run photo:add
+   ```
+
+3. **Verify** the photo appears on the site:
+   - Run `npm run dev` to start development server
+   - Check category page: `/portfolio/{category}`
+   - If featured, check homepage and main portfolio page
+
+4. **Commit changes**:
+   ```bash
+   git add src/images/photography/{category}/new-photo.jpg
+   git add src/db/photos.db
+   git commit -m "Add new photo: {description}"
+   ```
+
+### Scaling Considerations
+
+The database architecture is designed to scale to thousands of photos:
+
+- **Performance**: Indexed queries remain fast with 10,000+ photos
+- **Maintainability**: No more giant JSON files to edit
+- **Flexibility**: SQL queries support complex filtering and sorting
+- **Type Safety**: TypeScript interfaces ensure data consistency
+- **Build Time**: Only needed photos loaded per page (not all 2000+)
+
+**Current Stats** (as example):
+- 61 total photos
+- 6 homepage featured
+- 6 category featured
+- Sub-second build times
+
+**At Scale** (projected for 2000+ photos):
+- ~2MB database file
+- Same sub-second query times (thanks to indexes)
+- 5-15 minute build times (due to image optimization)
+- Easy bulk operations via SQL
 
 ## Important
 

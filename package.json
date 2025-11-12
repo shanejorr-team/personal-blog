@@ -6,15 +6,25 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "db:migrate": "tsx src/scripts/migrate-json-to-db.ts",
+    "db:export": "tsx src/scripts/export-backup.ts",
+    "photo:add": "tsx src/scripts/add-photo.ts",
+    "photo:import": "tsx src/scripts/import-photos-csv.ts"
   },
   "dependencies": {
-    "astro": "^5.15.3"
+    "astro": "^5.15.3",
+    "better-sqlite3": "^12.4.1",
+    "csv-parse": "^6.1.0"
   },
   "devDependencies": {
     "@astrojs/rss": "^4.0.13",
     "@astrojs/sitemap": "^3.6.0",
     "@astrojs/tailwind": "^6.0.2",
-    "tailwindcss": "^3.4.18"
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/prompts": "^2.4.9",
+    "prompts": "^2.4.2",
+    "tailwindcss": "^3.4.18",
+    "tsx": "^4.20.6"
   }
 }
