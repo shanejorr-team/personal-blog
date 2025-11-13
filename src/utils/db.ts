@@ -21,10 +21,9 @@ export interface Photo {
   id: number;
   filename: string;
   category: 'nature' | 'street' | 'concert' | 'other';
-  alt: string;
-  caption?: string | null;
-  location?: string | null;
-  country?: string | null;
+  caption: string;
+  location: string;
+  country: string;
   date?: string | null;
   sub_category?: string | null;
   homepage_featured?: number | null;
@@ -121,6 +120,15 @@ export function getAllCategories(): string[] {
  */
 export function getPhotoPath(photo: Photo): string {
   return `/images/photography/${photo.category}/${photo.filename}`;
+}
+
+/**
+ * Generate alt text for a photo from its metadata.
+ * Format: {country}, {location} - {caption}
+ * All fields are required and guaranteed to be non-empty.
+ */
+export function getPhotoAlt(photo: Photo): string {
+  return `${photo.country}, ${photo.location} - ${photo.caption}`;
 }
 
 /**

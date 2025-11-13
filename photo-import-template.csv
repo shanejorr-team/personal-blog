@@ -1,6 +1,3 @@
-filename,category,alt,caption,location,country,date,sub_category,homepage_featured,category_featured
-us-example-nature-1.jpg,nature,Mountain landscape at sunset,Golden hour over the Rocky Mountains,Colorado,United States,2024-03-15,Rocky Mountains,,1
-turkey-example-street-1.jpg,street,Street scene in Istanbul,Bustling market street in the Grand Bazaar,Istanbul,Turkey,2024-06-10,Istanbul,4,2
-us-example-concert-1.jpg,concert,Live music performance,Jazz musician performing at outdoor festival,New Orleans,United States,2024-07-20,Jazz,,,3
-example-other-1.jpg,other,Abstract architectural detail,Modern building facade with geometric patterns,,,2024-08-05,Architecture,,
-us-example-nature-2.jpg,nature,Autumn foliage in the mountains,Fall colors along the Blue Ridge Parkway,North Carolina,United States,2024-10-12,Appalachian Trail,2,4
+filename,category,caption,location,country,date,sub_category,homepage_featured,category_featured
+example-nature-1.jpg,nature,Mountain sunset at golden hour,Rocky Mountains,United States,2024-03-15,Colorado,,1
+example-street-1.jpg,street,Busy market street scene,Istanbul,Turkey,2024-06-10,City Life,4,2

@@ -29,10 +29,9 @@ interface Photo {
   id: number;
   filename: string;
   category: string;
-  alt: string;
-  caption?: string | null;
-  location?: string | null;
-  country?: string | null;
+  caption: string;
+  location: string;
+  country: string;
   date?: string | null;
   sub_category?: string | null;
   homepage_featured?: number | null;
@@ -41,10 +40,9 @@ interface Photo {
 
 interface PortfolioImage {
   src: string;
-  alt: string;
-  caption?: string;
-  location?: string;
-  country?: string;
+  caption: string;
+  location: string;
+  country: string;
   date?: string;
   sub_category?: string;
   featured?: number;
@@ -62,12 +60,11 @@ interface PortfolioJSON {
 function photoToPortfolioImage(photo: Photo): PortfolioImage {
   const image: PortfolioImage = {
     src: `/images/photography/${photo.category}/${photo.filename}`,
-    alt: photo.alt,
+    caption: photo.caption,
+    location: photo.location,
+    country: photo.country,
   };
 
-  if (photo.caption) image.caption = photo.caption;
-  if (photo.location) image.location = photo.location;
-  if (photo.country) image.country = photo.country;
   if (photo.date) image.date = photo.date;
   if (photo.sub_category) image.sub_category = photo.sub_category;
 

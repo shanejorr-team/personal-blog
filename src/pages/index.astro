@@ -5,7 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { sortByDate, filterDrafts } from '../utils/helpers';
 import { getImageByPath } from '../utils/imageLoader';
-import { getHomepageFeatured, getPhotoPath } from '../utils/db';
+import { getHomepageFeatured, getPhotoPath, getPhotoAlt } from '../utils/db';
 
 // Get featured photos from database
 const featuredPhotos = getHomepageFeatured();
@@ -21,7 +21,7 @@ const featuredWithDimensions = await Promise.all(
       console.warn(`Could not find imported image for ${imagePath}`);
       return {
         src: imagePath,
-        alt: photo.alt,
+        alt: getPhotoAlt(photo),
         caption: photo.caption,
         location: photo.location,
         aspectRatio: 1.5,
@@ -60,7 +60,7 @@ const featuredWithDimensions = await Promise.all(
 
     return {
       src: imagePath,
-      alt: photo.alt,
+      alt: getPhotoAlt(photo),
       caption: photo.caption,
       location: photo.location,
       aspectRatio,

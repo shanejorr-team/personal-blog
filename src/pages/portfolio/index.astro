@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import { getImageByPath } from '../../utils/imageLoader';
-import { getCategoryFeatured, getAllCountries, getAllCategories, getPhotoPath } from '../../utils/db';
+import { getCategoryFeatured, getAllCountries, getAllCategories, getPhotoPath, getPhotoAlt } from '../../utils/db';
 
 const categoryInfo = {
   nature: {
@@ -52,7 +52,7 @@ const processedCategories = await Promise.all(
           console.warn(`Could not find imported image for ${imagePath}`);
           return {
             src: imagePath,
-            alt: photo.alt,
+            alt: getPhotoAlt(photo),
             caption: photo.caption,
             location: photo.location,
             aspectRatio: 1.5,
@@ -91,7 +91,7 @@ const processedCategories = await Promise.all(
 
         return {
           src: imagePath,
-          alt: photo.alt,
+          alt: getPhotoAlt(photo),
           caption: photo.caption,
           location: photo.location,
           aspectRatio,

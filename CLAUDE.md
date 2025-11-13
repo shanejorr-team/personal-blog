@@ -227,11 +227,10 @@ Location: `src/db/photos.db` (SQLite database)
 CREATE TABLE photos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   filename TEXT UNIQUE NOT NULL,         -- e.g., us-georgia-nature-1.jpg
-  category TEXT NOT NULL,                -- 'nature' | 'street' | 'concert' | 'other'
-  alt TEXT NOT NULL,
-  caption TEXT,
-  location TEXT,                         -- Specific location within country
-  country TEXT,
+  category TEXT NOT NULL CHECK(category IN ('nature', 'street', 'concert', 'other')),
+  caption TEXT NOT NULL CHECK(length(caption) > 0),
+  location TEXT NOT NULL CHECK(length(location) > 0),  -- Specific location within country
+  country TEXT NOT NULL CHECK(length(country) > 0),
   date TEXT,                             -- ISO 8601 date string
   sub_category TEXT,                     -- Grouping within category
   homepage_featured INTEGER,             -- 1-7 for homepage, NULL if not featured
@@ -240,6 +239,15 @@ CREATE TABLE photos (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 ```
+
+**Alt Text Generation:**
+Alt text is automatically generated from photo metadata using the formula:
+```
+{country}, {location} - {caption}
+```
+Example: "United States, Northern Georgia - Fall colors at sunset atop Blood Mountain."
+
+All three fields (country, location, caption) are required and cannot be empty, ensuring every photo has a descriptive, accessible alt attribute.
 
 **Featured System:**
 - `homepage_featured`: Fixed 7 photos (1-7) for homepage hero + grid
@@ -397,8 +405,10 @@ npm run photo:add
 Prompts for all photo metadata:
 - Filename (must be in `src/images/photography/{category}/`)
 - Category (nature, street, concert, other)
-- Alt text (required for accessibility)
-- Caption, location, country, date, sub-category (all optional)
+- Caption (required - used for alt text generation)
+- Location (required - used for alt text generation)
+- Country (required - used for alt text generation)
+- Date, sub-category (optional)
 - Homepage featured (1-7 for homepage)
 - Category featured (any number for category portfolio)
 
@@ -430,8 +440,8 @@ This creates `src/images/photography/_staging/photo-template.csv` with:
 2. Run `npm run photo:template` to generate CSV with pre-populated metadata
 3. Open `_staging/photo-template.csv` and review/edit:
    - **Review pre-populated fields**: category, location, country (auto-filled from filename)
-   - **Fill in required field**: alt (descriptive alt text for accessibility)
-   - **Optionally fill in**: caption, date, sub_category, homepage_featured, category_featured
+   - **Fill in required field**: caption (used for alt text generation)
+   - **Optionally fill in**: date, sub_category, homepage_featured, category_featured
 4. Move photos from `_staging/` to `src/images/photography/{category}/`
 5. Run `npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run`
 6. Run `npm run photo:import src/images/photography/_staging/photo-template.csv` to import
@@ -444,13 +454,15 @@ npm run photo:import photos.csv --dry-run  # Preview without importing
 
 **CSV Format:**
 ```csv
-filename,category,alt,caption,location,country,date,sub_category,homepage_featured,category_featured
-us-example-nature-1.jpg,nature,Mountain sunset,Golden hour,Colorado,United States,2024-03-15,Rocky Mountains,,1
-turkey-istanbul-street-1.jpg,street,Street scene,Market street,Istanbul,Turkey,2024-06-10,Istanbul,4,2
+filename,category,caption,location,country,date,sub_category,homepage_featured,category_featured
+us-example-nature-1.jpg,nature,Mountain sunset at golden hour,Rocky Mountains,United States,2024-03-15,Colorado,,1
+turkey-istanbul-street-1.jpg,street,Busy market street scene,Istanbul,Turkey,2024-06-10,City Life,4,2
 ```
 
-**Required columns:** `filename`, `category`, `alt`
-**Optional columns:** All others can be empty
+**Required columns:** `filename`, `category`, `caption`, `location`, `country`
+**Optional columns:** `date`, `sub_category`, `homepage_featured`, `category_featured`
+
+**Note:** Alt text is automatically generated as `{country}, {location} - {caption}`, so all three metadata fields are required to ensure accessibility.
 
 **Validation:**
 The import tool validates:

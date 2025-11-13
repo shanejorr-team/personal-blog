@@ -49,24 +49,21 @@ async function addPhoto() {
       },
       {
         type: 'text',
-        name: 'alt',
-        message: 'Alt text (required):',
-        validate: (val: string) => (val ? true : 'Alt text is required'),
-      },
-      {
-        type: 'text',
         name: 'caption',
-        message: 'Caption (optional):',
+        message: 'Caption (required):',
+        validate: (val: string) => (val?.trim() ? true : 'Caption is required'),
       },
       {
         type: 'text',
         name: 'location',
-        message: 'Location (optional):',
+        message: 'Location (required):',
+        validate: (val: string) => (val?.trim() ? true : 'Location is required'),
       },
       {
         type: 'text',
         name: 'country',
-        message: 'Country (optional):',
+        message: 'Country (required):',
+        validate: (val: string) => (val?.trim() ? true : 'Country is required'),
       },
       {
         type: 'text',
@@ -153,19 +150,18 @@ async function addPhoto() {
     // Insert photo
     const insert = db.prepare(`
       INSERT INTO photos (
-        filename, category, alt, caption, location, country,
+        filename, category, caption, location, country,
         date, sub_category, homepage_featured, category_featured
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = insert.run(
       answers.filename,
       answers.category,
-      answers.alt,
-      answers.caption || null,
-      answers.location || null,
-      answers.country || null,
+      answers.caption,
+      answers.location,
+      answers.country,
       answers.date || null,
       answers.sub_category || null,
       answers.add_homepage_featured ? answers.homepage_featured : null,

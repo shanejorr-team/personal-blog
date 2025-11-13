@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import { getImageByPath } from '../../utils/imageLoader';
-import { getAllCategories, getAllCategoryPhotos, getPhotoPath } from '../../utils/db';
+import { getAllCategories, getAllCategoryPhotos, getPhotoPath, getPhotoAlt } from '../../utils/db';
 
 export async function getStaticPaths() {
   // Get categories from database
@@ -33,7 +33,7 @@ const categoryImages = await Promise.all(
       console.warn(`Could not find imported image for ${imagePath}`);
       return {
         src: imagePath,
-        alt: photo.alt,
+        alt: getPhotoAlt(photo),
         caption: photo.caption,
         location: photo.location,
         country: photo.country,
@@ -74,7 +74,7 @@ const categoryImages = await Promise.all(
 
     return {
       src: imagePath,
-      alt: photo.alt,
+      alt: getPhotoAlt(photo),
       caption: photo.caption,
       location: photo.location,
       country: photo.country,

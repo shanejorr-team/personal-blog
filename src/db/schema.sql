@@ -5,10 +5,9 @@ CREATE TABLE IF NOT EXISTS photos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   filename TEXT UNIQUE NOT NULL,         -- e.g., us-georgia-nature-1.jpg
   category TEXT NOT NULL CHECK(category IN ('nature', 'street', 'concert', 'other')),
-  alt TEXT NOT NULL,
-  caption TEXT,
-  location TEXT,                         -- Specific location within country
-  country TEXT,
+  caption TEXT NOT NULL CHECK(length(caption) > 0),
+  location TEXT NOT NULL CHECK(length(location) > 0),  -- Specific location within country
+  country TEXT NOT NULL CHECK(length(country) > 0),
   date TEXT,                             -- ISO 8601 date string
   sub_category TEXT,                     -- Grouping within category
   homepage_featured INTEGER,             -- 1-7 for homepage featured, NULL if not featured

@@ -33,10 +33,9 @@ type Category = typeof VALID_CATEGORIES[number];
 interface CSVRow {
   filename: string;
   category: string;
-  alt: string;
-  caption?: string;
-  location?: string;
-  country?: string;
+  caption: string;
+  location: string;
+  country: string;
   date?: string;
   sub_category?: string;
   homepage_featured?: string;
@@ -85,8 +84,16 @@ function validateRow(row: CSVRow, rowIndex: number): ValidationError[] {
     });
   }
 
-  if (!row.alt?.trim()) {
-    errors.push({ row: rowNum, field: 'alt', message: 'Alt text is required for accessibility' });
+  if (!row.caption?.trim()) {
+    errors.push({ row: rowNum, field: 'caption', message: 'Caption is required' });
+  }
+
+  if (!row.location?.trim()) {
+    errors.push({ row: rowNum, field: 'location', message: 'Location is required' });
+  }
+
+  if (!row.country?.trim()) {
+    errors.push({ row: rowNum, field: 'country', message: 'Country is required' });
   }
 
   // Optional field validation
@@ -176,13 +183,13 @@ function parseCSV(filepath: string): { rows: CSVRow[], errors: ValidationError[]
   }
 
   const firstRow = records[0];
-  const requiredColumns = ['filename', 'category', 'alt'];
+  const requiredColumns = ['filename', 'category', 'caption', 'location', 'country'];
   const missingColumns = requiredColumns.filter(col => !(col in firstRow));
 
   if (missingColumns.length > 0) {
     console.error('❌ Missing required columns:', missingColumns.join(', '));
-    console.error('\nRequired columns: filename, category, alt');
-    console.error('Optional columns: caption, location, country, date, sub_category, homepage_featured, category_featured');
+    console.error('\nRequired columns: filename, category, caption, location, country');
+    console.error('Optional columns: date, sub_category, homepage_featured, category_featured');
     process.exit(1);
   }
 
@@ -295,25 +302,6 @@ async function importPhotos(filepath: string, dryRun: boolean = false) {
     console.log(`  ${category}: ${stats.total} ${stats.total === 1 ? 'photo' : 'photos'}${stats.homepage > 0 ? ` (${stats.homepage} homepage featured` : ''}${stats.category > 0 ? `${stats.homepage > 0 ? ', ' : ' ('}${stats.category} category featured` : ''}${stats.homepage > 0 || stats.category > 0 ? ')' : ''}`);
   });
 
-  // Warnings for missing optional data
-  const warnings: string[] = [];
-  rows.forEach((row, index) => {
-    const rowNum = index + 2;
-    if (!row.country?.trim()) {
-      warnings.push(`Row ${rowNum}: No country specified for ${row.filename.trim()}`);
-    }
-    if (!row.caption?.trim()) {
-      warnings.push(`Row ${rowNum}: No caption specified for ${row.filename.trim()}`);
-    }
-  });
-
-  if (warnings.length > 0 && warnings.length <= 10) {
-    console.log('\n⚠️  Warnings (optional fields):');
-    warnings.slice(0, 10).forEach(warning => console.log(`  ${warning}`));
-    if (warnings.length > 10) {
-      console.log(`  ... and ${warnings.length - 10} more warnings`);
-    }
-  }
 
   if (dryRun) {
     console.log('\n🔍 Dry run mode - no changes made to database');
@@ -339,10 +327,10 @@ async function importPhotos(filepath: string, dryRun: boolean = false) {
   // Prepare insert statement
   const insert = db.prepare(`
     INSERT INTO photos (
-      filename, category, alt, caption, location, country,
+      filename, category, caption, location, country,
       date, sub_category, homepage_featured, category_featured
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   // Import with transaction
@@ -352,10 +340,9 @@ async function importPhotos(filepath: string, dryRun: boolean = false) {
       insert.run(
         row.filename.trim(),
         row.category.trim(),
-        row.alt.trim(),
-        row.caption?.trim() || null,
-        row.location?.trim() || null,
-        row.country?.trim() || null,
+        row.caption.trim(),
+        row.location.trim(),
+        row.country.trim(),
         row.date?.trim() || null,
         row.sub_category?.trim() || null,
         row.homepage_featured?.trim() ? parseInt(row.homepage_featured.trim()) : null,
