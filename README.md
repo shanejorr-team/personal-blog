@@ -114,6 +114,23 @@ This will prompt you for:
 - Homepage featured (1-7 for homepage hero and grid)
 - Category featured (any number for category portfolio pages)
 
+**Generate CSV template from staging directory:**
+
+For bulk imports, use the staging directory workflow to generate a pre-populated CSV template:
+
+```bash
+# 1. Copy photos to staging directory
+cp /path/to/photos/* src/images/photography/_staging/
+
+# 2. Generate CSV template with filenames
+npm run photo:template
+```
+
+This creates `src/images/photography/_staging/photo-template.csv` with filenames pre-populated and all other fields blank. You can then:
+1. Open the CSV and fill in category, alt text, and optional metadata
+2. Move photos from `_staging/` to their category folders
+3. Import using the CSV (see below)
+
 **Bulk import photos via CSV:**
 
 For adding multiple photos at once, use CSV import:
@@ -140,7 +157,15 @@ The import tool will:
 - ✅ Show detailed error messages with row numbers
 - ✅ Support dry-run mode: `npm run photo:import photos.csv --dry-run`
 
-**Workflow:**
+**Staging Directory Workflow** (recommended for bulk imports):
+1. Copy photos to `src/images/photography/_staging/`
+2. Run `npm run photo:template` to generate CSV with filenames
+3. Open `_staging/photo-template.csv` and fill in metadata
+4. Move photos from `_staging/` to `src/images/photography/{category}/`
+5. Run `npm run photo:import src/images/photography/_staging/photo-template.csv`
+6. Review validation results and confirm import
+
+**Manual CSV Workflow:**
 1. Copy photos to `src/images/photography/{category}/`
 2. Prepare CSV in Excel/Google Sheets using template
 3. Export as CSV
@@ -318,6 +343,7 @@ Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x 
 | `npm run build` | Build production site to `./dist/` |
 | `npm run preview` | Preview production build locally |
 | `npm run photo:add` | Interactive CLI to add new photos to database |
+| `npm run photo:template` | Generate CSV template from staging directory |
 | `npm run photo:import <file.csv>` | Bulk import photos from CSV file |
 | `npm run db:export` | Export database to JSON backup files |
 | `npm run db:migrate` | Migrate JSON files to database (one-time) |
@@ -370,12 +396,19 @@ See [CLAUDE.md](./CLAUDE.md#git-large-file-storage-lfs) for detailed LFS documen
 │   │   └── schema.sql    # Database schema
 │   ├── images/           # Optimized images
 │   │   ├── photography/  # Portfolio photos by category
+│   │   │   ├── _staging/ # Staging directory for bulk imports
+│   │   │   ├── nature/
+│   │   │   ├── street/
+│   │   │   ├── concert/
+│   │   │   └── other/
 │   │   └── assets/       # Non-portfolio images
 │   ├── layouts/          # Page layouts
 │   ├── pages/            # Routes
 │   ├── scripts/          # CLI tools
 │   │   ├── add-photo.ts
 │   │   ├── export-backup.ts
+│   │   ├── generate-template.ts
+│   │   ├── import-photos-csv.ts
 │   │   └── migrate-json-to-db.ts
 │   ├── styles/           # Global CSS
 │   └── utils/            # Helper functions

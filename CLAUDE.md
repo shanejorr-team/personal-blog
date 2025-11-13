@@ -142,6 +142,7 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   └── schema.sql       # Database schema definition
 │   ├── images/
 │   │   ├── photography/     # Portfolio-worthy photos
+│   │   │   ├── _staging/    # Staging directory for bulk imports
 │   │   │   ├── nature/
 │   │   │   ├── street/
 │   │   │   ├── concert/
@@ -167,6 +168,8 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   ├── scripts/             # CLI tools for database management
 │   │   ├── migrate-json-to-db.ts  # One-time migration from JSON
 │   │   ├── add-photo.ts     # Interactive CLI for adding photos
+│   │   ├── generate-template.ts # Generate CSV template from staging
+│   │   ├── import-photos-csv.ts # Bulk import from CSV
 │   │   └── export-backup.ts # Export database to JSON
 │   ├── styles/
 │   │   └── global.css
@@ -399,7 +402,36 @@ Prompts for all photo metadata:
 - Homepage featured (1-7 for homepage)
 - Category featured (any number for category portfolio)
 
-**CSV Bulk Import** (recommended for multiple photos):
+**Staging Directory Workflow** (recommended for bulk imports):
+
+For bulk imports, use the staging directory to generate a pre-populated CSV template:
+
+```bash
+# 1. Copy photos to staging directory
+cp /path/to/photos/* src/images/photography/_staging/
+
+# 2. Generate CSV template with filenames pre-populated
+npm run photo:template
+```
+
+This creates `src/images/photography/_staging/photo-template.csv` with:
+- `filename` column populated from files in `_staging/`
+- All other columns blank for you to fill in
+- Only valid image files included (.jpg, .jpeg, .png, .webp, .avif)
+- System files (.DS_Store, etc.) excluded
+
+**Complete Staging Workflow:**
+1. Copy photos to `src/images/photography/_staging/`
+2. Run `npm run photo:template` to generate CSV
+3. Open `_staging/photo-template.csv` and fill in:
+   - category (required): nature, street, concert, or other
+   - alt (required): descriptive alt text
+   - Other fields (optional): caption, location, country, date, etc.
+4. Move photos from `_staging/` to `src/images/photography/{category}/`
+5. Run `npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run`
+6. Run `npm run photo:import src/images/photography/_staging/photo-template.csv` to import
+
+**CSV Bulk Import** (alternative manual workflow):
 ```bash
 npm run photo:import photos.csv
 npm run photo:import photos.csv --dry-run  # Preview without importing
