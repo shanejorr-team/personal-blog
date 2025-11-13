@@ -407,26 +407,31 @@ Prompts for all photo metadata:
 For bulk imports, use the staging directory to generate a pre-populated CSV template:
 
 ```bash
-# 1. Copy photos to staging directory
+# 1. Copy photos to staging directory (use consistent naming: [country]-[location]-[category]-[number].jpg)
 cp /path/to/photos/* src/images/photography/_staging/
 
-# 2. Generate CSV template with filenames pre-populated
+# 2. Generate CSV template with metadata pre-populated from filenames
 npm run photo:template
 ```
 
 This creates `src/images/photography/_staging/photo-template.csv` with:
-- `filename` column populated from files in `_staging/`
-- All other columns blank for you to fill in
+- `filename`, `category`, `location`, `country` columns **auto-populated from filename**
+- Filename format: `[country]-[location]-[category]-[number].jpg`
+  - Example: `us-north_georgia-nature-1.jpg`
+  - Country: `us` → `United States` (title case, special conversion for 'us')
+  - Location: `north_georgia` → `North Georgia` (underscores → spaces, title case)
+  - Category: `nature` → `nature` (lowercase, must be valid: nature, street, concert, other)
+- Invalid categories trigger warnings and are left blank in CSV
 - Only valid image files included (.jpg, .jpeg, .png, .webp, .avif)
 - System files (.DS_Store, etc.) excluded
 
 **Complete Staging Workflow:**
-1. Copy photos to `src/images/photography/_staging/`
-2. Run `npm run photo:template` to generate CSV
-3. Open `_staging/photo-template.csv` and fill in:
-   - category (required): nature, street, concert, or other
-   - alt (required): descriptive alt text
-   - Other fields (optional): caption, location, country, date, etc.
+1. Copy photos to `src/images/photography/_staging/` (use naming format: `[country]-[location]-[category]-[number].jpg`)
+2. Run `npm run photo:template` to generate CSV with pre-populated metadata
+3. Open `_staging/photo-template.csv` and review/edit:
+   - **Review pre-populated fields**: category, location, country (auto-filled from filename)
+   - **Fill in required field**: alt (descriptive alt text for accessibility)
+   - **Optionally fill in**: caption, date, sub_category, homepage_featured, category_featured
 4. Move photos from `_staging/` to `src/images/photography/{category}/`
 5. Run `npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run`
 6. Run `npm run photo:import src/images/photography/_staging/photo-template.csv` to import

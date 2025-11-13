@@ -158,12 +158,23 @@ The import tool will:
 - ✅ Support dry-run mode: `npm run photo:import photos.csv --dry-run`
 
 **Staging Directory Workflow** (recommended for bulk imports):
-1. Copy photos to `src/images/photography/_staging/`
-2. Run `npm run photo:template` to generate CSV with filenames
-3. Open `_staging/photo-template.csv` and fill in metadata
+1. Copy photos to `src/images/photography/_staging/` (use naming: `[country]-[location]-[category]-[number].jpg`)
+2. Run `npm run photo:template` to generate CSV with **auto-populated** category, location, country
+3. Open `_staging/photo-template.csv` and:
+   - Review pre-populated fields (parsed from filename)
+   - Fill in required field: `alt` (descriptive alt text)
+   - Optionally add: caption, date, sub_category, homepage_featured, category_featured
 4. Move photos from `_staging/` to `src/images/photography/{category}/`
-5. Run `npm run photo:import src/images/photography/_staging/photo-template.csv`
-6. Review validation results and confirm import
+5. Run `npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run`
+6. Run `npm run photo:import src/images/photography/_staging/photo-template.csv` and confirm
+
+**Filename Parsing Rules** (for auto-population):
+- Format: `[country]-[location]-[category]-[number].jpg`
+- Example: `us-north_georgia-nature-1.jpg` becomes:
+  - Country: `United States` (title case, `us` → `United States`)
+  - Location: `North Georgia` (underscores → spaces, title case)
+  - Category: `nature` (lowercase, validated against: nature, street, concert, other)
+- Invalid categories trigger warnings and are left blank
 
 **Manual CSV Workflow:**
 1. Copy photos to `src/images/photography/{category}/`
