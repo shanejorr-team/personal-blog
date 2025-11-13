@@ -136,7 +136,7 @@ This creates `src/images/photography/_staging/photo-template.csv` with filenames
 For adding multiple photos at once, use CSV import:
 
 ```bash
-npm run photo:import photos.csv
+npm run photo:import src/images/photography/_staging/photo-template.csv
 ```
 
 **CSV Format:**

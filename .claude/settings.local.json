@@ -25,7 +25,12 @@
       "Bash(while read file size)",
       "Bash(do ls -lh $file)",
       "Bash(git lfs:*)",
-      "Bash(npm run photo:template:*)"
+      "Bash(npm run photo:template:*)",
+      "Bash(sqlite3:*)",
+      "Bash(npm run photo:import:*)",
+      "Bash(echo:*)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog/ ls-files:*)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog/ status --short src/db/)"
     ],
     "deny": [],
     "ask": []
