@@ -149,7 +149,6 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               data-title={photo.caption || photo.alt}
               data-location-name={photo.location || ''}
               data-country-name={photo.country || ''}
-              data-description={photo.caption || ''}
             >
               <Image
                 src={photo.importedImage || photo.src}
@@ -332,7 +331,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
         alt: btn.dataset.alt || '',
         title: btn.dataset.title || '',
         location: locationParts.join(', '),
-        description: btn.dataset.description || '',
+        description: '',
       };
     });
 
