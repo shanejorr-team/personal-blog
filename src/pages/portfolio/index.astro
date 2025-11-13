@@ -94,6 +94,7 @@ const processedCategories = await Promise.all(
           alt: getPhotoAlt(photo),
           caption: photo.caption,
           location: photo.location,
+          country: photo.country,
           aspectRatio,
           lightboxSrc,
           originalSrc: imagePath,
@@ -191,7 +192,8 @@ const processedCategories = await Promise.all(
                   data-original-src={image.originalSrc}
                   data-alt={image.alt}
                   data-caption={image.caption || ''}
-                  data-location={image.location || ''}
+                  data-location-name={image.location || ''}
+                  data-country-name={image.country || ''}
                 >
                   <Image
                     src={image.importedImage || image.src}
@@ -207,8 +209,10 @@ const processedCategories = await Promise.all(
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
                     <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
                       <p class="text-sm font-medium">{image.caption}</p>
-                      {image.location && (
-                        <p class="text-xs text-gray-300">{image.location}</p>
+                      {(image.location || image.country) && (
+                        <p class="text-xs text-gray-300">
+                          {[image.location, image.country].filter(Boolean).join(', ')}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -243,12 +247,15 @@ const processedCategories = await Promise.all(
     portfolioPhotoButtons.forEach((button) => {
       const btn = button as HTMLButtonElement;
       const category = btn.dataset.category || '';
+      const locationParts = [btn.dataset.locationName, btn.dataset.countryName]
+        .filter(Boolean);
+
       const photoData = {
         image: btn.dataset.lightboxSrc || '',
         original: btn.dataset.originalSrc || '',
         alt: btn.dataset.alt || '',
         title: btn.dataset.caption || '',
-        location: btn.dataset.location || '',
+        location: locationParts.join(', '),
         description: '', // Portfolio photos don't have descriptions
       };
 

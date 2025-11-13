@@ -63,6 +63,7 @@ const featuredWithDimensions = await Promise.all(
       alt: getPhotoAlt(photo),
       caption: photo.caption,
       location: photo.location,
+      country: photo.country,
       aspectRatio,
       lightboxSrc,
       originalSrc: imagePath,
@@ -146,7 +147,8 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               data-original-src={photo.originalSrc}
               data-alt={photo.alt}
               data-title={photo.caption || photo.alt}
-              data-location={photo.location || ''}
+              data-location-name={photo.location || ''}
+              data-country-name={photo.country || ''}
               data-description={photo.caption || ''}
             >
               <Image
@@ -162,8 +164,10 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
                 <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
                   <h3 class="font-semibold text-lg">{photo.caption || photo.alt}</h3>
-                  {photo.location && (
-                    <p class="text-sm text-gray-300">{photo.location}</p>
+                  {(photo.location || photo.country) && (
+                    <p class="text-sm text-gray-300">
+                      {[photo.location, photo.country].filter(Boolean).join(', ')}
+                    </p>
                   )}
                 </div>
               </div>
@@ -319,12 +323,15 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
     // Collect all photos data into an array
     const photosData = Array.from(featuredPhotoButtons).map((button) => {
       const btn = button as HTMLButtonElement;
+      const locationParts = [btn.dataset.locationName, btn.dataset.countryName]
+        .filter(Boolean);
+
       return {
         image: btn.dataset.lightboxSrc || '',
         original: btn.dataset.originalSrc || '',
         alt: btn.dataset.alt || '',
         title: btn.dataset.title || '',
-        location: btn.dataset.location || '',
+        location: locationParts.join(', '),
         description: btn.dataset.description || '',
       };
     });
