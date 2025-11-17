@@ -9,8 +9,10 @@
     "astro": "astro",
     "db:migrate": "tsx src/scripts/migrate-json-to-db.ts",
     "db:export": "tsx src/scripts/export-backup.ts",
+    "db:export-csv": "tsx src/scripts/export-csv.ts",
     "photo:add": "tsx src/scripts/add-photo.ts",
     "photo:import": "tsx src/scripts/import-photos-csv.ts",
+    "photo:update": "tsx src/scripts/update-photos-csv.ts",
     "photo:template": "tsx src/scripts/generate-template.ts"
   },
   "dependencies": {

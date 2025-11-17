@@ -498,6 +498,69 @@ Use [DB Browser for SQLite](https://sqlitebrowser.org/) to open `src/db/photos.d
 - Bulk operations with SQL queries
 - Example: `UPDATE photos SET sub_category = 'Appalachian Trail' WHERE location LIKE '%Blood Mountain%'`
 
+### Updating Existing Photos
+
+**CSV Update Workflow** (recommended for bulk metadata updates):
+
+For bulk updates to existing photos (e.g., rewriting all captions in a new style):
+
+```bash
+# 1. Export all photos to CSV
+npm run db:export-csv
+# Creates: backups/photos-export.csv with all 186 photos
+
+# 2. Edit metadata in Excel/Google Sheets
+# - Open backups/photos-export.csv
+# - Edit caption, location, country, or other columns
+# - Keep filename column unchanged (used to identify photos)
+# - Save as CSV
+
+# 3. Preview changes
+npm run photo:update backups/photos-export.csv --dry-run
+# Shows: which photos will be updated and what fields will change
+
+# 4. Apply updates
+npm run photo:update backups/photos-export.csv
+# Confirms, updates database, shows success summary
+```
+
+**CSV Format for Updates:**
+```csv
+filename,caption,location,country
+us-example-nature-1.jpg,New caption text,Updated location,United States
+turkey-istanbul-street-1.jpg,Another new caption,Istanbul,Turkey
+```
+
+**Update Features:**
+- **Flexible updates:** Only columns present in CSV are updated (can update just captions, or multiple fields)
+- **Identifier:** Uses `filename` to match existing photos (or `id` column)
+- **Validation:** Same strict validation as import (caption/location/country cannot be empty, etc.)
+- **Transaction-based:** All updates succeed or all fail (atomic operation)
+- **Dry-run mode:** Preview changes before committing
+- **Auto-timestamp:** `updated_at` field automatically set to current time
+
+**Updateable Columns:**
+- `caption` - Photo caption (required, used for alt text)
+- `location` - Specific location (required, used for alt text)
+- `country` - Country name (required, used for alt text)
+- `date` - ISO 8601 date (YYYY-MM-DD)
+- `sub_category` - Grouping within category
+- `homepage_featured` - Homepage priority (1-7 or empty)
+- `category_featured` - Category page priority (positive number or empty)
+- `category` - Photo category (note: changing category requires moving image files)
+
+**Not updateable:**
+- `id` - Auto-increment primary key
+- `filename` - Used as identifier (would break image references)
+- `created_at` - Original creation timestamp
+
+**Example Use Cases:**
+- Rewrite all 186 captions in a new style
+- Update locations to be more specific
+- Add dates to photos that are missing them
+- Change featured status for multiple photos
+- Bulk update sub-categories for organization
+
 ### Bulk Updates
 
 **Common SQL Operations:**

@@ -183,6 +183,31 @@ The import tool will:
 4. Run `npm run photo:import photos.csv`
 5. Review validation results and confirm import
 
+**Update existing photos:**
+
+For bulk updates to existing photos (e.g., rewriting captions, updating locations):
+
+```bash
+# 1. Export all photos to CSV
+npm run db:export-csv
+
+# 2. Edit metadata in Excel/Google Sheets
+# (Open backups/photos-export.csv, edit columns, keep filename unchanged)
+
+# 3. Preview changes
+npm run photo:update backups/photos-export.csv --dry-run
+
+# 4. Apply updates
+npm run photo:update backups/photos-export.csv
+```
+
+**Update Features:**
+- Only columns present in CSV are updated (flexible updates)
+- Uses `filename` to identify existing photos
+- Same validation as import (caption/location/country cannot be empty)
+- Transaction-based (all or nothing)
+- Dry-run mode to preview changes
+
 **Portfolio Organization:**
 
 - **Homepage Featured Work**: Shows exactly 7 featured photos

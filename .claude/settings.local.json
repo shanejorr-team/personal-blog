@@ -30,7 +30,9 @@
       "Bash(npm run photo:import:*)",
       "Bash(echo:*)",
       "Bash(git -C /Users/shaneorr/repos/personal/personal-blog/ ls-files:*)",
-      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog/ status --short src/db/)"
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog/ status --short src/db/)",
+      "Bash(npm run db:export-csv:*)",
+      "Bash(npm run photo:update:*)"
     ],
     "deny": [],
     "ask": []
