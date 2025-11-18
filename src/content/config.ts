@@ -28,10 +28,20 @@ const writings = defineCollection({
   }),
 });
 
+// Pages collection - standalone pages like About
+const pages = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+  }),
+});
+
 // Portfolio collection removed - now using SQLite database (src/db/photos.db)
 // See src/utils/db.ts for database query functions
 
 export const collections = {
   'photography-journal': photographyJournal,
   'writings': writings,
+  'pages': pages,
 };

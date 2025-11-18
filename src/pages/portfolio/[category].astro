@@ -87,22 +87,7 @@ const categoryImages = await Promise.all(
   })
 );
 
-// Group images by sub_category
-const imagesBySubCategory = categoryImages.reduce((acc, image) => {
-  const subCategory = image.sub_category || 'Other';
-  if (!acc[subCategory]) {
-    acc[subCategory] = [];
-  }
-  acc[subCategory].push(image);
-  return acc;
-}, {} as Record<string, typeof categoryImages>);
-
-// Sort sub-categories alphabetically, with "Other" at the end
-const sortedSubCategories = Object.entries(imagesBySubCategory).sort((a, b) => {
-  if (a[0] === 'Other') return 1;
-  if (b[0] === 'Other') return -1;
-  return a[0].localeCompare(b[0]);
-});
+// No sub-category grouping - display all photos in a single grid
 
 // Category display names
 const categoryNames: Record<string, string> = {
@@ -160,81 +145,55 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
     <!-- Header -->
     <div class="text-center mb-12">
       <h1 class="text-4xl md:text-5xl font-bold mb-4">{categoryName}</h1>
-      <p class="text-xl text-gray-600 dark:text-gray-400">
-        {categoryImages.length} {categoryImages.length === 1 ? 'photo' : 'photos'}
-        {sortedSubCategories.length > 0 && ` across ${sortedSubCategories.length} ${sortedSubCategories.length === 1 ? 'theme' : 'themes'}`}
-      </p>
     </div>
 
-    <!-- Images grouped by sub-category -->
-    {sortedSubCategories.map(([subCategory, images]) => {
-      // Images already have aspectRatio from Sharp metadata
-      const subCategoryImages = images.map((image, index) => ({
-        ...image,
-        index,
-      }));
+    <!-- Justified grid layout -->
+    <div class="flex flex-wrap gap-4 justify-start">
+      {categoryImages.map((image, index) => {
+        // Calculate flex-basis based on aspect ratio
+        // Target row height of ~280px, adjust width based on aspect ratio
+        const targetHeight = 280;
+        const flexBasis = targetHeight * image.aspectRatio;
 
-      // Create justified rows (simpler approach: use CSS flexbox)
-      return (
-        <section class="mb-16" id={subCategory.toLowerCase().replace(/\s+/g, '-')}>
-          <div class="mb-6">
-            <h2 class="text-3xl font-bold">{subCategory}</h2>
-            <p class="text-gray-600 dark:text-gray-400 mt-1">
-              {images.length} {images.length === 1 ? 'photo' : 'photos'}
-            </p>
-          </div>
-
-          <!-- Justified grid layout -->
-          <div class="flex flex-wrap gap-4 justify-start">
-            {subCategoryImages.map((image, index) => {
-              // Calculate flex-basis based on aspect ratio
-              // Target row height of ~280px, adjust width based on aspect ratio
-              const targetHeight = 280;
-              const flexBasis = targetHeight * image.aspectRatio;
-
-              return (
-                <button
-                  type="button"
-                  class="category-photo group relative overflow-hidden rounded-lg cursor-pointer text-left border-0 p-0 bg-transparent flex-grow-0"
-                  style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
-                  data-subcategory={subCategory}
-                  data-index={index}
-                  data-lightbox-src={image.lightboxSrc}
-                  data-original-src={image.originalSrc}
-                  data-alt={image.alt}
-                  data-caption={image.caption || ''}
-                  data-location-name={image.location || ''}
-                  data-country-name={image.country || ''}
-                >
-                  <Image
-                    src={image.importedImage || image.src}
-                    alt={image.alt}
-                    width={Math.round(flexBasis * 2)}
-                    height={Math.round(targetHeight * 2)}
-                    format="webp"
-                    quality={80}
-                    class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                  {image.caption && (
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
-                      <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
-                        <p class="text-sm font-medium">{image.caption}</p>
-                        {(image.location || image.country) && (
-                          <p class="text-xs text-gray-300">
-                            {[image.location, image.country].filter(Boolean).join(', ')}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+        return (
+          <button
+            type="button"
+            class="category-photo group relative overflow-hidden rounded-lg cursor-pointer text-left border-0 p-0 bg-transparent flex-grow-0"
+            style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
+            data-index={index}
+            data-lightbox-src={image.lightboxSrc}
+            data-original-src={image.originalSrc}
+            data-alt={image.alt}
+            data-caption={image.caption || ''}
+            data-location-name={image.location || ''}
+            data-country-name={image.country || ''}
+          >
+            <Image
+              src={image.importedImage || image.src}
+              alt={image.alt}
+              width={Math.round(flexBasis * 2)}
+              height={Math.round(targetHeight * 2)}
+              format="webp"
+              quality={80}
+              class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+              loading="lazy"
+            />
+            {image.caption && (
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <p class="text-sm font-medium">{image.caption}</p>
+                  {(image.location || image.country) && (
+                    <p class="text-xs text-gray-300">
+                      {[image.location, image.country].filter(Boolean).join(', ')}
+                    </p>
                   )}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      );
-    })}
+                </div>
+              </div>
+            )}
+          </button>
+        );
+      })}
+    </div>
 
     {/* Show message if no photos found */}
     {categoryImages.length === 0 && (
@@ -255,19 +214,18 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
   function initCategoryPhotos() {
     const categoryPhotoButtons = document.querySelectorAll('.category-photo');
 
-    // Group photos by sub-category
-    const photosBySubCategory: Record<string, Array<{
+    // Collect all photos as a single collection
+    const allPhotos: Array<{
       image: string;
       original: string;
       alt: string;
       title: string;
       location?: string;
       description?: string;
-    }>> = {};
+    }> = [];
 
     categoryPhotoButtons.forEach((button) => {
       const btn = button as HTMLButtonElement;
-      const subCategory = btn.dataset.subcategory || '';
       const locationParts = [btn.dataset.locationName, btn.dataset.countryName]
         .filter(Boolean);
 
@@ -280,21 +238,17 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
         description: '', // Category photos don't have descriptions
       };
 
-      if (!photosBySubCategory[subCategory]) {
-        photosBySubCategory[subCategory] = [];
-      }
-      photosBySubCategory[subCategory].push(photoData);
+      allPhotos.push(photoData);
     });
 
     // Add click handlers
     categoryPhotoButtons.forEach((photo) => {
       photo.addEventListener('click', (e) => {
         const button = e.currentTarget as HTMLButtonElement;
-        const subCategory = button.dataset.subcategory || '';
         const clickedIndex = parseInt(button.dataset.index || '0', 10);
 
-        if ((window as any).openLightbox && photosBySubCategory[subCategory]) {
-          (window as any).openLightbox(photosBySubCategory[subCategory], clickedIndex);
+        if ((window as any).openLightbox && allPhotos.length > 0) {
+          (window as any).openLightbox(allPhotos, clickedIndex);
         }
       });
     });

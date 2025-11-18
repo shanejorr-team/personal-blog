@@ -79,11 +79,12 @@ export function getAllCategoryPhotos(category: string): Photo[] {
 /**
  * Get all photos from a specific country.
  * Used for country-specific portfolio pages.
+ * Excludes concert photos.
  */
 export function getCountryPhotos(country: string): Photo[] {
   const query = `
     SELECT * FROM photos
-    WHERE country = ?
+    WHERE country = ? AND category != 'concert'
     ORDER BY
       CASE WHEN location IS NULL THEN 1 ELSE 0 END,
       location ASC,

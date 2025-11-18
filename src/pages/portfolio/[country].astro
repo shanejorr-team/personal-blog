@@ -112,9 +112,6 @@ const sortedLocations = Object.entries(imagesByLocation).sort((a, b) =>
     <!-- Header -->
     <div class="text-center mb-12">
       <h1 class="text-4xl md:text-5xl font-bold mb-4">{country}</h1>
-      <p class="text-xl text-gray-600 dark:text-gray-400">
-        {countryImages.length} {countryImages.length === 1 ? 'photo' : 'photos'} from {sortedLocations.length} {sortedLocations.length === 1 ? 'location' : 'locations'}
-      </p>
     </div>
 
     <!-- Images grouped by location -->
@@ -129,9 +126,6 @@ const sortedLocations = Object.entries(imagesByLocation).sort((a, b) =>
         <section class="mb-16" id={location.toLowerCase().replace(/\s+/g, '-')}>
           <div class="mb-6">
             <h2 class="text-3xl font-bold">{location}</h2>
-            <p class="text-gray-600 dark:text-gray-400 mt-1">
-              {images.length} {images.length === 1 ? 'photo' : 'photos'}
-            </p>
           </div>
 
           <!-- Justified grid layout -->

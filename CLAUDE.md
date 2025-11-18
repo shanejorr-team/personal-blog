@@ -135,6 +135,7 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   └── DarkModeToggle.astro
 │   ├── content/
 │   │   ├── config.ts        # Content collection schemas
+│   │   ├── pages/           # Standalone pages (e.g., about.md)
 │   │   ├── photography-journal/  # Markdown posts
 │   │   └── writings/        # Markdown posts
 │   ├── db/
@@ -218,6 +219,20 @@ Content in standard Markdown format.
 ```
 
 **Note:** `featuredImage` uses Astro's `image()` helper for type-safe, optimized image handling. Reference images using relative paths from the markdown file.
+
+### Pages
+Location: `src/content/pages/*.md`
+
+```markdown
+---
+title: string
+description: string
+---
+
+Content in standard Markdown format.
+```
+
+**Note:** Used for standalone pages like About. Simple schema with just title and description for SEO metadata.
 
 ### Portfolio Database
 Location: `src/db/photos.db` (SQLite database)
@@ -378,10 +393,10 @@ All three fields (country, location, caption) are required and cannot be empty, 
 - Configure with `darkMode: 'class'` in `tailwind.config.js`
 
 ### Content Collections & Database
-- **Content Collections**: Blog posts use Astro Content Collections
+- **Content Collections**: Blog posts and pages use Astro Content Collections
   - Schemas defined in `src/content/config.ts`
   - Type-safe querying with `getCollection()` and `getEntry()`
-  - Collections: `photography-journal`, `writings`
+  - Collections: `photography-journal`, `writings`, `pages`
 - **Portfolio Database**: Photos use SQLite database
   - Schema defined in `src/db/schema.sql`
   - Type-safe queries in `src/utils/db.ts`

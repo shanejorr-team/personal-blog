@@ -96,6 +96,23 @@ Your content...
 
 **Note:** Featured images use relative paths from the markdown file. Writings can use `../../images/assets/` for non-portfolio images (screenshots, diagrams, etc.) stored in `src/images/assets/`, or reference portfolio photography from `src/images/photography/` using `../../images/photography/{category}/` paths. All images are automatically optimized at build time with type-safe validation.
 
+### Pages
+
+Create Markdown files in `src/content/pages/`:
+
+```markdown
+---
+title: "About - Shane Orr"
+description: "Learn more about me"
+---
+
+# Your page content in markdown
+
+Your markdown content here...
+```
+
+**Note:** Used for standalone pages like About (`about.md`). Simple schema with just title and description for SEO metadata. Page content is rendered using Astro's Content Collections for type-safe, maintainable pages.
+
 ### Portfolio Galleries
 
 Portfolio photo metadata is stored in a SQLite database (`src/db/photos.db`) for scalability and ease of management.
@@ -425,6 +442,7 @@ See [CLAUDE.md](./CLAUDE.md#git-large-file-storage-lfs) for detailed LFS documen
 ├── src/
 │   ├── components/       # Reusable components
 │   ├── content/          # Content collections
+│   │   ├── pages/        # Standalone pages (about.md)
 │   │   ├── photography-journal/
 │   │   └── writings/
 │   ├── db/               # SQLite database

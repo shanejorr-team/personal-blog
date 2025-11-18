@@ -1,122 +1,25 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { getEntry } from 'astro:content';
+
+const aboutPage = await getEntry('pages', 'about');
+if (!aboutPage) throw new Error('About page not found');
+const { Content } = await aboutPage.render();
 ---
 
 <BaseLayout
-  title="About - Shane Orr"
-  description="Learn more about me, my photography journey, and what drives my creative work."
+  title={aboutPage.data.title}
+  description={aboutPage.data.description}
 >
   <div class="container mx-auto px-4 py-12">
     <Breadcrumbs items={[{ label: 'About' }]} />
 
-    <!-- Header -->
-    <div class="max-w-4xl mx-auto text-center mb-16">
-      <h1 class="text-4xl md:text-5xl font-bold mb-6">About Me</h1>
-      <p class="text-xl text-gray-600 dark:text-gray-400">
-        Photographer, storyteller, travelor
-      </p>
-    </div>
-
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto">
-      <!-- Profile Section -->
-      <div class="mb-16 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-        <div class="md:col-span-1">
-          <div class="aspect-square rounded-lg bg-gray-200 dark:bg-gray-700 overflow-hidden">
-            <!-- Placeholder for profile photo -->
-            <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-              <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div class="md:col-span-2">
-          <h2 class="text-3xl font-bold mb-4">Hi, I'm Shane</h2>
-          <p class="text-lg text-gray-700 dark:text-gray-300 mb-4">
-            I'm a photographer based in [Your Location], specializing in travel photography,
-            street photography, and live music documentation. My work focuses on capturing
-            authentic moments and telling compelling visual stories.
-          </p>
-          <p class="text-lg text-gray-700 dark:text-gray-300">
-            Photography has taken me to [number] countries across [number] continents,
-            where I've documented diverse cultures, landscapes, and human experiences.
-          </p>
-        </div>
-      </div>
-
-      <!-- Story Section -->
-      <div class="prose prose-lg dark:prose-invert max-w-none mb-16">
-        <h2>My Photography Journey</h2>
-        <p>
-          My journey into photography began [when/how you started]. What started as
-          [initial motivation] has evolved into a lifelong passion for capturing and
-          sharing stories through imagery.
-        </p>
-        <p>
-          Over the years, I've developed a particular interest in [your specialty areas].
-          I believe that great photography is about more than technical excellence—it's
-          about emotion, connection, and narrative.
-        </p>
-
-        <h2>My Approach</h2>
-        <p>
-          My photography philosophy centers on [your approach/philosophy]. Whether I'm
-          photographing a bustling street market, a serene landscape, or a high-energy
-          concert, I aim to capture the essence of the moment and the emotions it evokes.
-        </p>
-
-        <h3>What I Do</h3>
-        <ul>
-          <li><strong>Travel Photography:</strong> Documenting cultures, landscapes, and authentic moments from around the world</li>
-          <li><strong>Street Photography:</strong> Capturing candid scenes and the rhythm of urban life</li>
-          <li><strong>Concert Photography:</strong> Preserving the energy and emotion of live music performances</li>
-          <li><strong>Photo Essays:</strong> Creating narrative-driven visual stories that explore deeper themes</li>
-        </ul>
-      </div>
-
-      <!-- Recognition/Publications (Optional) -->
-      <div class="mb-16">
-        <h2 class="text-2xl font-bold mb-6">Recognition & Publications</h2>
-        <div class="space-y-4">
-          <div class="border-l-4 border-blue-600 pl-4">
-            <p class="text-gray-700 dark:text-gray-300">
-              Work featured in [Publication/Award Name]
-            </p>
-          </div>
-          <div class="border-l-4 border-blue-600 pl-4">
-            <p class="text-gray-700 dark:text-gray-300">
-              [Award or Recognition]
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contact/Social -->
-      <div class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <h2 class="text-2xl font-bold mb-4">Let's Connect</h2>
-        <p class="text-gray-600 dark:text-gray-400 mb-6">
-          Interested in working together or just want to say hi?
-        </p>
-        <div class="flex justify-center space-x-6">
-          <a
-            href="mailto:your.email@example.com"
-            class="btn btn-primary"
-          >
-            Get in Touch
-          </a>
-          <a
-            href="https://instagram.com/yourusername"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-secondary"
-          >
-            Follow on Instagram
-          </a>
-        </div>
-      </div>
+      <article class="prose prose-lg dark:prose-invert max-w-none">
+        <Content />
+      </article>
     </div>
   </div>
 </BaseLayout>
