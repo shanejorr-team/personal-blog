@@ -6,7 +6,7 @@ import Lightbox from '../../components/Lightbox.astro';
 import { getImageByPath } from '../../utils/imageLoader';
 import { getCategoryFeatured, getAllCountries, getAllCategories, getPhotoPath, getPhotoAlt } from '../../utils/db';
 
-const categoryInfo = {
+const categoryInfo: Record<string, { title: string; description: string }> = {
   nature: {
     title: 'Nature',
     description: 'Landscapes, wildlife, and natural wonders',
@@ -18,10 +18,6 @@ const categoryInfo = {
   concert: {
     title: 'Concert Photography',
     description: 'Live music and performance',
-  },
-  other: {
-    title: 'Other',
-    description: 'Various photography projects',
   },
 };
 

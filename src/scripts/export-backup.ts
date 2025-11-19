@@ -88,12 +88,11 @@ async function exportBackup() {
   // Create backup directory
   mkdirSync(BACKUP_DIR, { recursive: true });
 
-  const categories = ['nature', 'street', 'concert', 'other'];
+  const categories = ['nature', 'street', 'concert'];
   const categoryOrder: Record<string, number> = {
     nature: 1,
     street: 2,
     concert: 3,
-    other: 4,
   };
 
   let totalPhotos = 0;
@@ -146,7 +145,6 @@ async function exportBackup() {
   console.log('  - backups/nature.json');
   console.log('  - backups/street.json');
   console.log('  - backups/concert.json');
-  console.log('  - backups/other.json');
   console.log('  - backups/complete-backup.json (all photos with metadata)');
 }
 

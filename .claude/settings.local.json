@@ -32,7 +32,10 @@
       "Bash(git -C /Users/shaneorr/repos/personal/personal-blog/ ls-files:*)",
       "Bash(git -C /Users/shaneorr/repos/personal/personal-blog/ status --short src/db/)",
       "Bash(npm run db:export-csv:*)",
-      "Bash(npm run photo:update:*)"
+      "Bash(npm run photo:update:*)",
+      "Bash(for i in {01..16})",
+      "Bash(do mv \"src/images/photography/other/turkey-cappadocia-other-$i.jpg\" \"src/images/photography/nature/turkey-cappadocia-nature-$i.jpg\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

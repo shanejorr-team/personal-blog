@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS photos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   filename TEXT UNIQUE NOT NULL,         -- e.g., us-georgia-nature-1.jpg
-  category TEXT NOT NULL CHECK(category IN ('nature', 'street', 'concert', 'other')),
+  category TEXT NOT NULL CHECK(category IN ('nature', 'street', 'concert')),
   caption TEXT NOT NULL CHECK(length(caption) > 0),
   location TEXT NOT NULL CHECK(length(location) > 0),  -- Specific location within country
   country TEXT NOT NULL CHECK(length(country) > 0),

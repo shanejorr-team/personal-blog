@@ -146,8 +146,7 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   │   ├── _staging/    # Staging directory for bulk imports
 │   │   │   ├── nature/
 │   │   │   ├── street/
-│   │   │   ├── concert/
-│   │   │   └── other/
+│   │   │   └── concert/
 │   │   └── assets/          # Non-portfolio images for blog posts
 │   ├── layouts/
 │   │   └── BaseLayout.astro
@@ -242,7 +241,7 @@ Location: `src/db/photos.db` (SQLite database)
 CREATE TABLE photos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   filename TEXT UNIQUE NOT NULL,         -- e.g., us-georgia-nature-1.jpg
-  category TEXT NOT NULL CHECK(category IN ('nature', 'street', 'concert', 'other')),
+  category TEXT NOT NULL CHECK(category IN ('nature', 'street', 'concert')),
   caption TEXT NOT NULL CHECK(length(caption) > 0),
   location TEXT NOT NULL CHECK(length(location) > 0),  -- Specific location within country
   country TEXT NOT NULL CHECK(length(country) > 0),
@@ -278,7 +277,7 @@ All three fields (country, location, caption) are required and cannot be empty, 
   - Queries `category_featured IS NOT NULL` per category
   - Photos sorted by `category_featured` priority within each category
 - **Category pages** (`/portfolio/[category]`): Shows all photos in category
-  - Groups by `sub_category` field (alphabetically, "Other" last)
+  - Groups by `sub_category` field (alphabetically)
   - Displays all photos regardless of featured status
 - **Country pages** (`/portfolio/[country]`): Shows all photos from country
   - Groups by `location` field within country
@@ -419,7 +418,7 @@ npm run photo:add
 
 Prompts for all photo metadata:
 - Filename (must be in `src/images/photography/{category}/`)
-- Category (nature, street, concert, other)
+- Category (nature, street, concert)
 - Caption (required - used for alt text generation)
 - Location (required - used for alt text generation)
 - Country (required - used for alt text generation)
@@ -445,7 +444,7 @@ This creates `src/images/photography/_staging/photo-template.csv` with:
   - Example: `us-north_georgia-nature-1.jpg`
   - Country: `us` → `United States` (title case, special conversion for 'us')
   - Location: `north_georgia` → `North Georgia` (underscores → spaces, title case)
-  - Category: `nature` → `nature` (lowercase, must be valid: nature, street, concert, other)
+  - Category: `nature` → `nature` (lowercase, must be valid: nature, street, concert)
 - Invalid categories trigger warnings and are left blank in CSV
 - Only valid image files included (.jpg, .jpeg, .png, .webp, .avif)
 - System files (.DS_Store, etc.) excluded
@@ -482,7 +481,7 @@ turkey-istanbul-street-1.jpg,street,Busy market street scene,Istanbul,Turkey,202
 **Validation:**
 The import tool validates:
 - ✅ All required columns present
-- ✅ Category is valid (`nature`, `street`, `concert`, `other`)
+- ✅ Category is valid (`nature`, `street`, `concert`)
 - ✅ Date format is `YYYY-MM-DD`
 - ✅ `homepage_featured` is 1-7 or empty
 - ✅ `category_featured` is a positive number or empty
@@ -603,7 +602,7 @@ npm run db:export
 ```
 
 Creates JSON files in `backups/`:
-- `nature.json`, `street.json`, `concert.json`, `other.json` - By category
+- `nature.json`, `street.json`, `concert.json` - By category
 - `complete-backup.json` - Full database with all metadata
 
 **Note:** Backup files are gitignored but useful for:

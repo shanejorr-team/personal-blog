@@ -44,7 +44,6 @@ async function addPhoto() {
           { title: 'Nature', value: 'nature' },
           { title: 'Street', value: 'street' },
           { title: 'Concert', value: 'concert' },
-          { title: 'Other', value: 'other' },
         ],
       },
       {

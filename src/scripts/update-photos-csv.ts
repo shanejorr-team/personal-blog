@@ -25,7 +25,7 @@ const DB_PATH = join(process.cwd(), 'src', 'db', 'photos.db');
 const IMAGES_BASE = join(process.cwd(), 'src', 'images', 'photography');
 
 // Valid categories
-const VALID_CATEGORIES = ['nature', 'street', 'concert', 'other'] as const;
+const VALID_CATEGORIES = ['nature', 'street', 'concert'] as const;
 type Category = typeof VALID_CATEGORIES[number];
 
 // CSV row interface - all fields optional except identifier

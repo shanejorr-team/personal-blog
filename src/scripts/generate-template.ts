@@ -25,7 +25,7 @@ const VALID_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.avif'];
 const EXCLUDE_FILES = ['.DS_Store', 'Thumbs.db', 'desktop.ini', 'photo-template.csv'];
 
 // Valid categories
-const VALID_CATEGORIES = ['nature', 'street', 'concert', 'other'];
+const VALID_CATEGORIES = ['nature', 'street', 'concert'];
 
 /**
  * Check if filename has a valid image extension

@@ -20,7 +20,7 @@ function getDb(): Database.Database {
 export interface Photo {
   id: number;
   filename: string;
-  category: 'nature' | 'street' | 'concert' | 'other';
+  category: 'nature' | 'street' | 'concert';
   caption: string;
   location: string;
   country: string;
@@ -112,7 +112,7 @@ export function getAllCountries(): string[] {
  * Used for generating static category pages.
  */
 export function getAllCategories(): string[] {
-  return ['nature', 'street', 'concert', 'other'];
+  return ['nature', 'street', 'concert'];
 }
 
 /**
