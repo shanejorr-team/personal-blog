@@ -65,36 +65,10 @@ async function addPhoto() {
         validate: (val: string) => (val?.trim() ? true : 'Country is required'),
       },
       {
-        type: 'text',
-        name: 'sub_category',
-        message: 'Sub-category (optional):',
-      },
-      {
-        type: 'text',
-        name: 'date',
-        message: 'Date (YYYY-MM-DD, optional):',
-        validate: (val: string) => {
-          if (!val) return true;
-          if (!val.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            return 'Date must be in YYYY-MM-DD format';
-          }
-          return true;
-        },
-      },
-      {
         type: 'confirm',
-        name: 'add_homepage_featured',
-        message: 'Add to homepage featured (1-7)?',
-        initial: false,
-      },
-      {
-        type: (prev: boolean) => (prev ? 'number' : null),
         name: 'homepage_featured',
-        message: 'Homepage featured priority (1-7):',
-        validate: (val: number) => {
-          if (val < 1 || val > 7) return 'Priority must be between 1 and 7';
-          return true;
-        },
+        message: 'Set as homepage hero photo?',
+        initial: false,
       },
       {
         type: 'confirm',
@@ -105,11 +79,19 @@ async function addPhoto() {
       {
         type: (prev: boolean) => (prev ? 'number' : null),
         name: 'category_featured',
-        message: 'Category featured priority (lower = higher priority):',
+        message: 'Category featured priority (1=navigation, 2-4=portfolio order, 0=not featured):',
         validate: (val: number) => {
-          if (val < 1) return 'Priority must be 1 or greater';
+          if (![0, 1, 2, 3, 4].includes(val)) {
+            return 'Priority must be 0, 1, 2, 3, or 4';
+          }
           return true;
         },
+      },
+      {
+        type: 'confirm',
+        name: 'country_featured',
+        message: 'Set as country navigation photo?',
+        initial: false,
       },
       {
         type: 'confirm',
@@ -150,9 +132,9 @@ async function addPhoto() {
     const insert = db.prepare(`
       INSERT INTO photos (
         filename, category, caption, location, country,
-        date, sub_category, homepage_featured, category_featured
+        homepage_featured, category_featured, country_featured
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = insert.run(
@@ -161,10 +143,9 @@ async function addPhoto() {
       answers.caption,
       answers.location,
       answers.country,
-      answers.date || null,
-      answers.sub_category || null,
-      answers.add_homepage_featured ? answers.homepage_featured : null,
-      answers.add_category_featured ? answers.category_featured : null
+      answers.homepage_featured ? 1 : 0,
+      answers.add_category_featured ? answers.category_featured : 0,
+      answers.country_featured ? 1 : 0
     );
 
     console.log(`\n✅ Photo added successfully! (ID: ${result.lastInsertRowid})`);

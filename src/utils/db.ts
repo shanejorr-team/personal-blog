@@ -24,24 +24,42 @@ export interface Photo {
   caption: string;
   location: string;
   country: string;
-  date?: string | null;
-  sub_category?: string | null;
-  homepage_featured?: number | null;
-  category_featured?: number | null;
+  homepage_featured: number;
+  category_featured: number;
+  country_featured: number;
   created_at: string;
   updated_at: string;
 }
 
 /**
- * Get the 7 featured photos for the homepage.
- * Photos are ordered by homepage_featured priority (1-7).
+ * Get the single hero photo for the homepage.
+ * Returns the photo where homepage_featured = 1.
  */
-export function getHomepageFeatured(): Photo[] {
+export function getHomepageFeatured(): Photo | null {
   const query = `
     SELECT * FROM photos
-    WHERE homepage_featured IS NOT NULL
-    ORDER BY homepage_featured ASC
-    LIMIT 7
+    WHERE homepage_featured = 1
+    LIMIT 1
+  `;
+  const result = getDb().prepare(query).get() as Photo | undefined;
+  return result || null;
+}
+
+/**
+ * Get the navigation photos for all categories (one per category).
+ * Returns photos where category_featured = 1 for each category.
+ * Used for homepage Photography section.
+ */
+export function getCategoryNavigationPhotos(): Photo[] {
+  const query = `
+    SELECT * FROM photos
+    WHERE category_featured = 1
+    ORDER BY
+      CASE category
+        WHEN 'nature' THEN 1
+        WHEN 'street' THEN 2
+        WHEN 'concert' THEN 3
+      END
   `;
   return getDb().prepare(query).all() as Photo[];
 }
@@ -49,29 +67,27 @@ export function getHomepageFeatured(): Photo[] {
 /**
  * Get all featured photos for a specific category.
  * These appear on the main portfolio page and category detail page.
- * Photos are ordered by category_featured priority.
+ * Photos are ordered by category_featured priority (excludes 0).
  */
 export function getCategoryFeatured(category: string): Photo[] {
   const query = `
     SELECT * FROM photos
-    WHERE category = ? AND category_featured IS NOT NULL
+    WHERE category = ? AND category_featured > 0
     ORDER BY category_featured ASC
   `;
   return getDb().prepare(query).all(category) as Photo[];
 }
 
 /**
- * Get all photos in a specific category, regardless of featured status.
- * Used for category detail pages showing all photos.
+ * Get all featured photos in a specific category (category_featured > 0).
+ * Used for category detail pages.
+ * Photos are ordered by category_featured priority.
  */
 export function getAllCategoryPhotos(category: string): Photo[] {
   const query = `
     SELECT * FROM photos
-    WHERE category = ?
-    ORDER BY
-      CASE WHEN sub_category IS NULL THEN 1 ELSE 0 END,
-      sub_category ASC,
-      date DESC
+    WHERE category = ? AND category_featured > 0
+    ORDER BY category_featured ASC
   `;
   return getDb().prepare(query).all(category) as Photo[];
 }
@@ -87,8 +103,7 @@ export function getCountryPhotos(country: string): Photo[] {
     WHERE country = ? AND category != 'concert'
     ORDER BY
       CASE WHEN location IS NULL THEN 1 ELSE 0 END,
-      location ASC,
-      date DESC
+      location ASC
   `;
   return getDb().prepare(query).all(country) as Photo[];
 }
@@ -105,6 +120,21 @@ export function getAllCountries(): string[] {
   `;
   const results = getDb().prepare(query).all() as { country: string }[];
   return results.map(row => row.country);
+}
+
+/**
+ * Get the navigation photos for all countries (one per country).
+ * Returns photos where country_featured = 1 for each country.
+ * Used for /portfolio/all-countries page.
+ * Sorted alphabetically by country name.
+ */
+export function getCountryFeaturedPhotos(): Photo[] {
+  const query = `
+    SELECT * FROM photos
+    WHERE country_featured = 1
+    ORDER BY country ASC
+  `;
+  return getDb().prepare(query).all() as Photo[];
 }
 
 /**

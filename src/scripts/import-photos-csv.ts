@@ -36,10 +36,9 @@ interface CSVRow {
   caption: string;
   location: string;
   country: string;
-  date?: string;
-  sub_category?: string;
   homepage_featured?: string;
   category_featured?: string;
+  country_featured?: string;
 }
 
 // Validation error interface
@@ -97,35 +96,35 @@ function validateRow(row: CSVRow, rowIndex: number): ValidationError[] {
   }
 
   // Optional field validation
-  if (row.date && row.date.trim()) {
-    // Validate ISO 8601 date format (YYYY-MM-DD)
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.date.trim())) {
-      errors.push({
-        row: rowNum,
-        field: 'date',
-        message: 'Must be in YYYY-MM-DD format (e.g., 2024-03-15)'
-      });
-    }
-  }
-
   if (row.homepage_featured && row.homepage_featured.trim()) {
     const value = parseInt(row.homepage_featured.trim());
-    if (isNaN(value) || value < 1 || value > 7) {
+    if (isNaN(value) || ![0, 1].includes(value)) {
       errors.push({
         row: rowNum,
         field: 'homepage_featured',
-        message: 'Must be a number between 1 and 7'
+        message: 'Must be 0 or 1 (0=not hero, 1=hero photo)'
       });
     }
   }
 
   if (row.category_featured && row.category_featured.trim()) {
     const value = parseInt(row.category_featured.trim());
-    if (isNaN(value) || value < 1) {
+    if (isNaN(value) || ![0, 1, 2, 3, 4].includes(value)) {
       errors.push({
         row: rowNum,
         field: 'category_featured',
-        message: 'Must be a positive number'
+        message: 'Must be 0, 1, 2, 3, or 4 (1=navigation, 2-4=portfolio order, 0=not featured)'
+      });
+    }
+  }
+
+  if (row.country_featured && row.country_featured.trim()) {
+    const value = parseInt(row.country_featured.trim());
+    if (isNaN(value) || ![0, 1].includes(value)) {
+      errors.push({
+        row: rowNum,
+        field: 'country_featured',
+        message: 'Must be 0 or 1 (0=not country nav photo, 1=country nav photo)'
       });
     }
   }
@@ -189,7 +188,7 @@ function parseCSV(filepath: string): { rows: CSVRow[], errors: ValidationError[]
   if (missingColumns.length > 0) {
     console.error('❌ Missing required columns:', missingColumns.join(', '));
     console.error('\nRequired columns: filename, category, caption, location, country');
-    console.error('Optional columns: date, sub_category, homepage_featured, category_featured');
+    console.error('Optional columns: homepage_featured, category_featured, country_featured');
     process.exit(1);
   }
 
@@ -328,9 +327,9 @@ async function importPhotos(filepath: string, dryRun: boolean = false) {
   const insert = db.prepare(`
     INSERT INTO photos (
       filename, category, caption, location, country,
-      date, sub_category, homepage_featured, category_featured
+      homepage_featured, category_featured, country_featured
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   // Import with transaction
@@ -343,10 +342,9 @@ async function importPhotos(filepath: string, dryRun: boolean = false) {
         row.caption.trim(),
         row.location.trim(),
         row.country.trim(),
-        row.date?.trim() || null,
-        row.sub_category?.trim() || null,
-        row.homepage_featured?.trim() ? parseInt(row.homepage_featured.trim()) : null,
-        row.category_featured?.trim() ? parseInt(row.category_featured.trim()) : null
+        row.homepage_featured?.trim() ? parseInt(row.homepage_featured.trim()) : 0,
+        row.category_featured?.trim() ? parseInt(row.category_featured.trim()) : 0,
+        row.country_featured?.trim() ? parseInt(row.country_featured.trim()) : 0
       );
     });
   });

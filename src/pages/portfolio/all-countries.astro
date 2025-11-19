@@ -1,0 +1,104 @@
+---
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getImageByPath } from '../../utils/imageLoader';
+import { getCountryFeaturedPhotos, getPhotoPath, getPhotoAlt } from '../../utils/db';
+
+// Get one featured photo per country
+const countryPhotos = getCountryFeaturedPhotos();
+
+// Process photos with dimensions
+const countryImages = await Promise.all(
+  countryPhotos.map(async (photo) => {
+    const imagePath = getPhotoPath(photo);
+
+    // Get imported image from src/images
+    const importedImage = getImageByPath(imagePath);
+
+    if (!importedImage) {
+      console.warn(`Could not find imported image for ${imagePath}`);
+      return {
+        src: imagePath,
+        alt: getPhotoAlt(photo),
+        country: photo.country,
+        aspectRatio: 1.5,
+        importedImage: undefined,
+      };
+    }
+
+    // Get aspect ratio from imported image metadata
+    const aspectRatio = importedImage.width / importedImage.height;
+
+    return {
+      src: imagePath,
+      alt: getPhotoAlt(photo),
+      country: photo.country,
+      aspectRatio,
+      importedImage,
+    };
+  })
+);
+---
+
+<BaseLayout
+  title="Browse by Country - Photography Portfolio"
+  description="Explore photography from around the world, organized by country."
+>
+  <div class="container mx-auto px-4 py-12">
+    <Breadcrumbs items={[
+      { label: 'Portfolio', href: '/portfolio' },
+      { label: 'All Countries' }
+    ]} />
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Browse by Country</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        Explore photography from countries around the world
+      </p>
+    </div>
+
+    <!-- Country Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {countryImages.map((image) => {
+        // Create URL slug from country name
+        const countrySlug = image.country.toLowerCase().replace(/\s+/g, '-');
+
+        return (
+          <a
+            href={`/portfolio/${countrySlug}`}
+            class="group block overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+          >
+            <div class="aspect-[3/2] overflow-hidden bg-gray-200 dark:bg-gray-700">
+              {image.importedImage ? (
+                <Image
+                  src={image.importedImage}
+                  alt={image.alt}
+                  width={800}
+                  height={533}
+                  format="webp"
+                  quality={80}
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+              ) : (
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+              )}
+            </div>
+            <div class="py-4 text-center">
+              <h3 class="text-xl font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {image.country}
+              </h3>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>

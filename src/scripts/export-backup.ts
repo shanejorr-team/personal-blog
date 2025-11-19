@@ -32,10 +32,9 @@ interface Photo {
   caption: string;
   location: string;
   country: string;
-  date?: string | null;
-  sub_category?: string | null;
-  homepage_featured?: number | null;
-  category_featured?: number | null;
+  homepage_featured: number;
+  category_featured: number;
+  country_featured: number;
 }
 
 interface PortfolioImage {
@@ -43,9 +42,9 @@ interface PortfolioImage {
   caption: string;
   location: string;
   country: string;
-  date?: string;
-  sub_category?: string;
-  featured?: number;
+  homepage_featured: number;
+  category_featured: number;
+  country_featured: number;
 }
 
 interface PortfolioJSON {
@@ -58,25 +57,15 @@ interface PortfolioJSON {
  * Convert database photo to portfolio JSON format
  */
 function photoToPortfolioImage(photo: Photo): PortfolioImage {
-  const image: PortfolioImage = {
+  return {
     src: `/images/photography/${photo.category}/${photo.filename}`,
     caption: photo.caption,
     location: photo.location,
     country: photo.country,
+    homepage_featured: photo.homepage_featured,
+    category_featured: photo.category_featured,
+    country_featured: photo.country_featured,
   };
-
-  if (photo.date) image.date = photo.date;
-  if (photo.sub_category) image.sub_category = photo.sub_category;
-
-  // Combine homepage_featured and category_featured back to single featured field
-  // Priority: homepage_featured (1-7) takes precedence
-  if (photo.homepage_featured) {
-    image.featured = photo.homepage_featured;
-  } else if (photo.category_featured) {
-    image.featured = photo.category_featured;
-  }
-
-  return image;
 }
 
 async function exportBackup() {

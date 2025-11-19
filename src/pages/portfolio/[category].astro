@@ -37,7 +37,6 @@ const categoryImages = await Promise.all(
         caption: photo.caption,
         location: photo.location,
         country: photo.country,
-        sub_category: photo.sub_category,
         aspectRatio: 1.5,
         lightboxSrc: imagePath,
         originalSrc: imagePath,
@@ -78,7 +77,6 @@ const categoryImages = await Promise.all(
       caption: photo.caption,
       location: photo.location,
       country: photo.country,
-      sub_category: photo.sub_category,
       aspectRatio,
       lightboxSrc,
       originalSrc: imagePath,
@@ -87,7 +85,7 @@ const categoryImages = await Promise.all(
   })
 );
 
-// No sub-category grouping - display all photos in a single grid
+// Display all featured photos in a single justified grid
 
 // Category display names
 const categoryNames: Record<string, string> = {

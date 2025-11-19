@@ -128,7 +128,7 @@ function generateTemplate() {
   console.log(`✓ Found ${imageFiles.length} ${imageFiles.length === 1 ? 'photo' : 'photos'} in staging directory\n`);
 
   // Generate CSV header
-  const header = 'filename,category,caption,location,country,date,sub_category,homepage_featured,category_featured';
+  const header = 'filename,category,caption,location,country,homepage_featured,category_featured,country_featured';
 
   // Track warnings
   const warnings: string[] = [];
@@ -142,10 +142,10 @@ function generateTemplate() {
       warnings.push(parsed.warning);
     }
 
-    // Build CSV row: filename,category,caption,location,country,date,sub_category,homepage_featured,category_featured
+    // Build CSV row: filename,category,caption,location,country,homepage_featured,category_featured,country_featured
     // Pre-populate: filename, category, location, country
-    // Leave blank (user must provide): caption (required), date, sub_category, homepage_featured, category_featured
-    return `${filename},${parsed.category},,${parsed.location},${parsed.country},,,,`;
+    // Leave blank (user must provide): caption (required), homepage_featured, category_featured, country_featured
+    return `${filename},${parsed.category},,${parsed.location},${parsed.country},,,`;
   });
 
   // Display warnings before writing file
@@ -174,7 +174,7 @@ function generateTemplate() {
   console.log('     - category, location, country (auto-filled from filename)');
   console.log('  2. Fill in required field:');
   console.log('     - caption (required): photo caption/description');
-  console.log('  3. Optionally fill in: date, sub_category, homepage_featured, category_featured');
+  console.log('  3. Optionally fill in: homepage_featured (0 or 1), category_featured (0-4), country_featured (0 or 1)');
   console.log('  4. Move photos from _staging/ to src/images/photography/{category}/');
   console.log('  5. Run: npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run');
   console.log('  6. Run: npm run photo:import src/images/photography/_staging/photo-template.csv');

@@ -30,8 +30,8 @@ const allCategories = getAllCategories();
 // Pre-process categories with dimensions
 const processedCategories = await Promise.all(
   allCategories.map(async (category) => {
-    // Get featured photos for this category from database
-    const photos = getCategoryFeatured(category);
+    // Get featured photos for this category from database (limit to first 6)
+    const photos = getCategoryFeatured(category).slice(0, 6);
 
     // Skip category if no featured photos
     if (photos.length === 0) return null;

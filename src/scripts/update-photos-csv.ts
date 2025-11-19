@@ -36,10 +36,9 @@ interface CSVRow {
   caption?: string;
   location?: string;
   country?: string;
-  date?: string;
-  sub_category?: string;
   homepage_featured?: string;
   category_featured?: string;
+  country_featured?: string;
 }
 
 // Validation error interface
@@ -128,23 +127,14 @@ function validateRow(
     });
   }
 
-  // Validate date format if provided
-  if (row.date?.trim() && !/^\d{4}-\d{2}-\d{2}$/.test(row.date.trim())) {
-    errors.push({
-      row: rowNum,
-      field: 'date',
-      message: 'Must be in YYYY-MM-DD format (e.g., 2024-03-15)'
-    });
-  }
-
   // Validate homepage_featured if provided
   if (row.homepage_featured?.trim()) {
     const value = parseInt(row.homepage_featured.trim());
-    if (isNaN(value) || value < 1 || value > 7) {
+    if (isNaN(value) || ![0, 1].includes(value)) {
       errors.push({
         row: rowNum,
         field: 'homepage_featured',
-        message: 'Must be a number between 1 and 7'
+        message: 'Must be 0 or 1 (0=not hero, 1=hero photo)'
       });
     }
   }
@@ -152,11 +142,23 @@ function validateRow(
   // Validate category_featured if provided
   if (row.category_featured?.trim()) {
     const value = parseInt(row.category_featured.trim());
-    if (isNaN(value) || value < 1) {
+    if (isNaN(value) || ![0, 1, 2, 3, 4].includes(value)) {
       errors.push({
         row: rowNum,
         field: 'category_featured',
-        message: 'Must be a positive number'
+        message: 'Must be 0, 1, 2, 3, or 4 (1=navigation, 2-4=portfolio order, 0=not featured)'
+      });
+    }
+  }
+
+  // Validate country_featured if provided
+  if (row.country_featured?.trim()) {
+    const value = parseInt(row.country_featured.trim());
+    if (isNaN(value) || ![0, 1].includes(value)) {
+      errors.push({
+        row: rowNum,
+        field: 'country_featured',
+        message: 'Must be 0 or 1 (0=not country nav photo, 1=country nav photo)'
       });
     }
   }
@@ -293,10 +295,9 @@ function buildUpdateOperations(rows: CSVRow[], availableColumns: Set<string>): U
     'caption',
     'location',
     'country',
-    'date',
-    'sub_category',
     'homepage_featured',
-    'category_featured'
+    'category_featured',
+    'country_featured'
   ].filter(col => availableColumns.has(col));
 
   rows.forEach(row => {
@@ -379,10 +380,9 @@ async function updatePhotos(filepath: string, dryRun: boolean = false) {
     'caption',
     'location',
     'country',
-    'date',
-    'sub_category',
     'homepage_featured',
-    'category_featured'
+    'category_featured',
+    'country_featured'
   ].filter(col => availableColumns.has(col));
 
   console.log('✓ All validations passed');
