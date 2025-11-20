@@ -35,7 +35,10 @@
       "Bash(npm run photo:update:*)",
       "Bash(for i in {01..16})",
       "Bash(do mv \"src/images/photography/other/turkey-cappadocia-other-$i.jpg\" \"src/images/photography/nature/turkey-cappadocia-nature-$i.jpg\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(npm run build:scripts:*)",
+      "Bash(tsx src/scripts/migrate-database.ts:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []
