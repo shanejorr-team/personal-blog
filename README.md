@@ -6,7 +6,7 @@ A modern, fast, and beautiful photography blog built with Astro, TypeScript, and
 
 - **Photography Journal**: Travel photo stories with embedded images
 - **Other Writings**: General blog posts and articles
-- **Portfolio Galleries**: Organized by category (Nature, Street, Concert, Other) and by country/location
+- **Portfolio Galleries**: Organized by category (Nature, Street, Concert) and by country/location
 - **SQLite Database**: Scalable photo metadata management with CLI tools
 - **Dark Mode**: Automatic theme switching with localStorage persistence
 - **Image Optimization**: Automatic WebP conversion and responsive images
@@ -56,7 +56,7 @@ npm run dev
 
 This site uses a **single source of truth** approach with all images stored in `src/images/` for automatic optimization:
 
-- **Photography**: Store all portfolio-worthy photos in `src/images/photography/{category}/` (nature, street, concert, other)
+- **Photography**: Store all portfolio-worthy photos in `src/images/photography/{category}/` (nature, street, concert)
   - These images can be referenced by journal posts, portfolio galleries, and featured photos
   - No duplication needed - one image, multiple uses
 - **Assets**: Store non-portfolio images in `src/images/assets/` (screenshots, diagrams, etc.)
@@ -125,11 +125,13 @@ npm run photo:add
 
 This will prompt you for:
 - Filename (photo must already exist in `src/images/photography/{category}/`)
-- Category (nature, street, concert, other)
-- Alt text (required)
-- Caption, location, country, date, sub-category (optional)
-- Homepage featured (1-7 for homepage hero and grid)
-- Category featured (any number for category portfolio pages)
+- Category (nature, street, concert)
+- Caption (required - used for alt text generation)
+- Location (required - used for alt text generation)
+- Country (required - used for alt text generation)
+- Homepage featured (0 or 1 - set as hero photo)
+- Category featured (0-4 - priority for category portfolio pages)
+- Country featured (0 or 1 - set as country navigation photo)
 
 **Generate CSV template from staging directory:**
 
@@ -160,12 +162,14 @@ npm run photo:import src/images/photography/_staging/photo-template.csv
 Use the provided template ([photo-import-template.csv](photo-import-template.csv)) or create your own with these columns:
 
 ```csv
-filename,category,alt,caption,location,country,date,sub_category,homepage_featured,category_featured
-us-example-nature-1.jpg,nature,Mountain sunset,Golden hour,Colorado,United States,2024-03-15,Rocky Mountains,,1
+filename,category,caption,location,country,homepage_featured,category_featured,country_featured
+us-example-nature-1.jpg,nature,Mountain sunset at golden hour,Rocky Mountains,United States,0,1,0
 ```
 
-**Required columns:** `filename`, `category`, `alt`
-**Optional columns:** `caption`, `location`, `country`, `date`, `sub_category`, `homepage_featured`, `category_featured`
+**Required columns:** `filename`, `category`, `caption`, `location`, `country`
+**Optional columns:** `homepage_featured`, `category_featured`, `country_featured`
+
+**Note:** Alt text is automatically generated as `{country}, {location} - {caption}`, so all three metadata fields are required to ensure accessibility.
 
 The import tool will:
 - ✅ Validate all data before importing
@@ -179,8 +183,8 @@ The import tool will:
 2. Run `npm run photo:template` to generate CSV with **auto-populated** category, location, country
 3. Open `_staging/photo-template.csv` and:
    - Review pre-populated fields (parsed from filename)
-   - Fill in required field: `alt` (descriptive alt text)
-   - Optionally add: caption, date, sub_category, homepage_featured, category_featured
+   - Fill in required field: `caption` (photo caption/description - used for alt text generation)
+   - Optionally add: homepage_featured (0 or 1), category_featured (0-4), country_featured (0 or 1)
 4. Move photos from `_staging/` to `src/images/photography/{category}/`
 5. Run `npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run`
 6. Run `npm run photo:import src/images/photography/_staging/photo-template.csv` and confirm
@@ -190,7 +194,7 @@ The import tool will:
 - Example: `us-north_georgia-nature-1.jpg` becomes:
   - Country: `United States` (title case, `us` → `United States`)
   - Location: `North Georgia` (underscores → spaces, title case)
-  - Category: `nature` (lowercase, validated against: nature, street, concert, other)
+  - Category: `nature` (lowercase, validated against: nature, street, concert)
 - Invalid categories trigger warnings and are left blank
 
 **Manual CSV Workflow:**
@@ -224,29 +228,38 @@ npm run photo:update backups/photos-export.csv
 - Same validation as import (caption/location/country cannot be empty)
 - Transaction-based (all or nothing)
 - Dry-run mode to preview changes
+- Updateable columns: `category`, `caption`, `location`, `country`, `homepage_featured`, `category_featured`, `country_featured`
 
 **Portfolio Organization:**
 
-- **Homepage Featured Work**: Shows exactly 7 featured photos
+- **Homepage**: Single hero photo + 3 category navigation photos
   - Hero image: Photo with `homepage_featured: 1`
-  - Featured grid: Photos with `homepage_featured: 2-7`
-- **Main portfolio page** (`/portfolio`): Shows all category featured photos
-  - Only displays photos with `category_featured` number
+  - Category navigation: Photos with `category_featured: 1` for each category (Nature, Cities & Streets, Music)
+  - Country browse link to `/portfolio/all-countries`
+- **Main portfolio page** (`/portfolio`): Shows up to 6 featured photos per category
+  - Only displays photos with `category_featured > 0`
   - Photos sorted by priority within each category
-- **Category pages** (`/portfolio/nature`, `/portfolio/street`, etc.): View all photos of a specific type, organized by sub-category
-- **Country pages** (`/portfolio/[country]`): View all photos from a specific country, organized by location
+- **Category pages** (`/portfolio/nature`, `/portfolio/street`, etc.): Shows all featured photos of that category
+  - Only displays photos with `category_featured > 0`
+  - Photos sorted by `category_featured` priority
+- **Country pages** (`/portfolio/[country]`): Shows all photos from a specific country, organized by location
+- **All Countries page** (`/portfolio/all-countries`): Country navigation with one photo per country
+  - Photos with `country_featured: 1`
 
 **Featured System:**
-- `homepage_featured`: Fixed 7 photos (1-7) for homepage
-- `category_featured`: Separate priority for category portfolio pages
-- Photos can be featured on homepage, category page, both, or neither
+
+- `homepage_featured`: Boolean (0 or 1) - designates single hero photo
+- `category_featured`: Priority (0-4) - 1 for category navigation, 2-4 for portfolio order, 0 for not featured
+- `country_featured`: Boolean (0 or 1) - designates country navigation photo
+- Photos can be featured on homepage, category page, country page, or any combination
 
 **Bulk Operations:**
 
 For advanced users, use [DB Browser for SQLite](https://sqlitebrowser.org/) to:
+
 - Edit photo metadata in a GUI
 - Perform bulk updates with SQL queries
-- Example: `UPDATE photos SET sub_category = 'Istanbul' WHERE location LIKE '%Istanbul%'`
+- Example: `UPDATE photos SET country_featured = 1 WHERE country = 'Turkey' AND id = (SELECT MIN(id) FROM photos WHERE country = 'Turkey')`
 
 For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
 
@@ -258,8 +271,8 @@ All images are automatically optimized by Astro with WebP conversion and respons
 
 | Page/Context | Aspect Ratio | Optimized Dimensions | Retina Coverage | Notes |
 |-------------|--------------|---------------------|-----------------|-------|
-| **Homepage Hero** | 3:2 | 3840×2560px | 2x @ 1920px, 1.5x @ 4K | Full-screen background, quality=85 |
-| **Featured Work Grid** | Native (flexible) | Variable | 2x @ 280px height | Justified grid layout, quality=80 |
+| **Homepage Hero** | 16:9 | 3840×2160px | 2x @ 1920px, 1.78x @ 4K | Full-screen background, quality=85 |
+| **Category Navigation Grid** | 3:2 | 800×533px | 2x @ 400px | Homepage category navigation |
 | **Portfolio Grids** | Native (flexible) | Variable | 2x @ 280px height | Justified grid layout, quality=80 |
 | **Journal Thumbnails** | 16:9 | 800×450px | 2x @ 400px | Listing page cards |
 | **Journal Hero** | 16:9 | 3072×1728px | 2x @ 1536px | Detail page featured image |
@@ -267,19 +280,20 @@ All images are automatically optimized by Astro with WebP conversion and respons
 | **Writings Hero** | 16:9 | 1792×1008px | 2x @ 896px | Detail page featured image |
 
 ### Home Page
-- **Hero/Main Featured Photo** (first featured image)
-  - Aspect Ratio: 3:2 (flexible landscape)
-  - Optimized Size: **3840×2560px**
-  - Retina Coverage: 2x @ 1920px viewport, 1.5x @ 4K displays
+
+- **Hero Photo**
+  - Aspect Ratio: 16:9
+  - Optimized Size: **3840×2160px**
+  - Retina Coverage: 2x @ 1920px viewport, 1.78x @ 4K displays
   - Location: `src/images/photography/{category}/`
   - Notes: Full viewport width, displayed at 80vh height, automatically optimized to WebP
 
-- **Featured Work Grid** (additional featured photos)
-  - Aspect Ratio: **Native (flexible)**
-  - Row Height: 280px (widths calculated automatically based on aspect ratio)
-  - Retina Coverage: 2x @ 280px height (560px passed to Image component)
+- **Category Navigation Grid** (3 photos: Nature, Cities & Streets, Music)
+  - Aspect Ratio: **3:2**
+  - Optimized Size: **800×533px**
+  - Retina Coverage: 2x @ 400px
   - Location: `src/images/photography/{category}/`
-  - Notes: Uses justified grid layout - dimensions read at build time, optimized to WebP
+  - Notes: 3-column grid with photo names centered below, automatically optimized to WebP
 
 - **Journal/Writings Thumbnails** (recent posts preview)
   - Aspect Ratio: **16:9**
@@ -362,9 +376,10 @@ All images are automatically optimized by Astro with WebP conversion and respons
 - Target row height: 280px, widths adjust based on each image's aspect ratio
 - Uses `object-fit: cover` to ensure images fill their calculated dimensions
 
-**Homepage Featured Work Grid & Main Portfolio Page (Justified Grid):**
-- **Featured Work Grid (Homepage)**: Native aspect ratio with justified grid layout
-- **Main Portfolio Page**: Native aspect ratio with justified grid layout
+**Homepage Category Navigation & Main Portfolio Page:**
+
+- **Homepage Category Navigation**: 3:2 aspect ratio, 3-column grid with centered text below
+- **Main Portfolio Page**: Native aspect ratio with justified grid layout, up to 6 photos per category
 - Uses `object-fit: cover` to fill calculated dimensions cleanly
 - Row height: 280px, widths calculated based on each image's aspect ratio
 - Dimensions read at build time via Sharp library
@@ -398,8 +413,10 @@ Modern displays (MacBooks, high-DPI monitors, mobile devices) typically have 2x 
 | `npm run photo:add` | Interactive CLI to add new photos to database |
 | `npm run photo:template` | Generate CSV template from staging directory |
 | `npm run photo:import <file.csv>` | Bulk import photos from CSV file |
+| `npm run photo:update <file.csv>` | Bulk update existing photos from CSV file |
 | `npm run db:export` | Export database to JSON backup files |
-| `npm run db:migrate` | Migrate JSON files to database (one-time) |
+| `npm run db:export-csv` | Export database to CSV file |
+| `npm run db:validate` | Validate database constraints |
 
 ## 🚢 Deployment
 
@@ -453,8 +470,7 @@ See [CLAUDE.md](./CLAUDE.md#git-large-file-storage-lfs) for detailed LFS documen
 │   │   │   ├── _staging/ # Staging directory for bulk imports
 │   │   │   ├── nature/
 │   │   │   ├── street/
-│   │   │   ├── concert/
-│   │   │   └── other/
+│   │   │   └── concert/
 │   │   └── assets/       # Non-portfolio images
 │   ├── layouts/          # Page layouts
 │   ├── pages/            # Routes
