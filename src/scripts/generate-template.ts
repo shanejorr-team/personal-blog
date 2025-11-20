@@ -143,9 +143,9 @@ function generateTemplate() {
     }
 
     // Build CSV row: filename,category,caption,location,country,homepage_featured,category_featured,country_featured
-    // Pre-populate: filename, category, location, country
-    // Leave blank (user must provide): caption (required), homepage_featured, category_featured, country_featured
-    return `${filename},${parsed.category},,${parsed.location},${parsed.country},,,`;
+    // Pre-populate: filename, category, location, country, featured defaults (0)
+    // Leave blank (user must provide): caption (required)
+    return `${filename},${parsed.category},,${parsed.location},${parsed.country},0,0,0`;
   });
 
   // Display warnings before writing file
@@ -172,9 +172,13 @@ function generateTemplate() {
   console.log('📝 Next steps:');
   console.log('  1. Open the CSV template and review pre-populated fields:');
   console.log('     - category, location, country (auto-filled from filename)');
+  console.log('     - homepage_featured, category_featured, country_featured (default: 0)');
   console.log('  2. Fill in required field:');
   console.log('     - caption (required): photo caption/description');
-  console.log('  3. Optionally fill in: homepage_featured (0 or 1), category_featured (0-4), country_featured (0 or 1)');
+  console.log('  3. Optionally update featured fields:');
+  console.log('     - homepage_featured: change to 1 for hero photo');
+  console.log('     - category_featured: change to 1-4 for category portfolio (1=nav, 2-4=order)');
+  console.log('     - country_featured: change to 1 for country navigation photo');
   console.log('  4. Move photos from _staging/ to src/images/photography/{category}/');
   console.log('  5. Run: npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run');
   console.log('  6. Run: npm run photo:import src/images/photography/_staging/photo-template.csv');
