@@ -132,7 +132,9 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   ├── Header.astro
 │   │   ├── Footer.astro
 │   │   ├── Breadcrumbs.astro
-│   │   └── DarkModeToggle.astro
+│   │   ├── DarkModeToggle.astro
+│   │   ├── Lightbox.astro   # Photo lightbox with auto-initialization
+│   │   └── PhotoGridItem.astro  # Reusable photo grid button component
 │   ├── content/
 │   │   ├── config.ts        # Content collection schemas
 │   │   ├── pages/           # Standalone pages (e.g., about.md)
@@ -166,17 +168,22 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   ├── rss-journal.xml.ts
 │   │   └── rss-writings.xml.ts
 │   ├── scripts/             # CLI tools for database management
+│   │   ├── shared/
+│   │   │   └── validation.ts  # Shared validation utilities
 │   │   ├── migrate-json-to-db.ts  # One-time migration from JSON
 │   │   ├── add-photo.ts     # Interactive CLI for adding photos
 │   │   ├── generate-template.ts # Generate CSV template from staging
 │   │   ├── import-photos-csv.ts # Bulk import from CSV
+│   │   ├── update-photos-csv.ts # Bulk update from CSV
 │   │   └── export-backup.ts # Export database to JSON
 │   ├── styles/
 │   │   └── global.css
 │   └── utils/
 │       ├── db.ts            # Database query functions
 │       ├── helpers.ts
-│       └── imageLoader.ts   # Dynamic image imports using Vite glob
+│       ├── imageLoader.ts   # Dynamic image imports using Vite glob
+│       ├── categories.ts    # Category configuration (titles, nav info)
+│       └── processPhotos.ts # Shared image processing for portfolio pages
 ```
 
 ## Content Schemas
@@ -383,6 +390,23 @@ All three fields (country, location, caption) are required and cannot be empty, 
 - No image optimization applied (shows original JPG/PNG files)
 - Letterboxing/pillarboxing preserves aspect ratios
 - Max constraints: 100% width, 70vh height (60vh on mobile)
+- **Auto-initialization**: Automatically detects `.photo-grid-item` buttons and groups photos by `data-group` attribute
+- Supports keyboard navigation (arrow keys, Escape)
+- Works with Astro view transitions (re-initializes on `astro:page-load`)
+
+**PhotoGridItem Component:**
+
+Use `PhotoGridItem.astro` for consistent photo grid buttons across all portfolio pages:
+
+```astro
+<PhotoGridItem
+  photo={processedPhoto}
+  group="category-name"  <!-- Groups photos for lightbox navigation -->
+  index={0}              <!-- Position in group for lightbox -->
+/>
+```
+
+The component renders a button with all required data attributes for lightbox auto-initialization.
 
 **Key Principle:** All portfolio pages preserve native aspect ratios using justified grid layout. Journal and writings listing pages use fixed aspect ratios with `object-fit: cover` for clean thumbnails. Full images always visible in lightbox with proper aspect ratios.
 
@@ -615,23 +639,45 @@ Creates JSON files in `backups/`:
 **Available Query Functions** (in `src/utils/db.ts`):
 
 ```typescript
-// Homepage (7 featured photos)
-getHomepageFeatured(): Photo[]
+// Homepage
+getHomepageFeatured(): Photo  // Single hero photo (homepage_featured = 1)
 
-// Category portfolio page (featured photos only)
-getCategoryFeatured(category: string): Photo[]
-
-// Category detail page (all photos)
-getAllCategoryPhotos(category: string): Photo[]
+// Category pages
+getCategoryFeatured(category: string): Photo[]  // Featured photos for portfolio
+getCategoryNavigationPhotos(): Photo[]  // One photo per category (category_featured = 1)
+getAllCategoryPhotos(category: string): Photo[]  // All photos in category
 
 // Country pages
 getCountryPhotos(country: string): Photo[]
+getCountryFeaturedPhotos(): Photo[]  // One photo per country (country_featured = 1)
 getAllCountries(): string[]
 
 // Utility
 getPhotoPath(photo: Photo): string  // Constructs full image path
-getPhotoById(id: number): Photo | null
-getPhotoByFilename(filename: string): Photo | null
+getPhotoAlt(photo: Photo): string   // Generates alt text from metadata
+```
+
+**Shared Image Processing** (in `src/utils/processPhotos.ts`):
+
+```typescript
+// Process single photo with dimensions and imported image
+processPhoto(photo: Photo): Promise<ProcessedPhoto>
+
+// Process array of photos for portfolio grids
+processPhotos(photos: Photo[]): Promise<ProcessedPhoto[]>
+
+// Process navigation photos (category/country nav)
+processNavPhotos(photos: Photo[]): Promise<ProcessedNavPhoto[]>
+```
+
+**Category Configuration** (in `src/utils/categories.ts`):
+
+```typescript
+// Category display info (title, description)
+CATEGORY_INFO: Record<string, { title: string; description: string }>
+
+// Category navigation info (name, url)
+CATEGORY_NAV_INFO: Record<string, { name: string; url: string }>
 ```
 
 ### Workflow for Adding Photos

@@ -159,8 +159,11 @@ See [CLAUDE.md](./CLAUDE.md) for detailed image specifications.
 
 ```
 src/
+├── components/
+│   ├── Lightbox.astro         # Photo lightbox with auto-initialization
+│   └── PhotoGridItem.astro    # Reusable photo grid button
 ├── content/
-│   ├── photography-journal/  # Travel photo stories
+│   ├── photography-journal/   # Travel photo stories
 │   ├── writings/              # Blog posts
 │   └── pages/                 # Standalone pages (about.md)
 ├── db/
@@ -173,11 +176,15 @@ src/
 │   │   ├── street/
 │   │   └── concert/
 │   └── assets/                # Blog assets
-├── scripts/                   # CLI tools (photo management)
+├── scripts/
+│   ├── shared/validation.ts   # Shared CLI validation utilities
+│   └── ...                    # CLI tools (photo management)
 ├── pages/                     # File-based routing
 └── utils/
     ├── db.ts                  # Database queries
-    └── imageLoader.ts
+    ├── imageLoader.ts         # Dynamic image imports
+    ├── categories.ts          # Category configuration
+    └── processPhotos.ts       # Shared image processing
 ```
 
 ---
