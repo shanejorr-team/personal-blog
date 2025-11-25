@@ -7,12 +7,14 @@ export interface Props {
   title: string;
   description?: string;
   image?: string;
+  preloadImage?: string;
 }
 
 const {
   title,
   description = 'A photography journal and portfolio showcasing photo stories, travel photography, and creative work.',
   image = '/og-image.jpg',
+  preloadImage,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -54,6 +56,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <!-- RSS Feeds -->
     <link rel="alternate" type="application/rss+xml" title="Photography Journal RSS" href="/rss-journal.xml" />
     <link rel="alternate" type="application/rss+xml" title="Other Writings RSS" href="/rss-writings.xml" />
+
+    <!-- Preload critical images -->
+    {preloadImage && (
+      <link rel="preload" as="image" href={preloadImage} type="image/webp" />
+    )}
   </head>
   <body class="flex flex-col min-h-screen">
     <Header />

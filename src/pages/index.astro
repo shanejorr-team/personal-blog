@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { Image } from 'astro:assets';
+import { Picture, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { sortByDate, filterDrafts } from '../utils/helpers';
 import { getImageByPath } from '../utils/imageLoader';
@@ -14,6 +14,7 @@ const categoryNavPhotos = getCategoryNavigationPhotos();
 
 // Process hero photo
 let heroWithDimensions = null;
+let heroPreloadUrl: string | undefined;
 if (heroPhoto) {
   const imagePath = getPhotoPath(heroPhoto);
   const importedImage = getImageByPath(imagePath);
@@ -26,6 +27,16 @@ if (heroPhoto) {
       aspectRatio,
       importedImage,
     };
+
+    // Generate optimized image URL for preloading
+    const optimizedHero = await getImage({
+      src: importedImage,
+      width: 3840,
+      height: 2160,
+      format: 'webp',
+      quality: 85,
+    });
+    heroPreloadUrl = optimizedHero.src;
   }
 }
 
@@ -73,16 +84,17 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
 <BaseLayout
   title="Shane Orr - Photography & Stories"
   description="Capturing moments and stories through the lens. Explore photo journals, writings, and portfolio."
+  preloadImage={heroPreloadUrl}
 >
   <!-- Hero Section -->
   <section class="relative h-[80vh] min-h-[600px] overflow-hidden">
     {heroWithDimensions && (
-      <Image
+      <Picture
         src={heroWithDimensions.importedImage || heroWithDimensions.src}
         alt={heroWithDimensions.alt}
         width={3840}
         height={2160}
-        format="webp"
+        formats={['avif', 'webp']}
         quality={85}
         class="absolute inset-0 w-full h-full object-cover"
         loading="eager"
@@ -112,12 +124,12 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
             >
               <div class="aspect-[3/2] overflow-hidden bg-gray-200 dark:bg-gray-700">
                 {photo.importedImage ? (
-                  <Image
+                  <Picture
                     src={photo.importedImage}
                     alt={photo.alt}
                     width={800}
                     height={533}
-                    format="webp"
+                    formats={['avif', 'webp']}
                     quality={80}
                     class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
@@ -176,12 +188,12 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
                 <a href={`/journal/${post.slug}`} class="block">
                   {post.data.featuredImage && (
                     <div class="w-full aspect-[16/9] rounded-lg mb-4 overflow-hidden bg-transparent">
-                      <Image
+                      <Picture
                         src={post.data.featuredImage}
                         alt={post.data.title}
                         width={800}
                         height={450}
-                        format="webp"
+                        formats={['avif', 'webp']}
                         quality={80}
                         class="w-full h-full object-cover"
                         loading="lazy"
@@ -221,12 +233,12 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
                 <a href={`/writings/${post.slug}`} class="block">
                   {post.data.featuredImage && (
                     <div class="w-full aspect-[16/9] rounded-lg mb-4 overflow-hidden bg-transparent">
-                      <Image
+                      <Picture
                         src={post.data.featuredImage}
                         alt={post.data.title}
                         width={800}
                         height={450}
-                        format="webp"
+                        formats={['avif', 'webp']}
                         quality={80}
                         class="w-full h-full object-cover"
                         loading="lazy"
