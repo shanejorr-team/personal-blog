@@ -1,0 +1,62 @@
+---
+import { Picture } from 'astro:assets';
+import type { ProcessedImage } from '../utils/processPhotos';
+
+export interface Props {
+  image: ProcessedImage;
+  index: number;
+  groupKey?: string;
+  targetHeight?: number;
+}
+
+const { image, index, groupKey, targetHeight = 280 } = Astro.props;
+
+// Calculate flex-basis based on aspect ratio
+const flexBasis = targetHeight * image.aspectRatio;
+---
+
+<button
+  type="button"
+  class="photo-grid-item group relative overflow-hidden rounded-lg cursor-pointer text-left border-0 p-0 bg-transparent flex-grow-0"
+  style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
+  data-group={groupKey}
+  data-index={index}
+  data-lightbox-src={image.lightboxSrc}
+  data-original-src={image.originalSrc}
+  data-alt={image.alt}
+  data-caption={image.caption || ''}
+  data-location-name={image.location || ''}
+  data-country-name={image.country || ''}
+>
+  {image.importedImage ? (
+    <Picture
+      src={image.importedImage}
+      alt={image.alt}
+      width={Math.round(flexBasis * 2)}
+      height={Math.round(targetHeight * 2)}
+      formats={['avif', 'webp']}
+      quality={80}
+      class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+      loading="lazy"
+    />
+  ) : (
+    <img
+      src={image.src}
+      alt={image.alt}
+      class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+      loading="lazy"
+    />
+  )}
+  {image.caption && (
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
+      <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+        <p class="text-sm font-medium">{image.caption}</p>
+        {(image.location || image.country) && (
+          <p class="text-xs text-gray-300">
+            {[image.location, image.country].filter(Boolean).join(', ')}
+          </p>
+        )}
+      </div>
+    </div>
+  )}
+</button>

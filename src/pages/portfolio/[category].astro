@@ -1,15 +1,14 @@
 ---
-import { Picture, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
-import { getImageByPath } from '../../utils/imageLoader';
-import { getAllCategories, getAllCategoryPhotos, getPhotoPath, getPhotoAlt } from '../../utils/db';
+import PhotoGridItem from '../../components/PhotoGridItem.astro';
+import { getAllCategories, getAllCategoryPhotos } from '../../utils/db';
+import { processPhotos } from '../../utils/processPhotos';
+import { getCategoryTitle } from '../../utils/categories';
 
 export async function getStaticPaths() {
-  // Get categories from database
   const categories = getAllCategories();
-
   return categories.map(category => ({
     params: { category },
     props: { category },
@@ -18,115 +17,11 @@ export async function getStaticPaths() {
 
 const { category } = Astro.props;
 
-// Get all photos for this category from database
+// Get and process photos
 const photos = getAllCategoryPhotos(category);
+const categoryImages = await processPhotos(photos);
 
-// Process photos with dimensions
-const categoryImages = await Promise.all(
-  photos.map(async (photo) => {
-    const imagePath = getPhotoPath(photo);
-
-    // Get imported image from src/images
-    const importedImage = getImageByPath(imagePath);
-
-    if (!importedImage) {
-      console.warn(`Could not find imported image for ${imagePath}`);
-      return {
-        src: imagePath,
-        alt: getPhotoAlt(photo),
-        caption: photo.caption,
-        location: photo.location,
-        country: photo.country,
-        aspectRatio: 1.5,
-        lightboxSrc: imagePath,
-        originalSrc: imagePath,
-        importedImage: undefined,
-      };
-    }
-
-    // Get aspect ratio from imported image metadata
-    const aspectRatio = importedImage.width / importedImage.height;
-
-    // Generate optimized lightbox version (skip for SVG files)
-    const isSvg = imagePath.toLowerCase().endsWith('.svg');
-    let lightboxSrc = imagePath;
-
-    if (!isSvg) {
-      try {
-        // Calculate target height based on aspect ratio
-        const targetHeight = Math.round(1920 / aspectRatio);
-
-        const lightboxImage = await getImage({
-          src: importedImage,
-          width: 1920,
-          height: targetHeight,
-          format: 'webp',
-          quality: 85,
-        });
-        lightboxSrc = lightboxImage.src;
-      } catch (error) {
-        console.warn(`Could not optimize lightbox image for ${imagePath}:`, error.message);
-        // Fall back to original image
-        lightboxSrc = imagePath;
-      }
-    }
-
-    return {
-      src: imagePath,
-      alt: getPhotoAlt(photo),
-      caption: photo.caption,
-      location: photo.location,
-      country: photo.country,
-      aspectRatio,
-      lightboxSrc,
-      originalSrc: imagePath,
-      importedImage,
-    };
-  })
-);
-
-// Display all featured photos in a single justified grid
-
-// Category display names
-const categoryNames: Record<string, string> = {
-  nature: 'Nature',
-  street: 'Street Photography',
-  concert: 'Concert Photography',
-};
-
-const categoryName = categoryNames[category] || category;
-
-// Helper function to create justified rows
-function createJustifiedRows(images: any[], containerWidth: number = 1200, targetHeight: number = 300, gap: number = 16) {
-  const rows: any[][] = [];
-  let currentRow: any[] = [];
-  let currentRowWidth = 0;
-
-  images.forEach((image, index) => {
-    // Default aspect ratio if dimensions not available
-    const aspectRatio = image.aspectRatio || 1.5;
-    const imageWidth = targetHeight * aspectRatio;
-
-    // Check if adding this image would exceed container width
-    if (currentRow.length > 0 && currentRowWidth + imageWidth + gap > containerWidth) {
-      // Finalize current row
-      rows.push([...currentRow]);
-      currentRow = [];
-      currentRowWidth = 0;
-    }
-
-    // Add image to current row
-    currentRow.push({ ...image, index });
-    currentRowWidth += imageWidth + (currentRow.length > 1 ? gap : 0);
-  });
-
-  // Add remaining images as last row
-  if (currentRow.length > 0) {
-    rows.push(currentRow);
-  }
-
-  return rows;
-}
+const categoryName = getCategoryTitle(category);
 ---
 
 <BaseLayout
@@ -139,69 +34,16 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
       { label: categoryName }
     ]} />
 
-    <!-- Header -->
     <div class="text-center mb-12">
       <h1 class="text-4xl md:text-5xl font-bold mb-4">{categoryName}</h1>
     </div>
 
-    <!-- Justified grid layout -->
     <div class="flex flex-wrap gap-4 justify-start">
-      {categoryImages.map((image, index) => {
-        // Calculate flex-basis based on aspect ratio
-        // Target row height of ~280px, adjust width based on aspect ratio
-        const targetHeight = 280;
-        const flexBasis = targetHeight * image.aspectRatio;
-
-        return (
-          <button
-            type="button"
-            class="category-photo group relative overflow-hidden rounded-lg cursor-pointer text-left border-0 p-0 bg-transparent flex-grow-0"
-            style={`flex-basis: ${flexBasis}px; height: ${targetHeight}px;`}
-            data-index={index}
-            data-lightbox-src={image.lightboxSrc}
-            data-original-src={image.originalSrc}
-            data-alt={image.alt}
-            data-caption={image.caption || ''}
-            data-location-name={image.location || ''}
-            data-country-name={image.country || ''}
-          >
-            {image.importedImage ? (
-              <Picture
-                src={image.importedImage}
-                alt={image.alt}
-                width={Math.round(flexBasis * 2)}
-                height={Math.round(targetHeight * 2)}
-                formats={['avif', 'webp']}
-                quality={80}
-                class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
-                loading="lazy"
-              />
-            ) : (
-              <img
-                src={image.src}
-                alt={image.alt}
-                class="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
-                loading="lazy"
-              />
-            )}
-            {image.caption && (
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
-                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <p class="text-sm font-medium">{image.caption}</p>
-                  {(image.location || image.country) && (
-                    <p class="text-xs text-gray-300">
-                      {[image.location, image.country].filter(Boolean).join(', ')}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-          </button>
-        );
-      })}
+      {categoryImages.map((image, index) => (
+        <PhotoGridItem image={image} index={index} />
+      ))}
     </div>
 
-    {/* Show message if no photos found */}
     {categoryImages.length === 0 && (
       <div class="text-center py-12">
         <p class="text-gray-600 dark:text-gray-400">
@@ -211,58 +53,5 @@ function createJustifiedRows(images: any[], containerWidth: number = 1200, targe
     )}
   </div>
 
-  <!-- Lightbox Component -->
   <Lightbox />
 </BaseLayout>
-
-<script>
-  // Category page lightbox functionality
-  function initCategoryPhotos() {
-    const categoryPhotoButtons = document.querySelectorAll('.category-photo');
-
-    // Collect all photos as a single collection
-    const allPhotos: Array<{
-      image: string;
-      original: string;
-      alt: string;
-      title: string;
-      location?: string;
-      description?: string;
-    }> = [];
-
-    categoryPhotoButtons.forEach((button) => {
-      const btn = button as HTMLButtonElement;
-      const locationParts = [btn.dataset.locationName, btn.dataset.countryName]
-        .filter(Boolean);
-
-      const photoData = {
-        image: btn.dataset.lightboxSrc || '',
-        original: btn.dataset.originalSrc || '',
-        alt: btn.dataset.alt || '',
-        title: btn.dataset.caption || '',
-        location: locationParts.join(', '),
-        description: '', // Category photos don't have descriptions
-      };
-
-      allPhotos.push(photoData);
-    });
-
-    // Add click handlers
-    categoryPhotoButtons.forEach((photo) => {
-      photo.addEventListener('click', (e) => {
-        const button = e.currentTarget as HTMLButtonElement;
-        const clickedIndex = parseInt(button.dataset.index || '0', 10);
-
-        if ((window as any).openLightbox && allPhotos.length > 0) {
-          (window as any).openLightbox(allPhotos, clickedIndex);
-        }
-      });
-    });
-  }
-
-  // Initialize on page load
-  initCategoryPhotos();
-
-  // Re-initialize on navigation (for Astro view transitions)
-  document.addEventListener('astro:page-load', initCategoryPhotos);
-</script>

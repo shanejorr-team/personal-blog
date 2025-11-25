@@ -80,11 +80,6 @@
     @apply dark:bg-blue-500 dark:hover:bg-blue-600;
   }
 
-  .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300;
-    @apply dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
-  }
-
   /* Card styles */
   .card {
     @apply bg-white dark:bg-gray-800 rounded-lg overflow-hidden;
@@ -97,34 +92,3 @@
   }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  /* Justified grid layout - Flickr-style rows */
-  .justified-grid {
-    @apply flex flex-wrap gap-4;
-  }
-
-  .justified-grid-row {
-    @apply flex gap-4 w-full;
-  }
-
-  .justified-grid-item {
-    @apply flex-grow-0 flex-shrink-0;
-    @apply rounded-lg overflow-hidden;
-    @apply transition-all duration-200;
-  }
-
-  .justified-grid-item:hover {
-    @apply transform scale-105 shadow-xl;
-  }
-
-  /* Disable hover effects on mobile */
-  @media (hover: none) {
-    .justified-grid-item:hover {
-      @apply transform-none scale-100;
-    }
-  }
-}

@@ -430,4 +430,59 @@
 
   // Expose openLightbox function globally for use in other components
   (window as any).openLightbox = openLightbox;
+
+  // Auto-initialize photo grid items
+  function initPhotoGridItems() {
+    const photoButtons = document.querySelectorAll('.photo-grid-item');
+    if (photoButtons.length === 0) return;
+
+    // Group photos by their data-group attribute (or treat all as one group if not set)
+    const photosByGroup: Record<string, Array<{
+      image: string;
+      original: string;
+      alt: string;
+      title: string;
+      location?: string;
+      description?: string;
+    }>> = {};
+
+    photoButtons.forEach((button) => {
+      const btn = button as HTMLButtonElement;
+      const group = btn.dataset.group || '_all';
+      const locationParts = [btn.dataset.locationName, btn.dataset.countryName].filter(Boolean);
+
+      const photoData = {
+        image: btn.dataset.lightboxSrc || '',
+        original: btn.dataset.originalSrc || '',
+        alt: btn.dataset.alt || '',
+        title: btn.dataset.caption || '',
+        location: locationParts.join(', '),
+        description: '',
+      };
+
+      if (!photosByGroup[group]) {
+        photosByGroup[group] = [];
+      }
+      photosByGroup[group].push(photoData);
+    });
+
+    // Add click handlers
+    photoButtons.forEach((photo) => {
+      photo.addEventListener('click', (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+        const group = button.dataset.group || '_all';
+        const clickedIndex = parseInt(button.dataset.index || '0', 10);
+
+        if ((window as any).openLightbox && photosByGroup[group]) {
+          (window as any).openLightbox(photosByGroup[group], clickedIndex);
+        }
+      });
+    });
+  }
+
+  // Initialize on page load
+  initPhotoGridItems();
+
+  // Re-initialize on navigation (for Astro view transitions)
+  document.addEventListener('astro:page-load', initPhotoGridItems);
 </script>

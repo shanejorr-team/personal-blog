@@ -24,9 +24,9 @@ export interface Photo {
   caption: string;
   location: string;
   country: string;
-  homepage_featured: number;
-  category_featured: number;
-  country_featured: number;
+  homepage_featured: 0 | 1;
+  category_featured: 0 | 1 | 2 | 3 | 4;
+  country_featured: 0 | 1;
   created_at: string;
   updated_at: string;
 }
@@ -162,31 +162,3 @@ export function getPhotoAlt(photo: Photo): string {
   return `${photo.country}, ${photo.location} - ${photo.caption}`;
 }
 
-/**
- * Get a single photo by ID.
- */
-export function getPhotoById(id: number): Photo | null {
-  const query = `SELECT * FROM photos WHERE id = ?`;
-  const result = getDb().prepare(query).get(id) as Photo | undefined;
-  return result || null;
-}
-
-/**
- * Get a single photo by filename.
- */
-export function getPhotoByFilename(filename: string): Photo | null {
-  const query = `SELECT * FROM photos WHERE filename = ?`;
-  const result = getDb().prepare(query).get(filename) as Photo | undefined;
-  return result || null;
-}
-
-/**
- * Close the database connection.
- * Useful for cleanup in scripts.
- */
-export function closeDb(): void {
-  if (db) {
-    db.close();
-    db = null;
-  }
-}

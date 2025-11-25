@@ -5,6 +5,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { sortByDate, filterDrafts } from '../utils/helpers';
 import { getImageByPath } from '../utils/imageLoader';
 import { getHomepageFeatured, getCategoryNavigationPhotos, getPhotoPath, getPhotoAlt } from '../utils/db';
+import { processNavPhotos } from '../utils/processPhotos';
+import { CATEGORY_NAV_INFO } from '../utils/categories';
 
 // Get hero photo from database
 const heroPhoto = getHomepageFeatured();
@@ -41,36 +43,7 @@ if (heroPhoto) {
 }
 
 // Process category navigation photos
-const categoryNavWithDimensions = await Promise.all(
-  categoryNavPhotos.map(async (photo) => {
-    const imagePath = getPhotoPath(photo);
-
-    // Get imported image from src/images
-    const importedImage = getImageByPath(imagePath);
-
-    if (!importedImage) {
-      console.warn(`Could not find imported image for ${imagePath}`);
-      return {
-        src: imagePath,
-        alt: getPhotoAlt(photo),
-        category: photo.category,
-        aspectRatio: 1.5,
-        importedImage: undefined,
-      };
-    }
-
-    // Get aspect ratio from imported image metadata
-    const aspectRatio = importedImage.width / importedImage.height;
-
-    return {
-      src: imagePath,
-      alt: getPhotoAlt(photo),
-      category: photo.category,
-      aspectRatio,
-      importedImage,
-    };
-  })
-);
+const categoryNavWithDimensions = await processNavPhotos(categoryNavPhotos);
 
 // Get recent journal posts
 const journalPosts = await getCollection('photography-journal');
@@ -110,16 +83,12 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
       <!-- Category navigation grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {categoryNavWithDimensions.map((photo) => {
-          // Map category to display names and URLs
-          const categoryInfo = {
-            nature: { name: 'Nature', url: '/portfolio/nature' },
-            street: { name: 'Cities & Streets', url: '/portfolio/street' },
-            concert: { name: 'Music', url: '/portfolio/concert' },
-          }[photo.category];
+          const navInfo = CATEGORY_NAV_INFO[photo.category];
+          if (!navInfo) return null;
 
           return (
             <a
-              href={categoryInfo.url}
+              href={navInfo.url}
               class="group block overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow"
             >
               <div class="aspect-[3/2] overflow-hidden bg-gray-200 dark:bg-gray-700">
@@ -145,7 +114,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
               </div>
               <div class="py-4 text-center">
                 <h3 class="text-xl font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {categoryInfo.name}
+                  {navInfo.name}
                 </h3>
               </div>
             </a>

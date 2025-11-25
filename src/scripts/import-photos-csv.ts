@@ -16,18 +16,24 @@
  */
 
 import Database from 'better-sqlite3';
-import { parse } from 'csv-parse/sync';
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { existsSync } from 'fs';
 import prompts from 'prompts';
-
-// Database path
-const DB_PATH = join(process.cwd(), 'src', 'db', 'photos.db');
-const IMAGES_BASE = join(process.cwd(), 'src', 'images', 'photography');
-
-// Valid categories
-const VALID_CATEGORIES = ['nature', 'street', 'concert'] as const;
-type Category = typeof VALID_CATEGORIES[number];
+import {
+  DB_PATH,
+  VALID_CATEGORIES,
+  type ValidationError,
+  validateFilename,
+  validateCategory,
+  validateRequiredField,
+  validateHomepageFeatured,
+  validateCategoryFeatured,
+  validateCountryFeatured,
+  validatePhotoExists,
+  parseCSVFile,
+  validateRequiredColumns,
+  parseFeaturedField,
+  formatErrors,
+} from './shared/validation';
 
 // CSV row interface
 interface CSVRow {
@@ -41,13 +47,6 @@ interface CSVRow {
   country_featured?: string;
 }
 
-// Validation error interface
-interface ValidationError {
-  row: number;
-  field: string;
-  message: string;
-}
-
 /**
  * Validate a single CSV row
  */
@@ -55,91 +54,33 @@ function validateRow(row: CSVRow, rowIndex: number): ValidationError[] {
   const errors: ValidationError[] = [];
   const rowNum = rowIndex + 2; // +2 for header row and 1-based indexing
 
-  // Required fields
-  if (!row.filename?.trim()) {
-    errors.push({ row: rowNum, field: 'filename', message: 'Filename is required' });
-  } else {
-    // Validate filename extension
-    const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.avif'];
-    const hasValidExt = validExtensions.some(ext =>
-      row.filename.toLowerCase().endsWith(ext)
-    );
-    if (!hasValidExt) {
-      errors.push({
-        row: rowNum,
-        field: 'filename',
-        message: `Must end with ${validExtensions.join(', ')}`
-      });
-    }
-  }
+  // Validate all fields
+  const filenameError = validateFilename(row.filename, rowNum);
+  if (filenameError) errors.push(filenameError);
 
-  if (!row.category?.trim()) {
-    errors.push({ row: rowNum, field: 'category', message: 'Category is required' });
-  } else if (!VALID_CATEGORIES.includes(row.category as Category)) {
-    errors.push({
-      row: rowNum,
-      field: 'category',
-      message: `Must be one of: ${VALID_CATEGORIES.join(', ')}`
-    });
-  }
+  const categoryError = validateCategory(row.category, rowNum);
+  if (categoryError) errors.push(categoryError);
 
-  if (!row.caption?.trim()) {
-    errors.push({ row: rowNum, field: 'caption', message: 'Caption is required' });
-  }
+  const captionError = validateRequiredField(row.caption, 'caption', rowNum);
+  if (captionError) errors.push(captionError);
 
-  if (!row.location?.trim()) {
-    errors.push({ row: rowNum, field: 'location', message: 'Location is required' });
-  }
+  const locationError = validateRequiredField(row.location, 'location', rowNum);
+  if (locationError) errors.push(locationError);
 
-  if (!row.country?.trim()) {
-    errors.push({ row: rowNum, field: 'country', message: 'Country is required' });
-  }
+  const countryError = validateRequiredField(row.country, 'country', rowNum);
+  if (countryError) errors.push(countryError);
 
-  // Optional field validation
-  if (row.homepage_featured && row.homepage_featured.trim()) {
-    const value = parseInt(row.homepage_featured.trim());
-    if (isNaN(value) || ![0, 1].includes(value)) {
-      errors.push({
-        row: rowNum,
-        field: 'homepage_featured',
-        message: 'Must be 0 or 1 (0=not hero, 1=hero photo)'
-      });
-    }
-  }
+  const homepageError = validateHomepageFeatured(row.homepage_featured, rowNum);
+  if (homepageError) errors.push(homepageError);
 
-  if (row.category_featured && row.category_featured.trim()) {
-    const value = parseInt(row.category_featured.trim());
-    if (isNaN(value) || ![0, 1, 2, 3, 4].includes(value)) {
-      errors.push({
-        row: rowNum,
-        field: 'category_featured',
-        message: 'Must be 0, 1, 2, 3, or 4 (1=navigation, 2-4=portfolio order, 0=not featured)'
-      });
-    }
-  }
+  const categoryFeaturedError = validateCategoryFeatured(row.category_featured, rowNum);
+  if (categoryFeaturedError) errors.push(categoryFeaturedError);
 
-  if (row.country_featured && row.country_featured.trim()) {
-    const value = parseInt(row.country_featured.trim());
-    if (isNaN(value) || ![0, 1].includes(value)) {
-      errors.push({
-        row: rowNum,
-        field: 'country_featured',
-        message: 'Must be 0 or 1 (0=not country nav photo, 1=country nav photo)'
-      });
-    }
-  }
+  const countryFeaturedError = validateCountryFeatured(row.country_featured, rowNum);
+  if (countryFeaturedError) errors.push(countryFeaturedError);
 
-  // Check if photo file exists
-  if (row.filename?.trim() && row.category?.trim() && VALID_CATEGORIES.includes(row.category as Category)) {
-    const photoPath = join(IMAGES_BASE, row.category, row.filename.trim());
-    if (!existsSync(photoPath)) {
-      errors.push({
-        row: rowNum,
-        field: 'filename',
-        message: `Photo file not found at src/images/photography/${row.category}/${row.filename.trim()}`
-      });
-    }
-  }
+  const photoExistsError = validatePhotoExists(row.filename, row.category, rowNum);
+  if (photoExistsError) errors.push(photoExistsError);
 
   return errors;
 }
@@ -149,41 +90,16 @@ function validateRow(row: CSVRow, rowIndex: number): ValidationError[] {
  */
 function parseCSV(filepath: string): { rows: CSVRow[], errors: ValidationError[] } {
   const errors: ValidationError[] = [];
+  const records = parseCSVFile<CSVRow>(filepath);
 
-  // Read CSV file
-  let csvContent: string;
-  try {
-    csvContent = readFileSync(filepath, 'utf-8');
-  } catch (error) {
-    console.error(`❌ Error reading file: ${filepath}`);
-    console.error(error);
-    process.exit(1);
-  }
-
-  // Parse CSV
-  let records: CSVRow[];
-  try {
-    records = parse(csvContent, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-      relax_column_count: true, // Allow varying column counts
-    }) as CSVRow[];
-  } catch (error) {
-    console.error('❌ Error parsing CSV file:');
-    console.error(error);
-    process.exit(1);
-  }
-
-  // Check for required columns
   if (records.length === 0) {
     console.error('❌ CSV file is empty');
     process.exit(1);
   }
 
-  const firstRow = records[0];
+  // Check for required columns
   const requiredColumns = ['filename', 'category', 'caption', 'location', 'country'];
-  const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+  const missingColumns = validateRequiredColumns(records[0], requiredColumns);
 
   if (missingColumns.length > 0) {
     console.error('❌ Missing required columns:', missingColumns.join(', '));
@@ -254,9 +170,7 @@ async function importPhotos(filepath: string, dryRun: boolean = false) {
 
   if (validationErrors.length > 0) {
     console.error(`\n❌ Found ${validationErrors.length} validation ${validationErrors.length === 1 ? 'error' : 'errors'}:\n`);
-    validationErrors.forEach(error => {
-      console.error(`  Row ${error.row}, ${error.field}: ${error.message}`);
-    });
+    formatErrors(validationErrors);
     process.exit(1);
   }
 
@@ -267,9 +181,7 @@ async function importPhotos(filepath: string, dryRun: boolean = false) {
   const duplicateErrors = checkDuplicates(rows, db);
   if (duplicateErrors.length > 0) {
     console.error(`\n❌ Found ${duplicateErrors.length} duplicate ${duplicateErrors.length === 1 ? 'error' : 'errors'}:\n`);
-    duplicateErrors.forEach(error => {
-      console.error(`  Row ${error.row}, ${error.field}: ${error.message}`);
-    });
+    formatErrors(duplicateErrors);
     db.close();
     process.exit(1);
   }
@@ -342,9 +254,9 @@ async function importPhotos(filepath: string, dryRun: boolean = false) {
         row.caption.trim(),
         row.location.trim(),
         row.country.trim(),
-        row.homepage_featured?.trim() ? parseInt(row.homepage_featured.trim()) : 0,
-        row.category_featured?.trim() ? parseInt(row.category_featured.trim()) : 0,
-        row.country_featured?.trim() ? parseInt(row.country_featured.trim()) : 0
+        parseFeaturedField(row.homepage_featured),
+        parseFeaturedField(row.category_featured),
+        parseFeaturedField(row.country_featured)
       );
     });
   });

@@ -25,20 +25,3 @@ for (const [path, module] of Object.entries(images)) {
 export function getImageByPath(path: string): ImageMetadata | undefined {
   return imageMap.get(path);
 }
-
-/**
- * Check if an image exists in the map
- * @param path - Public path like '/images/photography/nature/ship.jpg'
- * @returns boolean indicating if image exists
- */
-export function hasImage(path: string): boolean {
-  return imageMap.has(path);
-}
-
-/**
- * Get all available image paths
- * @returns Array of public paths
- */
-export function getAllImagePaths(): string[] {
-  return Array.from(imageMap.keys());
-}
