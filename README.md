@@ -85,8 +85,8 @@ npm run photo:template
 # 4. Move photos to src/images/photography/{category}/
 
 # 5. Import
-npm run photo:import _staging/photo-template.csv --dry-run
-npm run photo:import _staging/photo-template.csv
+npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run
+npm run photo:import src/images/photography/_staging/photo-template.csv
 ```
 
 **Bulk Update**:

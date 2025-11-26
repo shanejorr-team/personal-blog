@@ -38,7 +38,10 @@
       "Bash(done)",
       "Bash(npm run build:scripts:*)",
       "Bash(tsx src/scripts/migrate-database.ts:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(npx tsc:*)",
+      "Bash(for f in us_*.jpg)",
+      "Bash(do mv \"$f\" \"us-$f#us_\")"
     ],
     "deny": [],
     "ask": []
