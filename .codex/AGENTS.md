@@ -727,4 +727,4 @@ The database architecture is designed to scale to thousands of photos:
 
 ## Important
 
-When updating code, also update `README.md` and `CLAUDE.md` documentation.
+When updating code, also update `README.md`.
