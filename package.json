@@ -17,6 +17,7 @@
     "photo:template": "tsx src/scripts/generate-template.ts"
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.3.12",
     "astro": "^5.15.3",
     "better-sqlite3": "^12.4.1",
     "csv-parse": "^6.1.0"

@@ -57,6 +57,51 @@ tags: ["tutorial"]
 Your content here...
 ```
 
+### Embedding Images in Posts
+
+To embed optimized images within post content (not just as featured image), use MDX:
+
+1. **Rename file to `.mdx`** (e.g., `my-post.mdx`)
+
+2. **Import and use the Picture component**:
+
+```mdx
+---
+title: "My Photo Story"
+description: "Description"
+date: 2024-03-15
+tags: ["travel"]
+draft: false
+---
+
+import { Picture } from 'astro:assets';
+import photo1 from '../../images/photography/nature/us-georgia-nature-1.jpg';
+import photo2 from '../../images/photography/nature/us-georgia-nature-2.jpg';
+
+Here's some introductory text.
+
+<Picture src={photo1} alt="Mountain vista at sunrise" formats={['avif', 'webp']} />
+
+More narrative text here.
+
+<Picture src={photo2} alt="Wildflowers in meadow" formats={['avif', 'webp']} width={800} />
+```
+
+**Why `Picture` over `Image`?**
+
+- `Picture` generates multiple formats (AVIF → WebP → fallback)
+- AVIF is ~20-30% smaller than WebP for browsers that support it
+- `Image` outputs only one format (WebP by default)
+
+**Optional styling with caption**:
+
+```mdx
+<figure class="my-8">
+  <Picture src={photo} alt="Description" formats={['avif', 'webp']} class="rounded-lg" />
+  <figcaption class="text-center text-sm text-gray-600 mt-2">Caption here</figcaption>
+</figure>
+```
+
 ### Images
 
 - **Portfolio photos**: `src/images/photography/{category}/` (nature, street, concert)
