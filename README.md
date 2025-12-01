@@ -100,8 +100,9 @@ npm run photo:update backups/photos-export.csv  # Import changes
 **Featured System**:
 
 - `homepage_featured: 1` - Hero photo on homepage
-- `category_featured: 1-N` - Sort order in portfolio (1 = highest priority, shown on category nav)
-- `category_featured: 0` or `NULL` - Excluded from portfolio pages
+- `category_featured: 1-N` - Sort order in portfolio
+  - 1 = highest priority, shown on category nav on homepage
+  - 2 = shown on main portfolio page
 - `country_featured: 1` - Country navigation photo
 
 See [CLAUDE.md](./CLAUDE.md) for detailed workflows and SQL queries.
