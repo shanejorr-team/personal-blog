@@ -45,7 +45,7 @@ interface PortfolioJSON {
 
 /**
  * Extract filename from image src path
- * Example: /images/photography/nature/us-georgia-nature-1.jpg -> us-georgia-nature-1.jpg
+ * Example: /photography/nature/us-georgia-nature-1.jpg -> us-georgia-nature-1.jpg
  */
 function extractFilename(src: string): string {
   return src.split('/').pop() || src;

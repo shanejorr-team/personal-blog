@@ -150,7 +150,7 @@ async function addPhoto() {
 
     console.log(`\n✅ Photo added successfully! (ID: ${result.lastInsertRowid})`);
     console.log(`\n📁 Make sure the photo exists at:`);
-    console.log(`   src/images/photography/${answers.category}/${answers.filename}`);
+    console.log(`   src/photography/${answers.category}/${answers.filename}`);
   } catch (error) {
     console.error('\n❌ Error adding photo:', error);
     process.exit(1);

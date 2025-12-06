@@ -32,30 +32,32 @@ Open browser to `http://localhost:4321`
 
 ### Blog Posts
 
-**Photography Journal** - Create in `src/content/photography-journal/`:
+**Photography Journal** - Create folder in `src/content/photography-journal/{slug}/index.mdx`:
 ```markdown
 ---
 title: "Your Story"
 description: "Brief description"
 date: 2024-03-15
 location: "Tokyo, Japan"
-featuredImage: ../../images/photography/street/photo.jpg
+featuredImage: ../../../photography/street/photo.jpg
 tags: ["travel", "japan"]
 ---
 Your content here...
 ```
+Non-portfolio images can be co-located in the post folder and referenced as `./image.jpg`.
 
-**Writings** - Create in `src/content/writings/`:
+**Writings** - Create folder in `src/content/writings/{slug}/index.mdx`:
 ```markdown
 ---
 title: "Your Post"
 description: "Brief description"
 date: 2024-03-15
-featuredImage: ../../images/assets/image.jpg
+featuredImage: ./featured.png
 tags: ["tutorial"]
 ---
 Your content here...
 ```
+Images are co-located in the post folder.
 
 ### Embedding Images in Posts
 
@@ -75,8 +77,8 @@ draft: false
 ---
 
 import { Picture } from 'astro:assets';
-import photo1 from '../../images/photography/nature/us-georgia-nature-1.jpg';
-import photo2 from '../../images/photography/nature/us-georgia-nature-2.jpg';
+import photo1 from '../../photography/nature/us-georgia-nature-1.jpg';
+import photo2 from '../../photography/nature/us-georgia-nature-2.jpg';
 
 Here's some introductory text.
 
@@ -104,8 +106,8 @@ More narrative text here.
 
 ### Images
 
-- **Portfolio photos**: `src/images/photography/{category}/` (nature, street, concert)
-- **Blog assets**: `src/images/assets/`
+- **Portfolio photos**: `src/photography/{category}/` (nature, street, concert)
+- **Journal/Writings images**: Co-located in post folders
 - All images auto-optimized to WebP at build time
 
 ### Portfolio Photos
@@ -120,18 +122,18 @@ npm run photo:add
 
 ```bash
 # 1. Copy photos to staging (use naming: [country]-[location]-[category]-[number].jpg)
-cp /path/to/photos/* src/images/photography/_staging/
+cp /path/to/photos/* src/photography/_staging/
 
 # 2. Generate CSV template with auto-populated metadata
 npm run photo:template
 
 # 3. Edit _staging/photo-template.csv (add captions, review metadata)
 
-# 4. Move photos to src/images/photography/{category}/
+# 4. Move photos to src/photography/{category}/
 
 # 5. Import
-npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run
-npm run photo:import src/images/photography/_staging/photo-template.csv
+npm run photo:import src/photography/_staging/photo-template.csv --dry-run
+npm run photo:import src/photography/_staging/photo-template.csv
 ```
 
 **Bulk Update**:
@@ -209,19 +211,17 @@ src/
 │   ├── Lightbox.astro         # Photo lightbox with auto-initialization
 │   └── PhotoGridItem.astro    # Reusable photo grid button
 ├── content/
-│   ├── photography-journal/   # Travel photo stories
-│   ├── writings/              # Blog posts
+│   ├── photography-journal/   # Travel photo stories (folder-per-post)
+│   ├── writings/              # Blog posts (folder-per-post)
 │   └── pages/                 # Standalone pages (about.md)
 ├── db/
 │   ├── photos.db              # Portfolio metadata (SQLite)
 │   └── schema.sql
-├── images/
-│   ├── photography/           # Portfolio photos
-│   │   ├── _staging/          # Bulk import staging
-│   │   ├── nature/
-│   │   ├── street/
-│   │   └── concert/
-│   └── assets/                # Blog assets
+├── photography/               # Portfolio photos
+│   ├── _staging/              # Bulk import staging
+│   ├── nature/
+│   ├── street/
+│   └── concert/
 ├── scripts/
 │   ├── shared/validation.ts   # Shared CLI validation utilities
 │   └── ...                    # CLI tools (photo management)

@@ -58,7 +58,7 @@ interface PortfolioJSON {
  */
 function photoToPortfolioImage(photo: Photo): PortfolioImage {
   return {
-    src: `/images/photography/${photo.category}/${photo.filename}`,
+    src: `/photography/${photo.category}/${photo.filename}`,
     caption: photo.caption,
     location: photo.location,
     country: photo.country,

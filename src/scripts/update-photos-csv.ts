@@ -130,7 +130,7 @@ function validateRow(
       errors.push({
         row: rowNum,
         field: 'filename',
-        message: `Photo file not found at src/images/photography/${row.category}/${row.filename.trim()}`
+        message: `Photo file not found at src/photography/${row.category}/${row.filename.trim()}`
       });
     }
   }

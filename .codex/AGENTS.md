@@ -86,7 +86,7 @@ If you're cloning this repository:
 
 **Normal git commands work as expected:**
 ```bash
-git add src/images/photography/nature/new-photo.jpg
+git add src/photography/nature/new-photo.jpg
 git commit -m "Add new photo"
 git push
 ```
@@ -138,18 +138,22 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   ├── content/
 │   │   ├── config.ts        # Content collection schemas
 │   │   ├── pages/           # Standalone pages (e.g., about.md)
-│   │   ├── photography-journal/  # Markdown posts
-│   │   └── writings/        # Markdown posts
+│   │   ├── photography-journal/  # MDX posts (folder-per-post with co-located images)
+│   │   │   └── {slug}/      # Each post is a folder
+│   │   │       ├── index.mdx    # Post content
+│   │   │       └── *.jpg        # Non-portfolio images co-located with post
+│   │   └── writings/        # MDX posts (folder-per-post with co-located images)
+│   │       └── {slug}/      # Each post is a folder
+│   │           ├── index.mdx    # Post content
+│   │           └── *.png        # Illustrations co-located with post
 │   ├── db/
 │   │   ├── photos.db        # SQLite database with photo metadata
 │   │   └── schema.sql       # Database schema definition
-│   ├── images/
-│   │   ├── photography/     # Portfolio-worthy photos
-│   │   │   ├── _staging/    # Staging directory for bulk imports
-│   │   │   ├── nature/
-│   │   │   ├── street/
-│   │   │   └── concert/
-│   │   └── assets/          # Non-portfolio images for blog posts
+│   ├── photography/         # Portfolio-worthy photos
+│   │   ├── _staging/        # Staging directory for bulk imports
+│   │   ├── nature/
+│   │   ├── street/
+│   │   └── concert/
 │   ├── layouts/
 │   │   └── BaseLayout.astro
 │   ├── pages/               # File-based routing
@@ -189,8 +193,17 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 ## Content Schemas
 
 ### Photography Journal Posts
-Location: `src/content/photography-journal/*.md`
+Location: `src/content/photography-journal/{slug}/index.mdx`
 
+Uses **folder-per-post structure** with co-located images:
+
+```
+src/content/photography-journal/2025-12-01-argentina-cerro-penitentes-summit/
+├── index.mdx           # Post content
+└── *.jpg               # Non-portfolio images co-located with post
+```
+
+**Frontmatter:**
 ```markdown
 ---
 title: string
@@ -198,33 +211,55 @@ description: string
 date: Date
 location?: string
 country?: string
-featuredImage?: relative path to image (e.g., ../../images/photography/nature/photo.jpg)
+featuredImage?: ./image.jpg or ../../../photography/nature/photo.jpg
 tags: string[]
 draft: boolean
 ---
-
-Content in standard Markdown format.
 ```
 
-**Note:** `featuredImage` uses Astro's `image()` helper for type-safe, optimized image handling. Reference images using relative paths from the markdown file.
+**Inline images (MDX):**
+```jsx
+import { Picture } from 'astro:assets';
+import photo from './photo.jpg';
+
+<Picture src={photo} alt="Description" formats={['avif', 'webp']} />
+```
+
+**Note:** Non-portfolio images are co-located with the post for easier management. Portfolio images (in `src/photography/`) can still be referenced via relative paths like `../../../photography/nature/photo.jpg`. The slug is derived from the folder name.
 
 ### Writings Posts
-Location: `src/content/writings/*.md`
+Location: `src/content/writings/{slug}/index.mdx`
 
+Uses **folder-per-post structure** with co-located images:
+
+```
+src/content/writings/2025-12-01-llm-audience/
+├── index.mdx           # Post content
+├── featured.png        # Featured image
+└── llm-pretraining.png # Inline illustrations
+```
+
+**Frontmatter:**
 ```markdown
 ---
 title: string
 description: string
 date: Date
-featuredImage?: relative path to image (e.g., ../../images/assets/image.png)
+featuredImage?: ./image.png  # Relative to post folder
 tags: string[]
 draft: boolean
 ---
-
-Content in standard Markdown format.
 ```
 
-**Note:** `featuredImage` uses Astro's `image()` helper for type-safe, optimized image handling. Reference images using relative paths from the markdown file.
+**Inline images (MDX):**
+```jsx
+import { Picture } from 'astro:assets';
+import illustration from './illustration.png';
+
+<Picture src={illustration} alt="Description" formats={['avif', 'webp']} />
+```
+
+**Note:** Images are co-located with the post for easier management. Each post folder contains the MDX file and all its illustrations. The slug is derived from the folder name.
 
 ### Pages
 Location: `src/content/pages/*.md`
@@ -299,25 +334,30 @@ All three fields (country, location, caption) are required and cannot be empty, 
 ## Key Patterns
 
 ### Image Organization
-**Single Source of Truth:** All images are stored in `src/images/` with automatic optimization:
-- **Portfolio photos**: `src/images/photography/{category}/` - organized by photo type
-- **Non-portfolio assets**: `src/images/assets/` - for writings and other content
+**Single Source of Truth:** All images are stored with automatic optimization:
+- **Portfolio photos**: `src/photography/{category}/` - organized by photo type
+- **Journal images**: Co-located with posts in `src/content/photography-journal/{slug}/`
+- **Writings illustrations**: Co-located with posts in `src/content/writings/{slug}/`
 
 **Content Type Image Usage:**
-- **Photography journal posts**: Reference portfolio images via relative paths using Astro's `image()` helper
+- **Photography journal posts**: Non-portfolio images co-located in post folder; portfolio images referenced via relative paths
 - **Portfolio galleries**: Metadata stored in SQLite database, images loaded through `imageLoader.ts`
-- **Writings posts**: Reference assets via relative paths using Astro's `image()` helper
+- **Writings posts**: Images co-located in post folder, referenced as `./image.png`
 
 **Technical Implementation:**
 - **Portfolio images**: Loaded dynamically using Vite's `import.meta.glob()` in `src/utils/imageLoader.ts`
   - Database stores filename only (e.g., `us-georgia-nature-1.jpg`)
-  - Full path constructed as `/images/photography/{category}/{filename}`
+  - Full path constructed as `/photography/{category}/{filename}`
   - The image loader maps these paths to imported image objects at build time
   - Database queries in `src/utils/db.ts` provide type-safe metadata access
-- **Journal & writings images**: Use Astro's `image()` schema helper for direct imports
-  - Content files use relative paths like `../../images/assets/filename.jpg`
-  - Astro automatically imports and optimizes images at build time
-  - Type-safe with build-time validation
+- **Journal images**: Co-located with posts using folder-per-post structure
+  - Non-portfolio images stored alongside `index.mdx` in the post folder
+  - Portfolio images referenced via relative paths like `../../../photography/{category}/filename.jpg`
+  - Both frontmatter and inline imports supported
+- **Writings images**: Co-located with posts using folder-per-post structure
+  - Images stored alongside `index.mdx` in the post folder
+  - Referenced with simple paths like `./featured.png` or `./illustration.png`
+  - Both frontmatter and inline imports use the same co-located images
 
 **Benefits:**
 - Automatic image optimization (WebP conversion, resizing, quality adjustment)
@@ -335,19 +375,27 @@ All three fields (country, location, caption) are required and cannot be empty, 
 
 ### Image Paths
 - **Portfolio images (metadata in SQLite database):**
-  - Physical location: `src/images/photography/{category}/filename.jpg`
+  - Physical location: `src/photography/{category}/filename.jpg`
   - Database stores: `filename` (e.g., `us-georgia-nature-1.jpg`) and `category`
-  - Full path constructed by `getPhotoPath()`: `/images/photography/{category}/{filename}`
+  - Full path constructed by `getPhotoPath()`: `/photography/{category}/{filename}`
   - Loaded via `imageLoader.ts` utility
   - Automatically optimized at build time (WebP conversion, responsive sizes, lazy loading)
   - Lightbox optimization: Resized to max 1920px width, WebP format, 85% quality
 
-- **Journal & Writings featured images:**
-  - Physical location: `src/images/photography/{category}/` or `src/images/assets/`
-  - Reference path in frontmatter: Relative path (e.g., `../../images/assets/filename.jpg`)
-  - Loaded via Astro's `image()` schema helper
-  - Automatically optimized at build time (WebP/AVIF conversion, responsive sizes, lazy loading)
-  - Type-safe with build-time validation
+- **Journal images (co-located):**
+  - Physical location: `src/content/photography-journal/{slug}/` (same folder as post)
+  - Reference path in frontmatter: `./featured.jpg` for co-located, or `../../../photography/nature/photo.jpg` for portfolio images
+  - Inline imports: `import img from './photo.jpg'`
+  - Non-portfolio images stored alongside `index.mdx` for easy management
+  - Portfolio images can still be referenced via relative paths
+  - Automatically optimized at build time
+
+- **Writings images (co-located):**
+  - Physical location: `src/content/writings/{slug}/` (same folder as post)
+  - Reference path in frontmatter: `./featured.png`
+  - Inline imports: `import img from './illustration.png'`
+  - Images stored alongside `index.mdx` for easy management
+  - Automatically optimized at build time
 
 ### Image Display Behavior
 
@@ -441,7 +489,7 @@ npm run photo:add
 ```
 
 Prompts for all photo metadata:
-- Filename (must be in `src/images/photography/{category}/`)
+- Filename (must be in `src/photography/{category}/`)
 - Category (nature, street, concert)
 - Caption (required - used for alt text generation)
 - Location (required - used for alt text generation)
@@ -456,13 +504,13 @@ For bulk imports, use the staging directory to generate a pre-populated CSV temp
 
 ```bash
 # 1. Copy photos to staging directory (use consistent naming: [country]-[location]-[category]-[number].jpg)
-cp /path/to/photos/* src/images/photography/_staging/
+cp /path/to/photos/* src/photography/_staging/
 
 # 2. Generate CSV template with metadata pre-populated from filenames
 npm run photo:template
 ```
 
-This creates `src/images/photography/_staging/photo-template.csv` with:
+This creates `src/photography/_staging/photo-template.csv` with:
 - `filename`, `category`, `location`, `country` columns **auto-populated from filename**
 - Filename format: `[country]-[location]-[category]-[number].jpg`
   - Example: `us-north_georgia-nature-1.jpg`
@@ -474,15 +522,15 @@ This creates `src/images/photography/_staging/photo-template.csv` with:
 - System files (.DS_Store, etc.) excluded
 
 **Complete Staging Workflow:**
-1. Copy photos to `src/images/photography/_staging/` (use naming format: `[country]-[location]-[category]-[number].jpg`)
+1. Copy photos to `src/photography/_staging/` (use naming format: `[country]-[location]-[category]-[number].jpg`)
 2. Run `npm run photo:template` to generate CSV with pre-populated metadata
 3. Open `_staging/photo-template.csv` and review/edit:
    - **Review pre-populated fields**: category, location, country (auto-filled from filename)
    - **Fill in required field**: caption (used for alt text generation)
    - **Optionally fill in**: date, sub_category, homepage_featured, category_featured
-4. Move photos from `_staging/` to `src/images/photography/{category}/`
-5. Run `npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run`
-6. Run `npm run photo:import src/images/photography/_staging/photo-template.csv` to import
+4. Move photos from `_staging/` to `src/photography/{category}/`
+5. Run `npm run photo:import src/photography/_staging/photo-template.csv --dry-run`
+6. Run `npm run photo:import src/photography/_staging/photo-template.csv` to import
 
 **CSV Bulk Import** (alternative manual workflow):
 ```bash
@@ -523,7 +571,7 @@ The import tool validates:
 Use `photo-import-template.csv` in the project root as a starting point.
 
 **Workflow:**
-1. Copy photos to `src/images/photography/{category}/`
+1. Copy photos to `src/photography/{category}/`
 2. Prepare CSV in Excel/Google Sheets using template
 3. Export as CSV
 4. Run `npm run photo:import photos.csv --dry-run` to validate
@@ -682,7 +730,7 @@ CATEGORY_NAV_INFO: Record<string, { name: string; url: string }>
 
 ### Workflow for Adding Photos
 
-1. **Add photo file** to `src/images/photography/{category}/`
+1. **Add photo file** to `src/photography/{category}/`
    - Use descriptive filename: `{country}-{location}-{category}-{number}.jpg`
    - Example: `us-georgia-nature-1.jpg`, `turkey-istanbul-street-12.jpg`
 
@@ -698,7 +746,7 @@ CATEGORY_NAV_INFO: Record<string, { name: string; url: string }>
 
 4. **Commit changes**:
    ```bash
-   git add src/images/photography/{category}/new-photo.jpg
+   git add src/photography/{category}/new-photo.jpg
    git add src/db/photos.db
    git commit -m "Add new photo: {description}"
    ```

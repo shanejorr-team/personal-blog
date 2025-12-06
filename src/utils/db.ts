@@ -147,10 +147,10 @@ export function getAllCategories(): string[] {
 
 /**
  * Convert a Photo object to its full image path.
- * Path format: /images/photography/{category}/{filename}
+ * Path format: /photography/{category}/{filename}
  */
 export function getPhotoPath(photo: Photo): string {
-  return `/images/photography/${photo.category}/${photo.filename}`;
+  return `/photography/${photo.category}/${photo.filename}`;
 }
 
 /**

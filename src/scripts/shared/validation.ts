@@ -9,7 +9,7 @@ import { join } from 'path';
 
 // Database and image paths
 export const DB_PATH = join(process.cwd(), 'src', 'db', 'photos.db');
-export const IMAGES_BASE = join(process.cwd(), 'src', 'images', 'photography');
+export const IMAGES_BASE = join(process.cwd(), 'src', 'photography');
 
 // Valid categories matching database schema
 export const VALID_CATEGORIES = ['nature', 'street', 'concert'] as const;
@@ -153,7 +153,7 @@ export function validatePhotoExists(
     return {
       row: rowNum,
       field: 'filename',
-      message: `Photo file not found at src/images/photography/${category}/${filename.trim()}`
+      message: `Photo file not found at src/photography/${category}/${filename.trim()}`
     };
   }
 

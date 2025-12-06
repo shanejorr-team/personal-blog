@@ -15,7 +15,7 @@ import { readdirSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 // Paths
-const STAGING_DIR = join(process.cwd(), 'src', 'images', 'photography', '_staging');
+const STAGING_DIR = join(process.cwd(), 'src', 'photography', '_staging');
 const OUTPUT_CSV = join(STAGING_DIR, 'photo-template.csv');
 
 // Valid image extensions
@@ -95,7 +95,7 @@ function generateTemplate() {
 
   // Check if staging directory exists
   if (!existsSync(STAGING_DIR)) {
-    console.log('Creating staging directory: src/images/photography/_staging/');
+    console.log('Creating staging directory: src/photography/_staging/');
     mkdirSync(STAGING_DIR, { recursive: true });
   }
 
@@ -179,9 +179,9 @@ function generateTemplate() {
   console.log('     - homepage_featured: change to 1 for hero photo');
   console.log('     - category_featured: change to 1-4 for category portfolio (1=nav, 2-4=order)');
   console.log('     - country_featured: change to 1 for country navigation photo');
-  console.log('  4. Move photos from _staging/ to src/images/photography/{category}/');
-  console.log('  5. Run: npm run photo:import src/images/photography/_staging/photo-template.csv --dry-run');
-  console.log('  6. Run: npm run photo:import src/images/photography/_staging/photo-template.csv');
+  console.log('  4. Move photos from _staging/ to src/photography/{category}/');
+  console.log('  5. Run: npm run photo:import src/photography/_staging/photo-template.csv --dry-run');
+  console.log('  6. Run: npm run photo:import src/photography/_staging/photo-template.csv');
   console.log('  7. Review validation and confirm import\n');
 }
 

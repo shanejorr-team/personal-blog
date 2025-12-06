@@ -2,7 +2,7 @@
 description: Create photo captions
 ---
 
-Draft sentences for the `caption` column in the file `src/images/photography/_staging/photo-template.csv`. The photos in `src/images/photography/_staging` align with the filenames, identified in the `filename` column, in `src/images/photography/_staging/photo-template.csv`. Each photo has a row in `src/images/photography/_staging/photo-template.csv`
+Draft sentences for the `caption` column in the file `src/photography/_staging/photo-template.csv`. The photos in `src/photography/_staging` align with the filenames, identified in the `filename` column, in `src/photography/_staging/photo-template.csv`. Each photo has a row in `src/photography/_staging/photo-template.csv`
 
 Below are example captions, taken from the SQLite database.
 
@@ -43,7 +43,7 @@ street|A couple dancing tango on the Puente de la Mujer at night|Buenos Aires|Ar
 street|Telescopes and glowing balloons along the Puerto Madero waterfront|Buenos Aires|Argentina
 ```
 
-To create captions, first try to identify the specific location, building, street, or landmark in a photo, if one is present. if it is a wildlife photo, identify the animal. Use the country and location fields to help identify what is in the photo. Then create a caption describing the photo, including any items such as landmarks or animals. Edit `src/images/photography/_staging/photo-template.csv` by adding a draft of the caption under the `caption` column.
+To create captions, first try to identify the specific location, building, street, or landmark in a photo, if one is present. if it is a wildlife photo, identify the animal. Use the country and location fields to help identify what is in the photo. Then create a caption describing the photo, including any items such as landmarks or animals. Edit `src/photography/_staging/photo-template.csv` by adding a draft of the caption under the `caption` column.
 
 Style rules:
 - The country and location will be included in a different section of the caption. Do no included it in the caption you are making unless it is needed to help the caption wording flow better.
