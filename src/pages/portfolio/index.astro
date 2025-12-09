@@ -3,12 +3,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import PhotoGridItem from '../../components/PhotoGridItem.astro';
-import { getAllCategoryPhotos, getAllCountries, getAllCategories } from '../../utils/db';
+import { getAllCategoryPhotos, getAllCategories } from '../../utils/db';
 import { processPhotos } from '../../utils/processPhotos';
 import { CATEGORY_INFO } from '../../utils/categories';
-
-// Get all countries from database
-const countries = getAllCountries();
 
 // Get all categories
 const allCategories = getAllCategories();
@@ -42,7 +39,7 @@ const processedCategories = await Promise.all(
       </p>
     </div>
 
-    <div class="mb-8">
+    <div class="mb-12">
       <h3 class="text-lg font-semibold text-center mb-4">Browse by Photo Type</h3>
       <div class="flex flex-wrap gap-4 justify-center">
         {Object.entries(CATEGORY_INFO).map(([key, info]) => (
@@ -54,23 +51,15 @@ const processedCategories = await Promise.all(
           </a>
         ))}
       </div>
-    </div>
-
-    {countries.length > 0 && (
-      <div class="mb-12">
-        <h3 class="text-lg font-semibold text-center mb-4">Browse by Country</h3>
-        <div class="flex flex-wrap gap-4 justify-center">
-          {countries.map(country => (
-            <a
-              href={`/portfolio/${country.toLowerCase().replace(/\s+/g, '-')}`}
-              class="px-6 py-3 rounded-lg font-medium transition-colors bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-            >
-              {country}
-            </a>
-          ))}
-        </div>
+      <div class="flex justify-center mt-4">
+        <a
+          href="/portfolio/all-countries"
+          class="px-8 py-3 rounded-lg font-medium transition-colors bg-sky-200 text-black hover:bg-sky-300"
+        >
+          Browse by Country
+        </a>
       </div>
-    )}
+    </div>
 
     {processedCategories.map(({ key, images }) => (
       <section class="mb-20" id={key}>
