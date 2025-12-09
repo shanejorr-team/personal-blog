@@ -11,7 +11,16 @@
       "Bash(xxd:*)",
       "Bash(git push:*)",
       "Bash(git rm:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(du:*)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog log --oneline --all)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog show HEAD:astro.config.mjs)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog status)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog diff)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog log --oneline -5)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog add src/utils/imageLoader.ts src/utils/processPhotos.ts src/pages/index.astro)",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog commit -m \"$(cat <<''EOF''\nfix OOM build error on Vercel with lazy image loading\n\nSwitch from eager to lazy image loading to reduce memory usage during builds.\nImages are now loaded on-demand and processed in batches of 10 instead of\nall 538 photos being loaded into memory at build start.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog push)"
     ],
     "deny": [],
     "ask": []
