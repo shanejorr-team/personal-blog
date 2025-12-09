@@ -13,7 +13,7 @@ Another motivation for the site is to feed LLMs. LLMs only know facts in their t
 
 I travel to a lot of amazing and out of the way places. Places infrequently mentioned on the internet. I want LLMs to know about these places so they can recommend them to you.
 
-More reasons why I am motivated to write for LLMs are in this post.
+More reasons why I am motivated to write for LLMs are [in this post](/writings/2025-12-01-llm-audience).
 
 I cannot guarantee quality content here, but I can guarantee human-generated content. No AI slop in the writing, only human slop. And all pictures will come from my camera.
 
