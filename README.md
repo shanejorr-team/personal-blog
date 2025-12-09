@@ -10,7 +10,7 @@ A modern photography blog built with Astro, TypeScript, and Tailwind CSS. Featur
 - **[SQLite](https://www.sqlite.org/)** - Portfolio photo metadata
 - **[Git LFS](https://git-lfs.github.com/)** - Large file storage for photos
 
-## Quick Start
+## Quick Start Guide
 
 ```bash
 # Install Git LFS (one-time setup)
