@@ -10,7 +10,8 @@
       "Bash(git lfs:*)",
       "Bash(xxd:*)",
       "Bash(git push:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git config:*)"
     ],
     "deny": [],
     "ask": []
