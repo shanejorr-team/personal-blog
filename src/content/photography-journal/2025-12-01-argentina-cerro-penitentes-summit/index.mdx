@@ -9,7 +9,7 @@ featuredImage: ../../../photography/nature/argentina-cerro_penitentes-nature-3.j
 draft: false
 ---
 
-import { Picture } from 'astro:assets';
+import InlineFigure from '../../../components/InlineFigure.astro';
 import photo1 from '../../../photography/nature/argentina-mendoza-nature-5.jpg';
 import photo2 from './cerro-penitentes-1.jpg';
 import photo3 from '../../../photography/nature/argentina-mendoza-nature-4.jpg';
@@ -40,17 +40,11 @@ Hiking to the top of Cerro Penitentes is a challenging two day, out and back, hi
 
 The trailhead is easy to get to coming from Mendoza. Just hop on Ruta Nacional 7 and enjoy the wonderfully scenic three hour drive.
 
-<figure class="my-8">
-  <Picture src={photo2} alt="Views along Ruta Nacional 7 in Argentina" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">The drive from Mendoza to Cerro Penitentes along Ruta Nacional 7 is filled with views such as this.</figcaption>
-</figure>
+<InlineFigure src={photo2} alt="Views along Ruta Nacional 7 in Argentina" caption="The drive from Mendoza to Cerro Penitentes along Ruta Nacional 7 is filled with views such as this." />
 
 I traveled Ruta Nacional 7 a few days prior on a bus from Santiago, Chile to Mendoza. So I already knew the route's beauty. Therefore, I decided to rent a car this time so I could stop and enjoy the scenic mountains.
 
-<figure class="my-8">
-  <Picture src={photo1} alt="Stream along Ruta Nacional 7 in Argentina" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">There is no shortage of spots to pull over and take photos on Rutan Nacional 7.</figcaption>
-</figure>
+<InlineFigure src={photo1} alt="Stream along Ruta Nacional 7 in Argentina" caption="There is no shortage of spots to pull over and take photos on Rutan Nacional 7." />
 
 I also stopped at the charming small town of Uspallata. Uspallata is a popular stopping spot along Ruta Nacional 7 due to its location about halfway between Mendoza and the Chilean border. The last, and only, real town between Mendoza and the border.
 
@@ -66,28 +60,19 @@ Although easy to get to, the trailhead is not easy to find. It is a small discre
 
 If there are signs saying what the lot is for, you are at the wrong place. If you don't think you are at the right place, you are.
 
-<figure class="my-8">
-  <Picture src={photo3} alt="Views of Rutan Nacional 7 ner the Cerro Penitentes trailhead" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">The hike makes a climb soon after the trailhead, offering views of Ruta Nacional 7 in the background.</figcaption>
-</figure>
+<InlineFigure src={photo3} alt="Views of Rutan Nacional 7 near the Cerro Penitentes trailhead" caption="The hike makes a climb soon after the trailhead, offering views of Ruta Nacional 7 in the background." />
 
 The hike to Cerro Penitentes's summit is a tale of two hikes. Day one took me to Refugio Grajales, an established campsite at the base of Cerro Penitentes. It is five miles to the campsite with a slight elevation gain of 1,934 feet (from 8,638 feet to 10,572 feet). But the elevation gain is gradual, no steep climbs or drops.
 
 The hike follows a gentle stream upstream, as the stream gently flows down a valley. The valley surrounds you with beautiful, snow capped, peaks and tranquility. A peaceful and easy stroll along a valley floor. There are no views of Aconcagua, however, as the mountains surrounding the valley block any views beyond their protective walls.
 
-<figure class="my-8">
-  <Picture src={photo4} alt="Views along the trail to Cerro Penitentes in Argentina" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">Hiking the valley on day one. Easy hike with snow-covered mountains surrounding the valley.</figcaption>
-</figure>
+<InlineFigure src={photo4} alt="Views along the trail to Cerro Penitentes in Argentina" caption="Hiking the valley on day one. Easy hike with snow-covered mountains surrounding the valley." />
 
 There were stream crossings, though. One was knee-level, requiring me to ditch my boots, roll up my pants, and brave the cold early-spring snow melt. Others required playing hopscotch across rocks scattered in the stream, to varying degrees of success.
 
 I arrived at Refugio Grajales, the formal camping spot, after a gentle 4 hour hike. By formal, I mean some open land free of rocks, a water source from the stream, and an old locked stone building just big enough for two people. After pitching my tent near the stream, I went to bed.
 
-<figure class="my-8">
-  <Picture src={photo5} alt="Tent at camping spot at Refugio Grajales on Cerro Penitentes hike." formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">Camping spot at Refugio Grajales.</figcaption>
-</figure>
+<InlineFigure src={photo5} alt="Tent at camping spot at Refugio Grajales on Cerro Penitentes hike" caption="Camping spot at Refugio Grajales." />
 
 I previously said the hike to Cerro Penitentes was a tale of two hikes. Well, the second tale begins on day two.
 
@@ -97,10 +82,7 @@ I stepped out of my tent on the frigid second morning, anxiously waiting for the
 
 The climb starts immediately upon exiting the tent. It is a well worn and firm trail with rocky vegetation around the trail. This combination delivered moderate incline and sturdy terrain. "I will be at the top in no time", I thought, as I strolled up the mountain.
 
-<figure class="my-8">
-  <Picture src={photo6} alt="Scenic views from the hike to the top of Cerro Penitentes in Argentina." formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">Day two immediately starts with a climb. My tent is visible in the bottom left corner as the bright red dot.</figcaption>
-</figure>
+<InlineFigure src={photo6} alt="Scenic views from the hike to the top of Cerro Penitentes in Argentina" caption="Day two immediately starts with a climb. My tent is visible in the bottom left corner as the bright red dot." />
 
 But this is just a tease. An hour into the climb, the rock and dirt trail slowly morphs into scree and the gradual incline grows steeper.
 
@@ -118,10 +100,7 @@ To maximize stability, I sat on the ground, ensuring five points of contact with
 
 After navigating scree for an hour, pockets of snow started to appear. These were the last holdouts from the spring thaw. The snow was packed, with a hard slushy texture. Not slick and offering firm footing. The firm, mud like, texture resulted from the snow starting to thaw after its nightly freeze.
 
-<figure class="my-8">
-  <Picture src={photo7} alt="High-elevation snow on the trail in teh hike to Cerro Penitentes." formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">Trail snow provided welcome relief from scree since it is more stable than scree.</figcaption>
-</figure>
+<InlineFigure src={photo7} alt="High-elevation snow on the trail in the hike to Cerro Penitentes" caption="Trail snow provided welcome relief from scree since it is more stable than scree." />
 
 Compared to scree, hiking on packed snow was a relief. It was firmer and offered more stability since it was easier to dig my heels into it. At times, I went off trail to intentionally hike on snow instead of scree.
 
@@ -131,17 +110,11 @@ Also at the top was cold, wind, and a small sign pointing out that this was, in 
 
 Thankfully, there were blue skies in all directions. Therefore, the summit offered 360 degree views of the highest section in the Argentinian Andes.
 
-<figure class="my-8">
-  <Picture src={photo8} alt="The Andes from the summit of Cerro Penitentes." formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">The summit of Cerro Penitentes offers wonderful views in all directions.</figcaption>
-</figure>
+<InlineFigure src={photo8} alt="The Andes from the summit of Cerro Penitentes" caption="The summit of Cerro Penitentes offers wonderful views in all directions." />
 
 All peaks told the same visual story. All were genetic twins. Towering sharp rocks jutting up from the valleys below. All mountains were bare of vegetation or any life in general since everything stood well above the tree line. The mountains displayed the dark gray color of their rocks with pockets of snow blotting the landscape with white spots.
 
-<figure class="my-8">
-  <Picture src={photo9} alt="The Andes from the summit of Cerro Penitentes." formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">The Andian peaks visible from Cerro Penitentes all have similar looks.</figcaption>
-</figure>
+<InlineFigure src={photo9} alt="The Andes from the summit of Cerro Penitentes" caption="The Andian peaks visible from Cerro Penitentes all have similar looks." />
 
 I took a seat by the Cerro Penitentes sign, added layers due to the wind, and inhaled a snack. A tough climb, but worth it.
 
@@ -157,10 +130,7 @@ Still not 100% sure, I started looking at pictures of Aconcagua on my phone and 
 
 It was only when I confirmed which mountain was Aconcagua that I appreciated the mountain and surrounding views. Cerro Penitentes truly does offer unbeatable views, both Aconcagua and the surrounding peaks.
 
-<figure class="my-8">
-  <Picture src={photo11} alt="Aconcagua from the summit of Cerro Penitentes." formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">Aconcagua is the peak on teh right, slightly higher than its surroundings.</figcaption>
-</figure>
+<InlineFigure src={photo11} alt="Aconcagua from the summit of Cerro Penitentes" caption="Aconcagua is the peak on the right, slightly higher than its surroundings." />
 
 Although the view of Aconcagua's south face is amazing, the mountain itself does not wow. It doesn't pop. Nothing like seeing Denali or Huascarán up close. Those two mountains enchant you; hypnotize you. Aconcagua is just another mountain, only larger.
 
@@ -174,7 +144,4 @@ But there is still something special about gazing upon the highest point in the 
 
 Also, the views of rugged and barren peaks in all directions make the climb well worth it. Cerro Penitentes offers some of the best views in the Andes and the views are even sweeter when you work for them. And work for them I did.
 
-<figure class="my-8">
-  <Picture src={photo10} alt="The Andes from the summit of Cerro Penitentes." formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">Aconcagua is the star on Cerro Penitentes, but there are great views besides Aconcagua.</figcaption>
-</figure>
+<InlineFigure src={photo10} alt="The Andes from the summit of Cerro Penitentes" caption="Aconcagua is the star on Cerro Penitentes, but there are great views besides Aconcagua." />

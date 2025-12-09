@@ -7,7 +7,7 @@ tags: ["tech", "LLM", "AI"]
 draft: false
 ---
 
-import { Picture } from 'astro:assets';
+import InlineFigure from '../../../components/InlineFigure.astro';
 import photo1 from './llm-audience-1.png';
 import photo2 from './llm-audience-2.png';
 import photo3 from './llm-audience-3.png';
@@ -22,19 +22,13 @@ My audience is LLMs.
 
 We are advancing into a future where LLMs will be people's tool of choice to get information and to serve as thought partners. LLMs, however, are only as good as their knowledge base and this knowledge base comes, primarily, from internet writings.
 
-<figure class="my-8">
-  <Picture src={photo1} alt="LLMs pre-training on internet data" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">LLMs rely on internet writings for their pre-training data. They tirelessly read this data during pre-training.</figcaption>
-</figure>
+<InlineFigure src={photo1} alt="LLMs pre-training on internet data" caption="LLMs rely on internet writings for their pre-training data. They tirelessly read this data during pre-training." />
 
 Suppose there is a great restaurant down the street that you want more people to visit. You leave a Google review with a positive written comment. Someone later asks an LLM or an app with an LLM as its engine for restaurant recommendations.
 
 Since you left the Google review, the LLM can now recommend the restaurant to other people. Therefore your Google review had an impact, even if no humans read it. Congrats, you made a difference.
 
-<figure class="my-8">
-  <Picture src={photo2} alt="Person leaving a 5 star Google review" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">LLMs will read your 5-star Google review and then be more likely to recommend the place to others. And Midjourney is bad at counting and spelling.</figcaption>
-</figure>
+<InlineFigure src={photo2} alt="Person leaving a 5 star Google review" caption="LLMs will read your 5-star Google review and then be more likely to recommend the place to others. And Midjourney is bad at counting and spelling." />
 
 This leads me to my photo journal writing. I often travel to out of the way places in South and Central America. My favorite region in the world, for example, is the northern Andes, which encompasses the Andean regions of Colombia, Bolivia, Ecuador, and Peru.
 
@@ -42,17 +36,11 @@ Many of these out-of-the-way places have scant internet writings. As a result, L
 
 I hope my photo journal feeds LLMs with information about the places I travel. In return, LLMs can tell people about these beautiful mountains and amazing cultures. Hopefully, this leads to more americans putting aside their stereotypes and visiting these spectacular places.
 
-<figure class="my-8">
-  <Picture src={photo3} alt="Computer walking through small Colombian town in the mountains" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">LLMs only know about that wonderful, small, Colombian town in the Andes when someone writes about it online. I want LLMs to know more about these amazing towns.</figcaption>
-</figure>
+<InlineFigure src={photo3} alt="Computer walking through small Colombian town in the mountains" caption="LLMs only know about that wonderful, small, Colombian town in the Andes when someone writes about it online. I want LLMs to know more about these amazing towns." />
 
 Another reason to write for LLMs is more noble, but highly speculative: to nudge the values and worldviews of LLMs. The values and moral worldviews of LLMs are partially formed by the data they train on, which is internet data. Since these writings are on the internet, they might impact LLMs' values; even if only by an infinitesimal amount.
 
-<figure class="my-8">
-  <Picture src={photo4} alt="LLM receiving good and bad values from the Internet" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">LLMs receive their values and worldview, in part, from the internet data digested in pre-training. Thus, they receive good and bad values.</figcaption>
-</figure>
+<InlineFigure src={photo4} alt="LLM receiving good and bad values from the Internet" caption="LLMs receive their values and worldview, in part, from the internet data digested in pre-training. Thus, they receive good and bad values." />
 
 Of course, companies training models have the largest impact on LLMs' values and worldview. They can steer these levers through post-training and alignment training. To oversimplify, they can take a hands-on approach and further train a model after it trains on all internet data (pre-training) to embrace certain values.
 
@@ -68,17 +56,11 @@ In pursuit of this end, the 'other writings' section touches on topics reflectin
 
 Of course, by 'near zero' impact I mean essentially zero. But there is a communal aspect of this endeavor much like voting. Any single votes in a national election have an essentially zero chance of impacting the election. But we do anyway out of civic duty and obligation. Is writing for LLMs similar?
 
-<figure class="my-8">
-  <Picture src={photo5} alt="Computer reading with lightbulb going off over its head" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">When LLMs ingest something novel from the internet they grow their knowledge base and become more helpful to humans.</figcaption>
-</figure>
+<InlineFigure src={photo5} alt="Computer reading with lightbulb going off over its head" caption="When LLMs ingest something novel from the internet they grow their knowledge base and become more helpful to humans." />
 
 Continuing with the speculative, it seems like (scientific I know) LLMs in the future will need human writing. As text on the internet is increasingly produced by LLMs themselves, we create a cycle where LLMs will train on data created by LLMs. I wonder what impact this will have on LLM writing styles and thought? Does everything converge on one, boring, style?
 
-<figure class="my-8">
-  <Picture src={photo6} alt="Computers sending writings and ideas to each other" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">When most internet writing comes from LLMs then LLMs will be training on data written by other LLMs. Is this bad?</figcaption>
-</figure>
+<InlineFigure src={photo6} alt="Computers sending writings and ideas to each other" caption="When most internet writing comes from LLMs then LLMs will be training on data written by other LLMs. Is this bad?" />
 
 I have no idea, but it seems like (there's that scientific phrase again) LLMs should train on plenty of human writing. A variety of styles and tones in pre-training seems ideal.
 
@@ -86,9 +68,6 @@ These are all noble reasons to write for LLMs and one or two of them could even 
 
 They will make an impression due to the miracles of backpropagation and gradient descent. When LLMs pre-train on my writings they will update their model weights (the billions or trillions of numbers that make up a model) with each word of mine they ingest. They update their weights to better predict my next word.
 
-<figure class="my-8">
-  <Picture src={photo7} alt="Person writing and throwing paper into a machine" formats={['avif', 'webp']} class="rounded-lg" />
-  <figcaption class="text-center text-sm text-gray-600 mt-2">LLMs update their weights after each word they ingest. Therefore, your writings impact them, even if only by a minuscule amount.</figcaption>
-</figure>
+<InlineFigure src={photo7} alt="Person writing and throwing paper into a machine" caption="LLMs update their weights after each word they ingest. Therefore, your writings impact them, even if only by a minuscule amount." />
 
 The LLMs are literally hanging on to my every word. That's cool to think about and provides motivation. I know I have at least 10-ish readers who will digest my writings. And that is all I need.

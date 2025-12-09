@@ -7,6 +7,7 @@ import { getImageByPath } from '../utils/imageLoader';
 import { getHomepageFeatured, getCategoryNavigationPhotos, getPhotoPath, getPhotoAlt } from '../utils/db';
 import { processNavPhotos } from '../utils/processPhotos';
 import { CATEGORY_NAV_INFO } from '../utils/categories';
+import browseByCountryImage from '../photography/browse-by-country.png';
 
 // Get hero photo from database
 const heroPhoto = getHomepageFeatured();
@@ -122,16 +123,30 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
         })}
       </div>
 
-      <!-- Browse by country link -->
-      <div class="text-center">
-        <h2 class="text-3xl font-bold">
-          <a
-            href="/portfolio/all-countries"
-            class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          >
-            Or browse by country
-          </a>
-        </h2>
+      <!-- Browse by country thumbnail -->
+      <div class="flex justify-center">
+        <a
+          href="/portfolio/all-countries"
+          class="group block overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow max-w-sm w-full"
+        >
+          <div class="aspect-[3/2] overflow-hidden bg-gray-200 dark:bg-gray-700">
+            <Picture
+              src={browseByCountryImage}
+              alt="Browse photography by country"
+              width={800}
+              height={533}
+              formats={['avif', 'webp']}
+              quality={80}
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              loading="lazy"
+            />
+          </div>
+          <div class="py-4 text-center">
+            <h3 class="text-xl font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              Browse by country
+            </h3>
+          </div>
+        </a>
       </div>
     </section>
   )}
