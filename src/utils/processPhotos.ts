@@ -39,7 +39,7 @@ export async function processPhoto(
 ): Promise<ProcessedImage> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const imagePath = getPhotoPath(photo);
-  const importedImage = getImageByPath(imagePath);
+  const importedImage = await getImageByPath(imagePath);
 
   // Fallback for missing images
   if (!importedImage) {
@@ -97,12 +97,24 @@ export async function processPhoto(
 
 /**
  * Process multiple photos for display
+ * Uses batch processing to limit memory usage during builds
  */
 export async function processPhotos(
   photos: Photo[],
   options: ProcessOptions = {}
 ): Promise<ProcessedImage[]> {
-  return Promise.all(photos.map(photo => processPhoto(photo, options)));
+  const BATCH_SIZE = 10;
+  const results: ProcessedImage[] = [];
+
+  for (let i = 0; i < photos.length; i += BATCH_SIZE) {
+    const batch = photos.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(photo => processPhoto(photo, options))
+    );
+    results.push(...batchResults);
+  }
+
+  return results;
 }
 
 /**

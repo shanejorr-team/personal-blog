@@ -20,7 +20,7 @@ let heroWithDimensions = null;
 let heroPreloadUrl: string | undefined;
 if (heroPhoto) {
   const imagePath = getPhotoPath(heroPhoto);
-  const importedImage = getImageByPath(imagePath);
+  const importedImage = await getImageByPath(imagePath);
 
   if (importedImage) {
     const aspectRatio = importedImage.width / importedImage.height;
