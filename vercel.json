@@ -3,6 +3,7 @@
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
+  "cache": ["node_modules/.astro"],
   "headers": [
     {
       "source": "/_astro/(.*)",
