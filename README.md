@@ -186,7 +186,7 @@ See [CLAUDE.md](./CLAUDE.md) for detailed image specifications.
 
 ## Deployment
 
-**Vercel/Netlify**: Auto-deploy from GitHub with Git LFS support
+**Vercel**: Auto-deploy from GitHub with Git LFS support
 
 **Git LFS Bandwidth**: With 100+ photos (~15GB), consider GitHub Team plan ($4/mo: 250GB bandwidth)
 

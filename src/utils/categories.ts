@@ -24,7 +24,3 @@ export const CATEGORY_NAV_INFO: Record<string, { name: string; url: string }> = 
 export function getCategoryTitle(category: string): string {
   return CATEGORY_INFO[category]?.title || category;
 }
-
-export function getCategoryDescription(category: string): string {
-  return CATEGORY_INFO[category]?.description || '';
-}

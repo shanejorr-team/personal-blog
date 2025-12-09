@@ -13,19 +13,14 @@
 
 import { readdirSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { VALID_CATEGORIES, VALID_EXTENSIONS } from './shared/validation';
 
 // Paths
 const STAGING_DIR = join(process.cwd(), 'src', 'photography', '_staging');
 const OUTPUT_CSV = join(STAGING_DIR, 'photo-template.csv');
 
-// Valid image extensions
-const VALID_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.avif'];
-
 // System files to exclude
 const EXCLUDE_FILES = ['.DS_Store', 'Thumbs.db', 'desktop.ini', 'photo-template.csv'];
-
-// Valid categories
-const VALID_CATEGORIES = ['nature', 'street', 'concert'];
 
 /**
  * Check if filename has a valid image extension

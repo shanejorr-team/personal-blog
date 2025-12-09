@@ -198,15 +198,6 @@ export function validateRequiredColumns(
 }
 
 /**
- * Parse optional integer field, returning null for empty values
- */
-export function parseOptionalInt(value: string | undefined): number | null {
-  if (!value?.trim()) return null;
-  const parsed = parseInt(value.trim());
-  return isNaN(parsed) ? null : parsed;
-}
-
-/**
  * Parse featured field with default of 0 for empty values
  */
 export function parseFeaturedField(value: string | undefined): number {

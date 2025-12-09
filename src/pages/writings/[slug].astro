@@ -3,6 +3,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BackLink from '../../components/BackLink.astro';
 import { formatDate } from '../../utils/helpers';
 
 export async function getStaticPaths() {
@@ -85,16 +86,6 @@ const { Content } = await post.render();
     </div>
 
     <!-- Navigation -->
-    <div class="max-w-3xl mx-auto mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
-      <a
-        href="/writings"
-        class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline font-medium"
-      >
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
-        Back to Other Writings
-      </a>
-    </div>
+    <BackLink href="/writings" label="Back to Other Writings" />
   </article>
 </BaseLayout>

@@ -65,22 +65,8 @@ export function getCategoryNavigationPhotos(): Photo[] {
 }
 
 /**
- * Get all featured photos for a specific category.
- * These appear on the main portfolio page and category detail page.
- * Photos are ordered by category_featured priority (excludes 0).
- */
-export function getCategoryFeatured(category: string): Photo[] {
-  const query = `
-    SELECT * FROM photos
-    WHERE category = ? AND category_featured > 0
-    ORDER BY category_featured ASC
-  `;
-  return getDb().prepare(query).all(category) as Photo[];
-}
-
-/**
  * Get all featured photos in a specific category (category_featured > 0).
- * Used for category detail pages.
+ * Used for both portfolio overview and category detail pages.
  * Photos are ordered by category_featured priority.
  */
 export function getAllCategoryPhotos(category: string): Photo[] {

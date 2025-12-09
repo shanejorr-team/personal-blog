@@ -9,7 +9,7 @@ const { items } = Astro.props;
 <nav aria-label="Breadcrumb" class="mb-8">
   <ol class="flex items-center space-x-2 text-sm">
     <li>
-      <a href="/" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+      <a href="/" class="nav-link">
         Home
       </a>
     </li>
@@ -19,7 +19,7 @@ const { items } = Astro.props;
         {item.href && index < items.length - 1 ? (
           <a
             href={item.href}
-            class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            class="nav-link"
           >
             {item.label}
           </a>

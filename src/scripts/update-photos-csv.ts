@@ -30,6 +30,7 @@ import {
   validateCountryFeatured,
   parseCSVFile,
   formatErrors,
+  parseFeaturedField,
 } from './shared/validation';
 import { join } from 'path';
 
@@ -249,7 +250,7 @@ function buildUpdateOperations(rows: CSVRow[], availableColumns: Set<string>): U
 
         // Handle special cases
         if (col === 'homepage_featured' || col === 'category_featured' || col === 'country_featured') {
-          values.set(col, value.trim() ? parseInt(value.trim()) : null);
+          values.set(col, value.trim() ? parseFeaturedField(value) : null);
         } else {
           values.set(col, value.trim());
         }

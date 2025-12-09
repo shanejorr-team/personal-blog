@@ -101,7 +101,7 @@ git lfs status                # Show LFS file status
 
 ### Deployment Considerations
 
-**Vercel/Netlify:** Both platforms support Git LFS automatically. They will:
+**Vercel:** Vercel supports Git LFS automatically. It will:
 1. Download LFS pointer files from GitHub
 2. Fetch actual photos from LFS storage during build
 3. Process images through Astro's optimization pipeline

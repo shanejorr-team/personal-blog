@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import PhotoGridItem from '../../components/PhotoGridItem.astro';
-import { getCategoryFeatured, getAllCountries, getAllCategories } from '../../utils/db';
+import { getAllCategoryPhotos, getAllCountries, getAllCategories } from '../../utils/db';
 import { processPhotos } from '../../utils/processPhotos';
 import { CATEGORY_INFO } from '../../utils/categories';
 
@@ -17,7 +17,7 @@ const allCategories = getAllCategories();
 const processedCategories = await Promise.all(
   allCategories.map(async (category) => {
     // Get featured photos for this category from database (limit to first 6)
-    const photos = getCategoryFeatured(category).slice(0, 6);
+    const photos = getAllCategoryPhotos(category).slice(0, 6);
 
     // Skip category if no featured photos
     if (photos.length === 0) return null;

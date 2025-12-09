@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import { Picture, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { sortByDate, filterDrafts } from '../utils/helpers';
+import { sortByDate, filterDrafts, formatDate } from '../utils/helpers';
 import { getImageByPath } from '../utils/imageLoader';
 import { getHomepageFeatured, getCategoryNavigationPhotos, getPhotoPath, getPhotoAlt } from '../utils/db';
 import { processNavPhotos } from '../utils/processPhotos';
@@ -189,7 +189,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
                   </h3>
                   <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
                     {post.data.location && `${post.data.location} • `}
-                    {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {formatDate(post.data.date)}
                   </p>
                   <p class="text-gray-700 dark:text-gray-300 line-clamp-2">
                     {post.data.description}
@@ -233,7 +233,7 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
                     {post.data.title}
                   </h3>
                   <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {formatDate(post.data.date)}
                   </p>
                   <p class="text-gray-700 dark:text-gray-300 line-clamp-2">
                     {post.data.description}
@@ -247,14 +247,4 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
     </div>
   </section>
 
-  <!-- Call to Action -->
-  <section class="container mx-auto px-4 py-16 text-center">
-    <h2 class="text-3xl font-bold mb-4">Explore My Photography</h2>
-    <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-      Browse through curated collections of nature, street, and concert photography
-    </p>
-    <a href="/portfolio" class="btn btn-primary">
-      View Full Portfolio
-    </a>
-  </section>
 </BaseLayout>
