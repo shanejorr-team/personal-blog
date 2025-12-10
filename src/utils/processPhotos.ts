@@ -14,6 +14,7 @@ export interface ProcessedImage {
   aspectRatio: number;
   lightboxSrc: string;
   originalSrc: string;
+  lqipSrc: string;  // Tiny placeholder for blur-up effect
   importedImage: ImageMetadata | undefined;
 }
 
@@ -22,12 +23,16 @@ export interface ProcessOptions {
   includeLightbox?: boolean;
   lightboxWidth?: number;
   lightboxQuality?: number;
+  includeLqip?: boolean;
+  lqipWidth?: number;
 }
 
 const DEFAULT_OPTIONS: ProcessOptions = {
   includeLightbox: true,
-  lightboxWidth: 1920,
-  lightboxQuality: 85,
+  lightboxWidth: 1440,
+  lightboxQuality: 80,
+  includeLqip: true,
+  lqipWidth: 20,
 };
 
 /**
@@ -54,30 +59,47 @@ export async function processPhoto(
       aspectRatio: 1.5,
       lightboxSrc: imagePath,
       originalSrc: imagePath,
+      lqipSrc: '',
       importedImage: undefined,
     };
   }
 
   const aspectRatio = importedImage.width / importedImage.height;
   let lightboxSrc = imagePath;
+  let lqipSrc = '';
+  const isSvg = imagePath.toLowerCase().endsWith('.svg');
 
   // Generate optimized lightbox version (skip for SVG files)
-  if (opts.includeLightbox) {
-    const isSvg = imagePath.toLowerCase().endsWith('.svg');
-    if (!isSvg) {
-      try {
-        const targetHeight = Math.round(opts.lightboxWidth! / aspectRatio);
-        const lightboxImage = await getImage({
-          src: importedImage,
-          width: opts.lightboxWidth!,
-          height: targetHeight,
-          format: 'webp',
-          quality: opts.lightboxQuality!,
-        });
-        lightboxSrc = lightboxImage.src;
-      } catch (error: any) {
-        console.warn(`Could not optimize lightbox image for ${imagePath}:`, error.message);
-      }
+  if (opts.includeLightbox && !isSvg) {
+    try {
+      const targetHeight = Math.round(opts.lightboxWidth! / aspectRatio);
+      const lightboxImage = await getImage({
+        src: importedImage,
+        width: opts.lightboxWidth!,
+        height: targetHeight,
+        format: 'webp',
+        quality: opts.lightboxQuality!,
+      });
+      lightboxSrc = lightboxImage.src;
+    } catch (error: any) {
+      console.warn(`Could not optimize lightbox image for ${imagePath}:`, error.message);
+    }
+  }
+
+  // Generate LQIP (Low Quality Image Placeholder) for blur-up effect
+  if (opts.includeLqip && !isSvg) {
+    try {
+      const lqipHeight = Math.round(opts.lqipWidth! / aspectRatio);
+      const lqipImage = await getImage({
+        src: importedImage,
+        width: opts.lqipWidth!,
+        height: lqipHeight,
+        format: 'webp',
+        quality: 20,
+      });
+      lqipSrc = lqipImage.src;
+    } catch (error: any) {
+      console.warn(`Could not generate LQIP for ${imagePath}:`, error.message);
     }
   }
 
@@ -91,6 +113,7 @@ export async function processPhoto(
     aspectRatio,
     lightboxSrc,
     originalSrc: imagePath,
+    lqipSrc,
     importedImage,
   };
 }

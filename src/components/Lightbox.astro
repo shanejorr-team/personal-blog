@@ -43,6 +43,18 @@
 
     <!-- Image Container -->
     <div class="lightbox-image-container">
+      <!-- Loading spinner -->
+      <div id="lightbox-loader" class="lightbox-loader">
+        <div class="lightbox-spinner"></div>
+      </div>
+      <!-- LQIP placeholder (blurred) -->
+      <img
+        id="lightbox-lqip"
+        src=""
+        alt=""
+        class="lightbox-lqip"
+      />
+      <!-- Full resolution image -->
       <img
         id="lightbox-image"
         src=""
@@ -110,9 +122,61 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+  }
+
+  /* Loading spinner */
+  .lightbox-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    display: none;
+  }
+
+  .lightbox-loader.active {
+    display: block;
+  }
+
+  .lightbox-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* LQIP blur-up placeholder */
+  .lightbox-lqip {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.1);
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: blur(20px);
+    opacity: 1;
+    transition: opacity 0.4s ease-out;
+    z-index: 1;
+  }
+
+  .lightbox-lqip.hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .lightbox-image {
+    position: relative;
+    z-index: 2;
     max-width: 100%;
     max-height: 70vh;
     width: auto;
@@ -121,7 +185,11 @@
     border-radius: 4px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     transform: scale(0.95);
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  .lightbox-image.loading {
+    opacity: 0;
   }
 
   .lightbox-overlay.active .lightbox-image {
@@ -301,6 +369,8 @@
   // Lightbox functionality with navigation
   const lightbox = document.getElementById('lightbox');
   const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement;
+  const lightboxLoader = document.getElementById('lightbox-loader');
+  const lightboxLqip = document.getElementById('lightbox-lqip') as HTMLImageElement;
   const lightboxTitle = document.getElementById('lightbox-title');
   const lightboxLocation = document.getElementById('lightbox-location');
   const lightboxDescription = document.getElementById('lightbox-description');
@@ -313,12 +383,32 @@
   let photos: Array<{
     image: string;
     original?: string;
+    lqip?: string;
     alt: string;
     title: string;
     location?: string;
     description?: string;
   }> = [];
   let currentIndex = 0;
+
+  // Prefetch cache to avoid duplicate requests
+  const prefetchedUrls = new Set<string>();
+
+  function prefetchImage(url: string) {
+    if (!url || prefetchedUrls.has(url)) return;
+    const img = new Image();
+    img.src = url;
+    prefetchedUrls.add(url);
+  }
+
+  function prefetchAdjacentImages() {
+    if (currentIndex > 0) {
+      prefetchImage(photos[currentIndex - 1].image);
+    }
+    if (currentIndex < photos.length - 1) {
+      prefetchImage(photos[currentIndex + 1].image);
+    }
+  }
 
   // Function to update photo display
   function updatePhoto(index: number) {
@@ -327,8 +417,27 @@
     currentIndex = index;
     const photo = photos[currentIndex];
 
-    // Update image
+    // Show LQIP immediately (blur-up placeholder)
+    if (lightboxLqip && photo.lqip) {
+      lightboxLqip.src = photo.lqip;
+      lightboxLqip.classList.remove('hidden');
+    }
+
+    // Show loader, hide main image during load
+    lightboxLoader?.classList.add('active');
+    lightboxImage?.classList.add('loading');
+
+    // Update image with load handler
     if (lightboxImage) {
+      lightboxImage.onload = () => {
+        lightboxLoader?.classList.remove('active');
+        lightboxImage?.classList.remove('loading');
+        lightboxLqip?.classList.add('hidden');
+      };
+      lightboxImage.onerror = () => {
+        lightboxLoader?.classList.remove('active');
+        lightboxImage?.classList.remove('loading');
+      };
       lightboxImage.src = photo.image;
       lightboxImage.alt = photo.alt;
     }
@@ -364,6 +473,9 @@
         lightboxNext.classList.remove('hidden');
       }
     }
+
+    // Prefetch adjacent images for faster navigation
+    prefetchAdjacentImages();
   }
 
   // Function to open lightbox
@@ -385,6 +497,9 @@
     lightbox.classList.remove('active');
     lightbox.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('lightbox-active');
+
+    // Clear prefetch cache when lightbox closes
+    prefetchedUrls.clear();
   }
 
   // Function to go to previous photo
@@ -436,10 +551,14 @@
     const photoButtons = document.querySelectorAll('.photo-grid-item');
     if (photoButtons.length === 0) return;
 
+    // Track preloaded images for hover preloading
+    const preloadedUrls = new Set<string>();
+
     // Group photos by their data-group attribute (or treat all as one group if not set)
     const photosByGroup: Record<string, Array<{
       image: string;
       original: string;
+      lqip: string;
       alt: string;
       title: string;
       location?: string;
@@ -454,6 +573,7 @@
       const photoData = {
         image: btn.dataset.lightboxSrc || '',
         original: btn.dataset.originalSrc || '',
+        lqip: btn.dataset.lqipSrc || '',
         alt: btn.dataset.alt || '',
         title: btn.dataset.caption || '',
         location: locationParts.join(', '),
@@ -466,8 +586,9 @@
       photosByGroup[group].push(photoData);
     });
 
-    // Add click handlers
+    // Add click and hover handlers
     photoButtons.forEach((photo) => {
+      // Click handler to open lightbox
       photo.addEventListener('click', (e) => {
         const button = e.currentTarget as HTMLButtonElement;
         const group = button.dataset.group || '_all';
@@ -477,6 +598,18 @@
           (window as any).openLightbox(photosByGroup[group], clickedIndex);
         }
       });
+
+      // Hover handler to preload full image
+      photo.addEventListener('mouseenter', (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+        const lightboxSrc = button.dataset.lightboxSrc;
+
+        if (lightboxSrc && !preloadedUrls.has(lightboxSrc)) {
+          const img = new Image();
+          img.src = lightboxSrc;
+          preloadedUrls.add(lightboxSrc);
+        }
+      }, { passive: true });
     });
   }
 
