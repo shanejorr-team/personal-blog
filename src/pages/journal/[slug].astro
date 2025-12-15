@@ -73,12 +73,12 @@ const { Content } = await post.render();
 
     <!-- Featured Image -->
     {post.data.featuredImage && (
-      <div class="max-w-6xl mx-auto mb-12">
+      <div class="max-w-4xl mx-auto mb-12">
         <Picture
           src={post.data.featuredImage}
           alt={post.data.title}
-          width={3072}
-          height={1728}
+          width={1792}
+          height={1008}
           formats={['avif', 'webp']}
           quality={85}
           class="w-full rounded-lg shadow-2xl"

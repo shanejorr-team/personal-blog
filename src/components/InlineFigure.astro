@@ -38,17 +38,18 @@ const {
 
 // Responsive widths for different screen sizes
 // These cover mobile, tablet, and desktop displays
-const widths = [400, 800, 1200, 1600];
+// 1792 provides 2x resolution for retina at max-w-4xl (896px)
+const widths = [400, 800, 1200, 1792];
 
 // Sizes attribute helps browser pick the right image
-// Based on actual layout: container class with px-4 padding
+// Based on actual layout: max-w-4xl (896px) container to match hero images
 // - Mobile: full width minus padding (100vw - 2rem)
-// - Tablet: container width minus padding
-// - Desktop: container maxes at ~1200px for content readability
-const sizes = '(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(100vw - 2rem), 1200px';
+// - Tablet: full width minus padding
+// - Desktop: constrained to 896px (max-w-4xl) to match hero image width
+const sizes = '(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(100vw - 2rem), 896px';
 ---
 
-<figure>
+<figure class="max-w-4xl mx-auto">
   <Picture
     src={src}
     alt={alt}
@@ -57,7 +58,7 @@ const sizes = '(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(1
     formats={['avif', 'webp']}
     quality={80}
     loading={loading}
-    class:list={['rounded-lg', className]}
+    class:list={['rounded-lg w-full', className]}
   />
   {caption && (
     <figcaption>{caption}</figcaption>
