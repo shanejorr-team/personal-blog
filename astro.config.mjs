@@ -7,7 +7,7 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://yourdomain.com', // Update with your domain
+  site: 'https://www.shaneorr.me',
   output: 'static',
   adapter: vercel({
     imageService: true,
