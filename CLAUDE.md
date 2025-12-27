@@ -308,7 +308,8 @@ CREATE TABLE photos (
   date TEXT,                             -- ISO 8601 date string
   sub_category TEXT,                     -- Grouping within category
   homepage_featured INTEGER,             -- 1 for hero image, 0 for other photos
-  category_featured INTEGER,             -- Priority for category page, NULL if not featured
+  category_featured INTEGER,             -- Priority for category page (0-4)
+  country_featured INTEGER,              -- 1 for country nav thumbnail, 0 otherwise
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
@@ -334,11 +335,17 @@ All three fields (country, location, caption) are required and cannot be empty, 
   - `3` = Featured on portfolio - medium priority
   - `4` = Featured on portfolio - lower priority
   - Lower numbers appear first (sorted ascending)
-- Photos can be featured on homepage (as hero), category page, both, or neither
+- `country_featured`: Controls which photo represents each country on `/portfolio/all-countries`
+  - `1` = Country navigation thumbnail (exactly one per country)
+  - `0` = Not the country thumbnail
+- Photos can be featured on homepage (as hero), category page, country page, or any combination
 
 **Portfolio Organization:**
 - **Homepage Hero**: Single photo with `homepage_featured = 1`
 - **Category Navigation**: Photos with `category_featured = 1` (one per category for homepage Photography section)
+- **Country Navigation** (`/portfolio/all-countries`): Photos with `country_featured = 1` (one per country)
+  - Displays a thumbnail for each country linking to that country's page
+  - Each country must have exactly one photo with `country_featured = 1`
 - **Main portfolio page** (`/portfolio`): Shows up to 6 photos per category
   - Takes first 6 photos where `category_featured > 0`, sorted by priority
   - Links to full category pages
@@ -580,6 +587,7 @@ The import tool validates:
 - ✅ Date format is `YYYY-MM-DD`
 - ✅ `homepage_featured` is 0 or 1
 - ✅ `category_featured` is 0-4 (0=not featured, 1=nav thumbnail, 2-4=priority levels)
+- ✅ `country_featured` is 0 or 1
 - ✅ Photo files exist in correct directories
 - ✅ No duplicate filenames (in CSV or database)
 
@@ -656,6 +664,7 @@ turkey-istanbul-street-1.jpg,Another new caption,Istanbul,Turkey
 - `sub_category` - Grouping within category
 - `homepage_featured` - Hero image flag (1 for hero, 0 otherwise)
 - `category_featured` - Portfolio display (0=hidden, 1=nav thumbnail, 2-4=priority)
+- `country_featured` - Country nav thumbnail (1 for thumbnail, 0 otherwise)
 - `category` - Photo category (note: changing category requires moving image files)
 
 **Not updateable:**

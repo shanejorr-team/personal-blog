@@ -148,6 +148,9 @@ npm run photo:update backups/photos-export.csv  # Import changes
   - `1` = Category navigation thumbnail + highest priority
   - `2-4` = Featured with decreasing priority
   - `/portfolio` shows top 6 per category; `/portfolio/[category]` shows all
+- `country_featured`: Controls country navigation on `/portfolio/all-countries`
+  - `1` = Country navigation thumbnail (one per country)
+  - `0` = Not the country thumbnail
 
 See [CLAUDE.md](./CLAUDE.md) for detailed workflows and SQL queries.
 
