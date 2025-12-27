@@ -140,11 +140,14 @@ npm run photo:update backups/photos-export.csv  # Import changes
 
 **Featured System**:
 
-- `homepage_featured: 1` - Hero photo on homepage
-- `category_featured: 1-N` - Sort order in portfolio
-  - 1 = highest priority, shown on category nav on homepage
-  - 2 = shown on main portfolio page
-- `country_featured: 1` - Country navigation photo
+- `homepage_featured`: Controls the homepage hero image only
+  - `1` = This photo is the homepage hero
+  - `0` = Not the hero image
+- `category_featured`: Controls portfolio page display
+  - `0` = Not featured (hidden from portfolio)
+  - `1` = Category navigation thumbnail + highest priority
+  - `2-4` = Featured with decreasing priority
+  - `/portfolio` shows top 6 per category; `/portfolio/[category]` shows all
 
 See [CLAUDE.md](./CLAUDE.md) for detailed workflows and SQL queries.
 
