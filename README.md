@@ -91,11 +91,11 @@ More narrative text here.
 
 **InlineFigure features:**
 
-- Responsive images at multiple widths (400, 800, 1200, 1600px)
+- Responsive images at multiple widths (400, 800, 1200, 1792px)
 - Multiple formats (AVIF → WebP → fallback)
 - Lazy loading by default (use `loading="eager"` for above-fold images)
 - Dark mode support for figcaptions
-- Consistent 80% quality setting
+- High quality (90%) for crisp photography display
 - Proper `sizes` attribute for optimal browser image selection
 
 ### Images

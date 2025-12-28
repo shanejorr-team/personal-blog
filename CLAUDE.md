@@ -227,11 +227,11 @@ import photo from './photo.jpg';
 
 The `InlineFigure` component provides:
 
-- Responsive images at multiple widths (400, 800, 1200, 1600px)
+- Responsive images at multiple widths (400, 800, 1200, 1792px)
 - Modern formats (AVIF, WebP) with automatic fallback
 - Lazy loading by default (`loading="eager"` for above-fold images)
 - Dark mode support for figcaptions
-- Consistent quality (80%) across all inline images
+- High quality (90%) for crisp photography display
 - Proper `sizes` attribute for optimal browser image selection
 
 **Note:** Non-portfolio images are co-located with the post for easier management. Portfolio images (in `src/photography/`) can still be referenced via relative paths like `../../../photography/nature/photo.jpg`. The slug is derived from the folder name.
@@ -270,11 +270,11 @@ import illustration from './illustration.png';
 
 The `InlineFigure` component provides:
 
-- Responsive images at multiple widths (400, 800, 1200, 1600px)
+- Responsive images at multiple widths (400, 800, 1200, 1792px)
 - Modern formats (AVIF, WebP) with automatic fallback
 - Lazy loading by default (`loading="eager"` for above-fold images)
 - Dark mode support for figcaptions
-- Consistent quality (80%) across all inline images
+- High quality (90%) for crisp photography display
 - Proper `sizes` attribute for optimal browser image selection
 
 **Note:** Images are co-located with the post for easier management. Each post folder contains the MDX file and all its illustrations. The slug is derived from the folder name.
@@ -410,7 +410,7 @@ All three fields (country, location, caption) are required and cannot be empty, 
   - Full path constructed by `getPhotoPath()`: `/photography/{category}/{filename}`
   - Loaded via `imageLoader.ts` utility
   - Automatically optimized at build time (WebP conversion, responsive sizes, lazy loading)
-  - Lightbox optimization: Resized to max 1920px width, WebP format, 85% quality
+  - Lightbox optimization: Resized to max 1440px width, WebP format, 90% quality
 
 - **Journal images (co-located):**
   - Physical location: `src/content/photography-journal/{slug}/` (same folder as post)
@@ -452,7 +452,7 @@ All three fields (country, location, caption) are required and cannot be empty, 
 - Image dimensions read automatically at build time using Sharp library
 - No manual dimension entry required in JSON files
 - Fallback to 3:2 aspect ratio if image cannot be read
-- Images optimized to WebP format at 80% quality
+- Images optimized to AVIF/WebP format at 90% quality
 - Lazy loading applied (except hero image)
 
 **Journal & Writings Listing Pages:**
@@ -487,6 +487,25 @@ Use `PhotoGridItem.astro` for consistent photo grid buttons across all portfolio
 The component renders a button with all required data attributes for lightbox auto-initialization.
 
 **Key Principle:** All portfolio pages preserve native aspect ratios using justified grid layout. Journal and writings listing pages use fixed aspect ratios with `object-fit: cover` for clean thumbnails. Full images always visible in lightbox with proper aspect ratios.
+
+### Image Quality Settings
+
+All images are optimized at build time with high quality settings appropriate for a photography portfolio:
+
+| Location         | Max Width  | Quality | Formats    |
+| ---------------- | ---------- | ------- | ---------- |
+| Lightbox         | 1440px     | 90%     | WebP       |
+| Portfolio grid   | 2× display | 90%     | AVIF, WebP |
+| Hero images      | 1792px     | 90%     | AVIF, WebP |
+| Inline images    | 1792px     | 90%     | AVIF, WebP |
+| LQIP placeholder | 20px       | 20%     | WebP       |
+
+**Configuration locations:**
+
+- Lightbox: `src/utils/processPhotos.ts` (DEFAULT_OPTIONS)
+- Portfolio grid: `src/components/PhotoGridItem.astro`
+- Hero images: `src/pages/journal/[slug].astro` and `src/pages/writings/[slug].astro`
+- Inline images: `src/components/InlineFigure.astro`
 
 ### Dark Mode
 - Implemented with Tailwind's `dark:` classes

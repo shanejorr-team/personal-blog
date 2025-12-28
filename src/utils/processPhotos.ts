@@ -30,7 +30,7 @@ export interface ProcessOptions {
 const DEFAULT_OPTIONS: ProcessOptions = {
   includeLightbox: true,
   lightboxWidth: 1440,
-  lightboxQuality: 80,
+  lightboxQuality: 90,
   includeLqip: true,
   lqipWidth: 20,
 };
