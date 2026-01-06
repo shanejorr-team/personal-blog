@@ -4,6 +4,7 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 import vercel from '@astrojs/vercel';
+import remarkGfm from 'remark-gfm';
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,6 +13,9 @@ export default defineConfig({
   adapter: vercel({
     imageService: true,
   }),
+  markdown: {
+    remarkPlugins: [remarkGfm],
+  },
   integrations: [tailwind(), sitemap(), mdx()],
   image: {
     remotePatterns: [{ protocol: "https" }],
