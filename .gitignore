@@ -34,3 +34,13 @@ portfolio-json-backup/
 # SQLite temporary files
 *.db-journal
 *.db.backup
+
+# Scratch folder - ignore images and generated files
+scratch/**/*.jpg
+scratch/**/*.jpeg
+scratch/**/*.png
+scratch/**/venv/
+scratch/**/models/
+scratch/**/__pycache__/
+scratch/**/blurred_photos/
+scratch/**/original_photos/
