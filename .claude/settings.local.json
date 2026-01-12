@@ -40,7 +40,18 @@
       "Bash(git -C /Users/shaneorr/repos/personal/personal-blog commit -m \"$\\(cat <<''EOF''\nupdate documentation for homepage_featured and category_featured columns\n\n- Correct homepage_featured: only controls hero image \\(1=hero, 0=not hero\\)\n- Document category_featured values: 0=hidden, 1=nav thumbnail, 2-4=priority\n- Clarify /portfolio shows top 6 per category, /portfolio/[category] shows all\n- Update schema comments, validation rules, and query function descriptions\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git -C /Users/shaneorr/repos/personal/personal-blog commit -m \"$\\(cat <<''EOF''\nadd country_featured column documentation\n\nDocument the country_featured column across all three documentation files:\n- Schema definition with column description\n- Featured System section explaining values \\(0=not thumbnail, 1=country nav thumbnail\\)\n- Portfolio Organization section with Country Navigation details\n- Validation rules and updateable columns list\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git -C /Users/shaneorr/repos/personal/personal-blog commit -m \"$\\(cat <<''EOF''\nincrease image quality to 90% across all pages\n\n- Lightbox: 80% → 90%\n- Portfolio grid: 80% → 90%\n- Hero images: 85% → 90%\n- Inline images: 80% → 90%\n\nUpdated documentation with new Image Quality Settings section.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog commit -m \"$\\(cat <<''EOF''\nremove redundant documentation files\n\n- Remove AGENTS.md \\(content consolidated in CLAUDE.md\\)\n- Remove .codex/prompts/captions.md \\(no longer needed\\)\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git -C /Users/shaneorr/repos/personal/personal-blog commit -m \"$\\(cat <<''EOF''\nremove redundant documentation files\n\n- Remove AGENTS.md \\(content consolidated in CLAUDE.md\\)\n- Remove .codex/prompts/captions.md \\(no longer needed\\)\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(python3:*)",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(python blur_faces.py:*)",
+      "Bash(./venv/bin/python:*)",
+      "Bash(/Users/shaneorr/repos/personal/personal-blog/scratch/blur_faces/venv/bin/python:*)",
+      "Bash(brew install:*)",
+      "Bash(pip uninstall:*)",
+      "Bash(pip cache:*)",
+      "Bash(arch -arm64 pip install:*)",
+      "Bash(CMAKE_BUILD_TYPE=Release pip install:*)"
     ],
     "deny": [],
     "ask": []
