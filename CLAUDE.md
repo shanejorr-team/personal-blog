@@ -142,10 +142,14 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   │   └── {slug}/      # Each post is a folder
 │   │   │       ├── index.mdx    # Post content
 │   │   │       └── *.jpg        # Non-portfolio images co-located with post
-│   │   └── writings/        # MDX posts (folder-per-post with co-located images)
+│   │   ├── writings/        # MDX posts (folder-per-post with co-located images)
+│   │   │   └── {slug}/      # Each post is a folder
+│   │   │       ├── index.mdx    # Post content
+│   │   │       └── *.png        # Illustrations co-located with post
+│   │   └── adoption/        # Adoption journey posts (folder-per-post)
 │   │       └── {slug}/      # Each post is a folder
 │   │           ├── index.mdx    # Post content
-│   │           └── *.png        # Illustrations co-located with post
+│   │           └── *.png        # Images co-located with post
 │   ├── db/
 │   │   ├── photos.db        # SQLite database with photo metadata
 │   │   └── schema.sql       # Database schema definition
@@ -165,12 +169,16 @@ With 100+ photos (~15GB) and regular deployments, the **GitHub Team plan is requ
 │   │   ├── writings/
 │   │   │   ├── index.astro
 │   │   │   └── [slug].astro
+│   │   ├── adoption/
+│   │   │   ├── index.astro
+│   │   │   └── [slug].astro
 │   │   ├── portfolio/
 │   │   │   ├── index.astro
 │   │   │   ├── [category].astro
 │   │   │   └── [country].astro
 │   │   ├── rss-journal.xml.ts
-│   │   └── rss-writings.xml.ts
+│   │   ├── rss-writings.xml.ts
+│   │   └── rss-adoption.xml.ts
 │   ├── scripts/             # CLI tools for database management
 │   │   ├── shared/
 │   │   │   └── validation.ts  # Shared validation utilities
@@ -278,6 +286,32 @@ The `InlineFigure` component provides:
 - Proper `sizes` attribute for optimal browser image selection
 
 **Note:** Images are co-located with the post for easier management. Each post folder contains the MDX file and all its illustrations. The slug is derived from the folder name.
+
+### Adoption Posts
+Location: `src/content/adoption/{slug}/index.mdx`
+
+Uses **folder-per-post structure** with co-located images (same as writings):
+
+```
+src/content/adoption/2026-01-15-our-adoption-journey/
+├── index.mdx           # Post content
+├── featured.png        # Featured image
+└── *.png               # Inline images
+```
+
+**Frontmatter:**
+```markdown
+---
+title: string
+description: string
+date: Date
+featuredImage?: ./image.png  # Relative to post folder
+tags: string[]
+draft: boolean
+---
+```
+
+**Note:** Adoption posts use the same schema and structure as Writings posts. Images are co-located with the post for easier management.
 
 ### Pages
 Location: `src/content/pages/*.md`

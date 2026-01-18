@@ -1,0 +1,96 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BackLink from '../../components/BackLink.astro';
+import { formatDate } from '../../utils/helpers';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('adoption');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+type Props = {
+  post: CollectionEntry<'adoption'>;
+};
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<BaseLayout
+  title={`${post.data.title} - Adoption`}
+  description={post.data.description}
+  image={post.data.featuredImage?.src}
+  ogType="article"
+  publishedDate={post.data.date}
+  author="Shane Orr"
+  section="Adoption"
+  tags={post.data.tags}
+>
+  <article class="container mx-auto px-4 py-12">
+    <Breadcrumbs
+      items={[
+        { label: 'Adoption', href: '/adoption' },
+        { label: post.data.title }
+      ]}
+    />
+
+    <!-- Header -->
+    <header class="max-w-3xl mx-auto mb-12">
+      <div class="flex flex-wrap gap-2 mb-4">
+        {post.data.tags.map(tag => (
+          <a
+            href={`/adoption?tag=${encodeURIComponent(tag)}`}
+            class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+          >
+            {tag}
+          </a>
+        ))}
+      </div>
+
+      <h1 class="text-4xl md:text-5xl font-bold mb-6">
+        {post.data.title}
+      </h1>
+
+      <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
+        {post.data.description}
+      </p>
+
+      <time
+        datetime={post.data.date.toISOString()}
+        class="text-gray-600 dark:text-gray-400"
+      >
+        {formatDate(post.data.date)}
+      </time>
+    </header>
+
+    <!-- Featured Image -->
+    {post.data.featuredImage && (
+      <div class="max-w-4xl mx-auto mb-12">
+        <Picture
+          src={post.data.featuredImage}
+          alt={post.data.title}
+          width={1792}
+          height={1008}
+          formats={['avif', 'webp']}
+          quality={90}
+          class="w-full rounded-lg shadow-2xl"
+          loading="eager"
+        />
+      </div>
+    )}
+
+    <!-- Content -->
+    <div class="prose prose-lg dark:prose-invert mx-auto">
+      <Content />
+    </div>
+
+    <!-- Navigation -->
+    <BackLink href="/adoption" label="Back to Adoption" />
+  </article>
+</BaseLayout>

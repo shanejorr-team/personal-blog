@@ -28,6 +28,19 @@ const writings = defineCollection({
   }),
 });
 
+// Adoption collection - adoption journey posts
+const adoption = defineCollection({
+  type: 'content',
+  schema: ({ image }) => z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.date(),
+    featuredImage: image().optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
 // Pages collection - standalone pages like About
 const pages = defineCollection({
   type: 'content',
@@ -43,5 +56,6 @@ const pages = defineCollection({
 export const collections = {
   'photography-journal': photographyJournal,
   'writings': writings,
+  'adoption': adoption,
   'pages': pages,
 };

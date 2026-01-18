@@ -50,9 +50,9 @@ const categoryNavWithDimensions = await processNavPhotos(categoryNavPhotos);
 const journalPosts = await getCollection('photography-journal');
 const recentJournal = sortByDate(filterDrafts(journalPosts)).slice(0, 3);
 
-// Get recent writings
-const writings = await getCollection('writings');
-const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
+// Get recent adoption posts
+const adoptionPosts = await getCollection('adoption');
+const recentAdoption = sortByDate(filterDrafts(adoptionPosts)).slice(0, 3);
 ---
 
 <BaseLayout
@@ -200,21 +200,21 @@ const recentWritings = sortByDate(filterDrafts(writings)).slice(0, 3);
           </div>
         </div>
 
-        <!-- Other Writings -->
+        <!-- Adoption -->
         <div>
           <div class="flex items-center justify-between mb-6">
-            <h2 class="text-3xl font-bold">Other Writings</h2>
-            <a href="/writings" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">
+            <h2 class="text-3xl font-bold">Adoption</h2>
+            <a href="/adoption" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">
               View All →
             </a>
           </div>
           <p class="text-gray-600 dark:text-gray-400 mb-6">
-            Thoughts, tutorials, and general musings
+            Stories and reflections from our adoption journey
           </p>
           <div class="space-y-6">
-            {recentWritings.map((post) => (
+            {recentAdoption.map((post) => (
               <article class="card p-4">
-                <a href={`/writings/${post.slug}`} class="block">
+                <a href={`/adoption/${post.slug}`} class="block">
                   {post.data.featuredImage && (
                     <div class="w-full aspect-[16/9] rounded-lg mb-4 overflow-hidden bg-transparent">
                       <Picture
