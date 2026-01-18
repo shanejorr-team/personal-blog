@@ -51,7 +51,10 @@
       "Bash(pip uninstall:*)",
       "Bash(pip cache:*)",
       "Bash(arch -arm64 pip install:*)",
-      "Bash(CMAKE_BUILD_TYPE=Release pip install:*)"
+      "Bash(CMAKE_BUILD_TYPE=Release pip install:*)",
+      "Bash(uv pip install:*)",
+      "Bash(blur-faces:*)",
+      "Bash(export AWS_PROFILE=georgia-data-admin)"
     ],
     "deny": [],
     "ask": []
