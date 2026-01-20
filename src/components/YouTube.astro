@@ -1,0 +1,49 @@
+---
+/**
+ * YouTube - Responsive YouTube embed component for MDX posts
+ *
+ * Features:
+ * - Responsive 16:9 aspect ratio
+ * - Privacy-enhanced mode (youtube-nocookie.com)
+ * - Lazy loading for performance
+ * - Dark mode support for figcaptions
+ * - Consistent styling with InlineFigure
+ *
+ * Usage in MDX:
+ * ```mdx
+ * import YouTube from '../../../components/YouTube.astro';
+ *
+ * <YouTube id="xhMVvUsIakM" caption="Optional caption" />
+ * ```
+ */
+
+interface Props {
+  id: string;
+  caption?: string;
+  title?: string;
+}
+
+const {
+  id,
+  caption,
+  title = 'YouTube video'
+} = Astro.props;
+
+const embedUrl = `https://www.youtube-nocookie.com/embed/${id}`;
+---
+
+<figure class="max-w-4xl mx-auto">
+  <div class="aspect-video">
+    <iframe
+      src={embedUrl}
+      title={title}
+      loading="lazy"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      class="w-full h-full rounded-lg"
+    ></iframe>
+  </div>
+  {caption && (
+    <figcaption>{caption}</figcaption>
+  )}
+</figure>
