@@ -81,6 +81,19 @@
     @apply text-blue-600 dark:text-blue-400 hover:underline;
   }
 
+  .prose blockquote {
+    @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-1 my-6;
+    @apply italic text-gray-700 dark:text-gray-300;
+  }
+
+  .prose blockquote p {
+    @apply mb-2;
+  }
+
+  .prose blockquote p:last-child {
+    @apply mb-0;
+  }
+
   /* Button styles */
   .btn {
     @apply px-6 py-3 rounded-lg font-medium transition-all duration-200;
