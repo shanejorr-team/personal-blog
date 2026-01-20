@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import YouTube from '../../components/YouTube.astro';
 import TagFilter from '../../components/TagFilter.astro';
 import PostCard from '../../components/PostCard.astro';
 import { sortByDate, filterDrafts, getUniqueTags } from '../../utils/helpers';
@@ -20,17 +21,23 @@ const filteredPosts = currentTag
 
 <BaseLayout
   title="Adoption - Our Journey"
-  description="Stories and reflections from our adoption journey."
+  description="A January 2026 State Department memo is blocking our international adoption from Colombia. Here's our story and what we're doing about it."
+  image="/adoption-og.jpg"
 >
   <div class="container mx-auto px-4 py-12">
     <Breadcrumbs items={[{ label: 'Adoption' }]} />
 
     <!-- Header -->
     <div class="text-center mb-12">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">Adoption</h1>
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Adoption Story</h1>
       <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-        Stories and reflections from our adoption journey
+        A January 2026 State Department memo is blocking our international adoption from Colombia. Here's our story and what we're doing about it. Watch the video and read the blog posts to learn more.
       </p>
+    </div>
+
+    <!-- Featured Video -->
+    <div class="mb-12">
+      <YouTube id="xhMVvUsIakM" />
     </div>
 
     <!-- Tags Filter -->
