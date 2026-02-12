@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Analytics from '@vercel/analytics/astro';
 import '../styles/global.css';
 
 export interface Props {
@@ -83,6 +84,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     {preloadImage && (
       <link rel="preload" as="image" href={preloadImage} type="image/webp" />
     )}
+
+    <Analytics />
   </head>
   <body class="flex flex-col min-h-screen">
     <Header />

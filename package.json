@@ -19,6 +19,7 @@
   "dependencies": {
     "@astrojs/mdx": "^4.3.12",
     "@astrojs/vercel": "^9.0.2",
+    "@vercel/analytics": "^1.6.1",
     "astro": "^5.15.3",
     "better-sqlite3": "^12.4.1",
     "csv-parse": "^6.1.0",
