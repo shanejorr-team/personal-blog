@@ -29,6 +29,20 @@
 
   <!-- Content Container -->
   <div class="lightbox-content">
+    <!-- Download Button (hidden unless body[data-lightbox-allow-download="true"]) -->
+    <button
+      type="button"
+      class="lightbox-download"
+      aria-label="Download photo"
+      hidden
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    </button>
+
     <!-- Close Button -->
     <button
       type="button"
@@ -230,6 +244,44 @@
     height: 24px;
   }
 
+  .lightbox-download {
+    position: absolute;
+    top: -60px;
+    right: 60px;
+    z-index: 10001;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+    padding: 0;
+  }
+
+  .lightbox-download[hidden] {
+    display: none;
+  }
+
+  .lightbox-download:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+  }
+
+  .lightbox-download:active {
+    transform: scale(0.95);
+  }
+
+  .lightbox-download svg {
+    width: 22px;
+    height: 22px;
+  }
+
   /* Navigation Arrows */
   .lightbox-nav {
     position: absolute;
@@ -330,6 +382,13 @@
       height: 44px;
     }
 
+    .lightbox-download {
+      top: -50px;
+      right: 54px;
+      width: 44px;
+      height: 44px;
+    }
+
     .lightbox-nav {
       width: 48px;
       height: 48px;
@@ -375,9 +434,16 @@
   const lightboxLocation = document.getElementById('lightbox-location');
   const lightboxDescription = document.getElementById('lightbox-description');
   const lightboxClose = document.querySelector('.lightbox-close');
+  const lightboxDownload = document.querySelector('.lightbox-download') as HTMLButtonElement | null;
   const lightboxBackdrop = document.querySelector('.lightbox-backdrop');
   const lightboxPrev = document.querySelector('.lightbox-prev');
   const lightboxNext = document.querySelector('.lightbox-next');
+
+  function syncDownloadButtonVisibility() {
+    if (!lightboxDownload) return;
+    lightboxDownload.hidden = document.body.dataset.lightboxAllowDownload !== 'true';
+  }
+  syncDownloadButtonVisibility();
 
   // Store photos array and current index
   let photos: Array<{
@@ -388,6 +454,7 @@
     title: string;
     location?: string;
     description?: string;
+    downloadFilename?: string;
   }> = [];
   let currentIndex = 0;
 
@@ -526,6 +593,24 @@
   lightboxPrev?.addEventListener('click', previousPhoto);
   lightboxNext?.addEventListener('click', nextPhoto);
 
+  // Download button click
+  lightboxDownload?.addEventListener('click', () => {
+    if (!photos.length) return;
+    const photo = photos[currentIndex];
+    const href = photo.original || photo.image;
+    if (!href) return;
+    const a = document.createElement('a');
+    a.href = href;
+    if (photo.downloadFilename) {
+      a.download = photo.downloadFilename;
+    } else {
+      a.download = '';
+    }
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
   // Keyboard navigation
   document.addEventListener('keydown', (e) => {
     if (!lightbox?.classList.contains('active')) return;
@@ -563,6 +648,7 @@
       title: string;
       location?: string;
       description?: string;
+      downloadFilename?: string;
     }>> = {};
 
     photoButtons.forEach((button) => {
@@ -578,6 +664,7 @@
         title: btn.dataset.caption || '',
         location: locationParts.join(', '),
         description: '',
+        downloadFilename: btn.dataset.downloadFilename || '',
       };
 
       if (!photosByGroup[group]) {
@@ -617,5 +704,8 @@
   initPhotoGridItems();
 
   // Re-initialize on navigation (for Astro view transitions)
-  document.addEventListener('astro:page-load', initPhotoGridItems);
+  document.addEventListener('astro:page-load', () => {
+    syncDownloadButtonVisibility();
+    initPhotoGridItems();
+  });
 </script>

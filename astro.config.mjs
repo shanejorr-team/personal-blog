@@ -16,7 +16,13 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [remarkGfm],
   },
-  integrations: [tailwind(), sitemap(), mdx()],
+  integrations: [
+    tailwind(),
+    sitemap({
+      filter: (page) => !page.includes('/encuentro'),
+    }),
+    mdx(),
+  ],
   image: {
     remotePatterns: [{ protocol: "https" }],
   },
