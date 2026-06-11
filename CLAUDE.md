@@ -287,6 +287,8 @@ The `InlineFigure` component provides:
 
 **Note:** Images are co-located with the post for easier management. Each post folder contains the MDX file and all its illustrations. The slug is derived from the folder name.
 
+**Data analysis posts:** Any data analysis for Writings/Other Writings posts should be conducted in Python. Visualizations should be created with Altair, with exported chart artifacts/specs suitable for embedding in the Astro site. Prefer Altair/Vega-Lite interactivity for tooltips, parameter controls, dropdowns, and similar article-friendly controls.
+
 ### Adoption Posts
 Location: `src/content/adoption/{slug}/index.mdx`
 
