@@ -44,3 +44,10 @@ scratch/**/models/
 scratch/**/__pycache__/
 scratch/**/blurred_photos/
 scratch/**/original_photos/
+
+# Footbench runtime data (raw responses, rendered figures, judgments)
+footbench/artifacts/
+footbench/.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
