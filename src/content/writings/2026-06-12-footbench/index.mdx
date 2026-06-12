@@ -1,0 +1,48 @@
+---
+title: "Footbench"
+description: "An LLM evaluation to measure intuition and confidence in beliefs."
+date: 2026-06-12
+tags: ["AI", "LLM", "evaluation"]
+draft: true
+---
+
+## What is Footbench?
+
+Evaluates three things:
+- reasoning with evidence
+- reasoning on intuition
+- measuring confidence in beliefs
+
+Evaluated through pairwise competition
+- each model (candidate models) competes against all other models
+- compete twice, changing the order each time
+- four models judge which candidate model did best in each head to head matchup
+- Criteria to pick winner:
+    1. **Soundness of recommendations**
+        - Better NFL strategy picks: underutilized, credibly win-positive, football-literate
+        rationales, correct analytics-vs-intuition bucket, distinct picks in the right grid cells.
+    2. **Reasonableness of Bayesian priors**
+        - Better prior choices: distribution family matches shape/tails/support, plausible
+        football effect sizes, reasonable 95% intervals, correct conversions, honest uncertainty
+        for weak evidence cells.
+    - Final displayed score is win percentage: wins / comparisons * 100, overall or by criterion.
+
+## Results
+
+### Competition results
+
+[Insert `## Overall pairwise results`]
+
+[Insert `## Pairwise results by criterion`]
+
+[Insert `## Pairwise results by model`]
+
+### Comparing priors
+
+[Insert `## Subjective priors`]
+
+### Judge scoring consistency
+
+### Model Output
+
+
