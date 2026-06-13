@@ -7,6 +7,13 @@ draft: true
 ---
 
 import ModelOutputTables from '../../../components/footbench/ModelOutputTables.astro';
+import VegaLiteChart from '../../../components/footbench/VegaLiteChart.astro';
+import overallPairwiseResultsSpec from './charts/overall-pairwise-results.vl.json?url';
+import pairwiseResultsByCriterionSpec from './charts/pairwise-results-by-criterion.vl.json?url';
+import pairwiseResultsByModelSpec from './charts/pairwise-results-by-model.vl.json?url';
+import subjectivePriorsSpec from './charts/subjective-priors.vl.json?url';
+import interraterReliabilitySpec from './charts/interrater-reliability.vl.json?url';
+import orderConsistencySpec from './charts/order-consistency.vl.json?url';
 
 ## What is Footbench?
 
@@ -33,15 +40,31 @@ Evaluated through pairwise competition
 
 ### Competition results
 
-[Insert `## Overall pairwise results`]
+<VegaLiteChart
+  specUrl={overallPairwiseResultsSpec}
+  title="Overall pairwise win percentage"
+  minWidth={760}
+/>
 
-[Insert `## Pairwise results by criterion`]
+<VegaLiteChart
+  specUrl={pairwiseResultsByCriterionSpec}
+  title="Pairwise win percentage by criterion"
+  minWidth={820}
+/>
 
-[Insert `## Pairwise results by model`]
+<VegaLiteChart
+  specUrl={pairwiseResultsByModelSpec}
+  title="Candidate win percentage by judge model"
+  minWidth={920}
+/>
 
 ### Comparing priors
 
-[Insert `## Subjective priors`]
+<VegaLiteChart
+  specUrl={subjectivePriorsSpec}
+  title="Subjective prior distributions by model"
+  minWidth={880}
+/>
 
 ## Model Output
 
@@ -49,6 +72,14 @@ Evaluated through pairwise competition
 
 ## Judge scoring consistency
 
-[Insert `### Interrater reliability`]
+<VegaLiteChart
+  specUrl={interraterReliabilitySpec}
+  title="Four-judge vote splits by criterion"
+  minWidth={720}
+/>
 
-[Insert `### Order consistency`]
+<VegaLiteChart
+  specUrl={orderConsistencySpec}
+  title="Within-judge order consistency"
+  minWidth={760}
+/>
