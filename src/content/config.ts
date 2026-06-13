@@ -1,4 +1,5 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 // Photography Journal collection - travel photo stories
 const photographyJournal = defineCollection({
@@ -17,7 +18,11 @@ const photographyJournal = defineCollection({
 
 // Other Writings collection - general blog posts
 const writings = defineCollection({
-  type: 'content',
+  loader: glob({
+    pattern: ['**/index.md', '**/index.mdx'],
+    base: './src/content/writings',
+    _legacy: true,
+  }),
   schema: ({ image }) => z.object({
     title: z.string(),
     description: z.string(),

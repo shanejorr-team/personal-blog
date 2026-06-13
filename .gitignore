@@ -46,7 +46,10 @@ scratch/**/blurred_photos/
 scratch/**/original_photos/
 
 # Footbench runtime data (raw responses, rendered figures, judgments)
-footbench/artifacts/
+footbench/artifacts/*
+!footbench/artifacts/tables/
+footbench/artifacts/tables/*
+!footbench/artifacts/tables/responses.json
 footbench/.venv/
 __pycache__/
 .pytest_cache/
