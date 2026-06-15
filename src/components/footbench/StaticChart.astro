@@ -1,0 +1,49 @@
+---
+/**
+ * Renders a pre-rendered static chart SVG inline (exported from the Vega-Lite
+ * specs in the post's `charts/` folder, imported with `?raw`).
+ *
+ * The SVG is inlined rather than referenced via `<img>` so it renders
+ * identically in dev and production (Astro's dev server transforms `.svg?url`
+ * requests inconsistently). These exported SVGs contain no internal `id`s,
+ * `clip-path`s, or `url(#…)` references, so inlining several on one page is
+ * collision-free.
+ *
+ * The SVG carries its own `viewBox`, so CSS scales it fluidly with the column
+ * width and it stays crisp at any size. `maxWidth` caps the chart on large
+ * screens (clamped to the SVG's natural width so it never upscales); below that
+ * it shrinks to fit, so it never overflows or forces horizontal scrolling.
+ */
+type Props = {
+  svg: string;
+  title: string;
+  maxWidth?: number;
+};
+
+const { svg, title, maxWidth = 760 } = Astro.props;
+
+const naturalWidthMatch = svg.match(/<svg[^>]*\bwidth="([\d.]+)"/);
+const naturalWidth = naturalWidthMatch ? Math.round(Number.parseFloat(naturalWidthMatch[1])) : maxWidth;
+const cappedWidth = Math.min(maxWidth, naturalWidth);
+---
+
+<figure
+  class="footbench-chart"
+  aria-label={title}
+  style={`--footbench-chart-max-width: ${cappedWidth}px;`}
+  set:html={svg}
+/>
+
+<style>
+  .footbench-chart {
+    margin: 2rem 0;
+    width: 100%;
+    max-width: var(--footbench-chart-max-width, 100%);
+  }
+
+  .footbench-chart :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>

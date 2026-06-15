@@ -7,13 +7,13 @@ draft: true
 ---
 
 import ModelOutputTables from '../../../components/footbench/ModelOutputTables.astro';
-import VegaLiteChart from '../../../components/footbench/VegaLiteChart.astro';
-import overallPairwiseResultsSpec from './charts/overall-pairwise-results.vl.json?url';
-import pairwiseResultsByCriterionSpec from './charts/pairwise-results-by-criterion.vl.json?url';
-import pairwiseResultsByModelSpec from './charts/pairwise-results-by-model.vl.json?url';
-import subjectivePriorsSpec from './charts/subjective-priors.vl.json?url';
-import interraterReliabilitySpec from './charts/interrater-reliability.vl.json?url';
-import orderConsistencySpec from './charts/order-consistency.vl.json?url';
+import StaticChart from '../../../components/footbench/StaticChart.astro';
+import overallPairwiseResultsSvg from './charts/overall-pairwise-results.svg?raw';
+import pairwiseResultsByCriterionSvg from './charts/pairwise-results-by-criterion.svg?raw';
+import pairwiseResultsByModelSvg from './charts/pairwise-results-by-model.svg?raw';
+import subjectivePriorsSvg from './charts/subjective-priors.svg?raw';
+import interraterReliabilitySvg from './charts/interrater-reliability.svg?raw';
+import orderConsistencySvg from './charts/order-consistency.svg?raw';
 
 ## What is Footbench?
 
@@ -40,30 +40,30 @@ Evaluated through pairwise competition
 
 ### Competition results
 
-<VegaLiteChart
-  specUrl={overallPairwiseResultsSpec}
+<StaticChart
+  svg={overallPairwiseResultsSvg}
   title="Overall pairwise win percentage"
-  minWidth={760}
+  maxWidth={760}
 />
 
-<VegaLiteChart
-  specUrl={pairwiseResultsByCriterionSpec}
+<StaticChart
+  svg={pairwiseResultsByCriterionSvg}
   title="Pairwise win percentage by criterion"
-  minWidth={820}
+  maxWidth={820}
 />
 
-<VegaLiteChart
-  specUrl={pairwiseResultsByModelSpec}
+<StaticChart
+  svg={pairwiseResultsByModelSvg}
   title="Candidate win percentage by judge model"
-  minWidth={920}
+  maxWidth={920}
 />
 
 ### Comparing priors
 
-<VegaLiteChart
-  specUrl={subjectivePriorsSpec}
+<StaticChart
+  svg={subjectivePriorsSvg}
   title="Subjective prior distributions by model"
-  minWidth={880}
+  maxWidth={880}
 />
 
 ## Model Output
@@ -72,14 +72,14 @@ Evaluated through pairwise competition
 
 ## Judge scoring consistency
 
-<VegaLiteChart
-  specUrl={interraterReliabilitySpec}
+<StaticChart
+  svg={interraterReliabilitySvg}
   title="Four-judge vote splits by criterion"
-  minWidth={720}
+  maxWidth={720}
 />
 
-<VegaLiteChart
-  specUrl={orderConsistencySpec}
+<StaticChart
+  svg={orderConsistencySvg}
   title="Within-judge order consistency"
-  minWidth={760}
+  maxWidth={760}
 />
