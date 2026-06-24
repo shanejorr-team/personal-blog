@@ -3,6 +3,7 @@ title: "Footbench"
 description: "An LLM evaluation to measure intuition and confidence in beliefs."
 date: 2026-06-12
 tags: ["AI", "LLM", "evaluation"]
+featuredImage: ./featured.png
 draft: true
 ---
 
@@ -11,18 +12,16 @@ import StaticChart from '../../../components/footbench/StaticChart.astro';
 import overallPairwiseResultsSvg from './charts/overall-pairwise-results.svg?raw';
 import pairwiseResultsByCriterionSvg from './charts/pairwise-results-by-criterion.svg?raw';
 import pairwiseResultsByModelSvg from './charts/pairwise-results-by-model.svg?raw';
+import judgeCandidateMatrixSvg from './charts/judge-candidate-matrix.svg?raw';
 import subjectivePriorsSvg from './charts/subjective-priors.svg?raw';
 import interraterReliabilitySvg from './charts/interrater-reliability.svg?raw';
 import orderConsistencySvg from './charts/order-consistency.svg?raw';
 
 ### TL;DR: Footbench explained
 
-Footbench is a quasi-LLM evaluation that places LLMs in the coach's box. Models are asked
-to provide underutilized strategic football recommendations and then told to gauge their confidence
-in their answers. Other LLMs, as judges, rate the responses by pairing models against each other,
-two at a time, and picking a winner.
+Footbench is a quasi-LLM evaluation that places LLMs in the coach's box. Models, acting as NFL coaches, recommend underutilized football strategies and gauge their own confidence in their recommendations. Other LLMs, as judges, rate the coaches' recommendations by pairing coach models against each other, two at a time, and picking a winner.
 
-The 12 models (coaches) are:
+The 12 coach models are:
 
 | Family | Models |
 |---|---|
@@ -37,26 +36,19 @@ The 12 models (coaches) are:
 
 The evaluation measures three competencies:
 
-#### 1. Reasoning with evidence (the "analytics" row)**
+#### 1. Reasoning with evidence
 
-Underutilized NFL strategies that must be **backed by public football analytics** — win-probability
-models, expected-points research, published findings. The model is asked to surface ideas
-that the data supports but that real coaches still underuse (the classic example being
-"go for it on 4th down more often"). This rewards models that actually know the football
-analytics literature and can reason from it.
+Underutilized NFL strategies that must be **backed by public football analytics**: win-probability models, expected-points research, published findings.
 
-#### 2. Reasoning on intuition (the "intuition" row)
+Coach models are asked to surface ideas that the data supports but that real coaches still underuse (the classic example being "go for it on 4th down more often"). This rewards models that can reason from evidence.
 
-These strategies must come from the coach's **own judgment in areas where public analytics is
-absent, silent, or mixed**. The model has to briefly justify *why* the idea qualifies as
-intuition rather than settled analytics and it is explicitly told **not** to just restate
-the analytics consensus in different words. This tests whether a model can form an original,
-defensible opinion when the data won't hand it the answer.
+#### 2. Reasoning on intuition
 
-#### 3. Measuring confidence in its beliefs (the "priors")
+These are underutilized strategies that come from the coach's **own judgment in areas where public analytics is absent, silent, or mixed**. The model has to briefly justify *why* the idea qualifies as intuition rather than settled analytics and it is explicitly told **not** to just restate the analytics consensus in different words. This tests whether a model can form an original, defensible opinion when the data won't hand it the answer.
 
-For each recommended strategy, the model must quantify its uncertainty as a **Bayesian
-prior** over a single, precisely defined quantity:
+#### 3. Measuring confidence in its beliefs
+
+For each recommended strategy, the model must quantify its uncertainty as a **Bayesian prior** over a single, precisely defined quantity:
 
 > the change in the team's **expected single-game scoring margin** (your points minus the
 > opponent's), in **points**, caused by adopting the strategy versus not. Positive means
@@ -64,92 +56,73 @@ prior** over a single, precisely defined quantity:
 
 To express that belief the model must provide:
 
-- a **most-plausible value** (its single best guess, and it's told not to default to round
-  numbers);
+- a **most-plausible value** of the expected single-game scoring margin differential due to adopting the strategy;
 - a **95% interval** — the low/high range it's ~95% sure contains the true effect;
-- the **shape** of its belief (symmetric, or skewed toward the upside or downside) and how
-  heavy the tails are (how much chance it gives to a surprisingly large effect);
-- a matching **probability distribution family** — `normal`, `student_t`, or `skew_normal` —
-  with the actual parameters, and the math showing how it converted its plain-English belief
-  into those parameters.
+- the **shape** of its belief (symmetric, or skewed toward the upside or downside) and how heavy the tails are, which represents how much chance it gives to a surprisingly large effect;
+- a matching **probability distribution family** — `normal`, `student t`, or `skew normal` — with the actual parameters, and the math showing how it converted its plain-English belief into those parameters.
 
-Models recommend three strategies in both the **analytics** and **intuition** strategy buckets.
+Models recommend three strategy types in both the **analytics** and **intuition** buckets.
 
-1. **Game management** — clock and timeout use, challenges, 4th-down and 2-point decisions, and
-  similar in-game choices.
+1. **Game management** — clock and timeout use, challenges, 4th-down and 2-point decisions, and similar in-game choices.
 2. **Offense** — play-calling, scheme, personnel groupings, tempo.
 3. **Defense** — play-calling, scheme, coverage, personnel.
 
-Models then state their confidence in each of their 6 recommended strategies (2 compentencies x 3 buckets)
-by assignming Bayesian priors.
+Models then state their confidence in each of their 6 recommended strategies (2 competencies x 3 buckets) by assigning Bayesian priors.
 
 ### How responses are evaluated
 
-We use pairwise evaluation to calcualte model scores with **four LLMs acting as juges**:
+We use pairwise evaluation to calculate model scores with four LLMs acting as judges:
 
 - OpenAI GPT 5.5;
 - Claude Opus 4.8;
 - Google Gemini Flash 3.5;
 - DeepSeek V4 Pro.
 
-In pairwise evaluation two coach models (candidate models in AI speak) compete head-to-head
-through the following process:
+In pairwise evaluation, two coach models (candidate models in AI speak) compete head-to-head through the following process:
 
-- All four judges individually choose which recommendations are best between the two coach models.
-The judges do not know which model created the responses.
+- Each of the four judges chooses which of the two coaches made the best recommendations. The judges do not know which model created the responses.
 - The judges pick a winner in two categories:
     1. **Soundness of recommendations**
-        - Better NFL strategy recommendation: underutilized, credibly win-positive, football-literate
-        rationales, correct analytics-vs-intuition bucket, distinct picks in the right grid cells.
+        - Better NFL strategy recommendation: underutilized, credibly win-positive, football-literate rationales, correct analytics-vs-intuition bucket.
     2. **Reasonableness of Bayesian priors**
-        - Better prior choices: distribution family matches shape/tails/support, plausible
-        football effect sizes, reasonable 95% intervals, correct conversions, honest uncertainty
-        for weak evidence cells.
-- Judges are told to judge each criterion independently, so the same answer needn't win both.
-- After judges pick a winner once, the order of the responses from the two coaches is reversed
-and the judges pick winners again. This controls for position bias.
+        - Better prior choices: distribution family matches shape/tails/support, plausible football effect sizes, reasonable 95% intervals, correct conversions, honest uncertainty when there is weak evidence.
+- After judges pick a winner once, the order of the responses from the two coaches is reversed and the judges pick winners again. This controls for position bias, which leads LLMs as judge to favor the first response.
 
-This process is ran for every combination of coach models, leading to 1,056 comparisons
-(66 pairs x 2 categories x 2 orderings x 4 judges).
+This process is ran for every combination of coach models, leading to 1,056 comparisons (66 pairs x 2 categories x 2 orderings x 4 judges).
 
 The coach model's final displayed score is win percentage: wins / comparisons * 100, overall or by criterion.
 
 ### Limitations of footbench
 
-A critique of the NFL combine is that the evaluations are too quantitative and do not measure what matters
-in an actual NFL game. After all, you are not running straight and uninterrupted for 40
-yards or bench pressing in a game. "Just watch the game tape", old-timers exclaim.
+A critique of the NFL combine is that the evaluations are too quantitative and do not measure what matters in an actual NFL game. After all, you are not running straight and uninterrupted for 40 yards or bench pressing in a game. "Just watch the game tape", old-timers exclaim.
 
-Of course, we are full of baises and no two players play in the same environment:
-same team, competetion, schemas, etc. This makes player comparisons from game tape difficult.
-Especially small differences, such as identifying the best quarterback and third best
-quarterback. A difference worth millions of dollars.
+Of course, we are full of biases and no two players play in the same environment: same team, competition, schemas, etc. This makes player comparisons from game tape difficult, especially small differences such as identifying the best quarterback and third best quarterback. A difference worth millions of dollars.
 
-Footbench suffers from the opposite problem. The evaluation throws subjective questions
-at the coach models; questions lacking a 'right answer'. This places them in game-like environments.
+Footbench suffers from the opposite problem. The evaluation throws subjective questions at the coach models; questions lacking a 'right answer'. This places them in game-like environments, which is a positive.
+
 The cost, however, is that it is hard to know what a 'right answer' looks like.
 
-There is no ground-truth to determine which coach in a pairwise comparison had the better
-answer. The judge evaluators just watch the game tape and decide based on the eyeball test.
+There is no ground-truth to determine which coach in a pairwise comparison had the better answer. The judge evaluators are watching the game tape and deciding based on the eyeball test.
 
-Another problem is that footbench is circular. LLM models are judging LLM models in subjective
-criteria. If llm models, in general, have blindspots or weaknesses in evaluating NFL strategies
-then the judges will have these blindspots and weaknesses as well. Depending on the depth of
-the blind spots, the blind could be leading the blind.
+Another problem is that footbench is circular. AI models are judging other AI models in subjective criteria. If AI models, in general, have blindspots or weaknesses in evaluating NFL strategies then the judges will have these same blindspots and weaknesses.
 
-We try to smooth over these weaknesses by having four models act as judges. But, we do not
-fool ourselves into thinking they are eliminated.
+We try to smooth over these weaknesses by having four models act as judges. But, we do not fool ourselves into thinking they are eliminated.
 
-Ideally, the NFL's greatest minds would act as judges and rate the models. Absent that,
-LLMs will have to do.
+Ideally, the NFL's greatest minds would act as judges and rate the models. Absent that, other AI will have to do.
 
-Given the weaknesses of the evaluation process, there is value in reading the responses
-and comparing how different models respond and how they judge their own confidence. As a
-plus, you can learn football strategy by reading.
+Given the weaknesses of the evaluation process, there is value in reading the responses and comparing how different models respond and how they judge their own confidence. As a plus, you can learn football strategy by reading.
 
 ### Results
 
+Keeping the caveats above in mind, we will now explore the evaluation results.
+
 #### Competition results
+
+The top-line metric is overall win percentage. This is the percentage of head-to-head matchups each coach won. Unexpectedly, Claude Fable 5 came out on top, winning 93% of its games.
+
+Two OpenAI models finished second and third, with GPT 5.5 slightly edging out GPT 5.5 Pro.
+
+Suprising to me, Sonnet struggled. It lagged behind peer models like GPT 5.4 Mini and Gemini 3.5 Flash.
 
 <StaticChart
   svg={overallPairwiseResultsSvg}
@@ -157,11 +130,19 @@ plus, you can learn football strategy by reading.
   maxWidth={760}
 />
 
+Sonnet's lackluster showing was driven by judges not liking its priors / confidence. Judges rated Sonnet's strategic recommendations on par with top-tier models such as Opus and Gemini 3.1 Pro.
+
+To be honest, I am not sure how well the judges can evaluate the quality of priors. The confidence someone has in their own opinions has a subjective component that is hard to evaluate. How can you tell me I am too confident in my opinion, even if it is wrong? Therefore, take the ratings about priors for what they are worth.
+
 <StaticChart
   svg={pairwiseResultsByCriterionSvg}
   title="Pairwise win percentage by criterion"
   maxWidth={820}
 />
+
+The chart below shows how each of the four judge models rated the coach models. There was moderate cosistency among judges, as 3 of the 4 judges rated Fable 5 as teh top model.
+
+You see hints of self-preference bias - where models rate their own outputs higher - in the plot. For example, OpenAI GPT 5.5 assigned the highest ratings to GPT 5.5 and 5.5 pro. We will return to this topic later.
 
 <StaticChart
   svg={pairwiseResultsByModelSvg}
@@ -170,6 +151,8 @@ plus, you can learn football strategy by reading.
 />
 
 #### Comparing priors
+
+
 
 <StaticChart
   svg={subjectivePriorsSvg}
@@ -181,7 +164,17 @@ plus, you can learn football strategy by reading.
 
 <ModelOutputTables />
 
-### Judge scoring consistency
+### Judge Reliability
+
+#### Ratings by Judge
+
+<StaticChart
+  svg={judgeCandidateMatrixSvg}
+  title="Judge model self-comparison matrix"
+  maxWidth={660}
+/>
+
+#### Judge Scoring Consistency
 
 <StaticChart
   svg={interraterReliabilitySvg}
