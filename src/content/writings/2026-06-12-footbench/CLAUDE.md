@@ -10,7 +10,7 @@ Read `/Users/shaneorr/projects/personal-blog/footbench/CLAUDE.md` before making 
 
 ## What Footbench Is
 
-Footbench is a subjective, multi-model LLM evaluation. Candidate models answer a fixed prompt about NFL strategy recommendations, Bayesian priors, and a plotting script. The system evaluates model responses through generated artifacts, deterministic checks, LLM judge scoring, and pairwise comparisons.
+Footbench is a subjective, multi-model LLM evaluation. Candidate models answer a fixed prompt about NFL strategy recommendations, Bayesian priors, and a plotting script. The system evaluates model responses through generated artifacts, deterministic checks, and a pairwise LLM-judge tournament (every pair compared head-to-head; there is no separate 1–5 scoring round).
 
 For this blog post, the important concepts are:
 
