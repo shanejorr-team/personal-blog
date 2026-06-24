@@ -50,6 +50,14 @@ footbench/artifacts/*
 !footbench/artifacts/tables/
 footbench/artifacts/tables/*
 !footbench/artifacts/tables/responses.json
+# Keep the small per-instance candidate records the judge stage reads (so re-judging is
+# reproducible from a clone); rendered figures and other large/derived artifacts stay ignored.
+!footbench/artifacts/instances/
+footbench/artifacts/instances/*
+!footbench/artifacts/instances/*/
+footbench/artifacts/instances/*/*
+!footbench/artifacts/instances/*/response.json
+!footbench/artifacts/instances/*/checks.json
 footbench/.venv/
 __pycache__/
 .pytest_cache/
