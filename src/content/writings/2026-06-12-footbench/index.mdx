@@ -25,7 +25,7 @@ The 12 coach models are:
 
 | Family | Models |
 |---|---|
-| Anthropic (Claude) | Fable 5, Opus 4.8, Sonnet 4.6, Haiku 4.5 |
+| Anthropic (Claude) | Fable 5, Opus 4.8, Sonnet 5, Haiku 4.5 |
 | OpenAI (GPT) | GPT-5.5 Pro, GPT-5.5, GPT-5.4 mini |
 | Google (Gemini) | Gemini 3.1 Pro Preview, Gemini 3.5 Flash, Gemini 3.1 Flash Lite |
 | DeepSeek | DeepSeek V4 Pro, DeepSeek V4 Flash |
@@ -140,7 +140,7 @@ To be honest, I am not sure how well the judges can evaluate the quality of prio
   maxWidth={820}
 />
 
-The chart below shows how each of the four judge models rated the coach models. There was moderate cosistency among judges, as 3 of the 4 judges rated Fable 5 as teh top model.
+The chart below shows how each of the four judge models rated the coach models. There was moderate cosistency among judges, as 3 of the 4 judges rated Fable 5 as the top model.
 
 You see hints of self-preference bias - where models rate their own outputs higher - in the plot. For example, OpenAI GPT 5.5 assigned the highest ratings to GPT 5.5 and 5.5 pro. We will return to this topic later.
 
@@ -152,7 +152,13 @@ You see hints of self-preference bias - where models rate their own outputs high
 
 #### Comparing priors
 
+How did the coaches rate their confidence in their own beliefs? The chart below tells the story by displaying the bayesian priors of each coach.
+Each individual probability distribution represents the prior for one of the strategies.
 
+Two items jump out:
+
+1. OpenAI models, and GPT 5.4 Mini in particular, are very confident. This is highlighted by the narrow probability distributions.
+2. Sonnet may have been dinged for a combinatino of a) large point estimates, and b) wide uncertainty.
 
 <StaticChart
   svg={subjectivePriorsSvg}
@@ -162,11 +168,21 @@ You see hints of self-preference bias - where models rate their own outputs high
 
 ### Model Output
 
+Reading and comparing model outputs on the same prompt is ofter the best way to evaluate models. This especially holds for subjective responses.
+
+Use the toggles and tables below to explore model responses and learn about football strategies.
+
 <ModelOutputTables />
 
 ### Judge Reliability
 
 #### Ratings by Judge
+
+LLM judges tend to favor outputs from their own model family, even when the source is hidden. This is called self-preference bias.
+
+The chart below shows whether that bias surfaces in Footbench. Four of the candidate models (coaches) also served as judges, so we can compare each coach's win percentage across all four judges and check whether it climbs when a coach is judged by itself.
+
+The pattern holds for three of the four: each earned its highest win percentage from its own model as judge.
 
 <StaticChart
   svg={judgeCandidateMatrixSvg}
@@ -174,16 +190,14 @@ You see hints of self-preference bias - where models rate their own outputs high
   maxWidth={660}
 />
 
-#### Judge Scoring Consistency
+#### Judge Inter-rater Reliability
+
+Judge agreement matters because it tells you the scores reflect something real about the responses rather than idiosyncrasies of a particular judge.
+
+All four judges agree on the winner in pair-wise comparisons 75% of time. This is good, but not great, agreement.
 
 <StaticChart
   svg={interraterReliabilitySvg}
   title="Four-judge vote splits by criterion"
   maxWidth={720}
-/>
-
-<StaticChart
-  svg={orderConsistencySvg}
-  title="Within-judge order consistency"
-  maxWidth={760}
 />
