@@ -1,0 +1,760 @@
+---
+import responsesJson from '../../../footval/artifacts/tables/responses.json';
+import pairwiseResultsCsv from '../../../footval/outputs/data/pairwise_results.csv?raw';
+
+type Strategy = {
+  bucket: string;
+  type: string;
+  title: string;
+  recommendation: string;
+  rationale: string;
+};
+
+type ModelOutput = {
+  id: string;
+  label: string;
+  rank: number;
+  wins: number;
+  comparisons: number;
+  winPct: number;
+  scoreIndex: number;
+  strategies: Strategy[];
+};
+
+type StrategySlot = {
+  index: number;
+  bucket: string;
+  type: string;
+  label: string;
+};
+
+const EXPECTED_STRATEGY_COUNT = 6;
+const MODEL_LABELS: Record<string, string> = {
+  'claude-fable-5': 'Claude Fable 5',
+  'claude-haiku-4-5-20251001': 'Claude Haiku 4.5',
+  'claude-opus-4-8': 'Claude Opus 4.8',
+  'claude-sonnet-5': 'Claude Sonnet 5',
+  'deepseek-v4-flash': 'DeepSeek V4 Flash',
+  'deepseek-v4-pro': 'DeepSeek V4 Pro',
+  'gemini-3.1-flash-lite': 'Gemini 3.1 Flash-Lite',
+  'gemini-3.1-pro-preview': 'Gemini 3.1 Pro Preview',
+  'gemini-3.5-flash': 'Gemini 3.5 Flash',
+  'gpt-5.4-mini': 'OpenAI GPT 5.4 Mini',
+  'gpt-5.5': 'OpenAI GPT 5.5',
+  'gpt-5.5-pro': 'OpenAI GPT 5.5 Pro',
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function requireArray(value: unknown, context: string): unknown[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`Footval ${context} must be an array.`);
+  }
+
+  return value;
+}
+
+function requireRecord(value: unknown, context: string): Record<string, unknown> {
+  if (!isRecord(value)) {
+    throw new Error(`Footval ${context} must be an object.`);
+  }
+
+  return value;
+}
+
+function requireString(record: Record<string, unknown>, field: string, context: string): string {
+  const value = record[field];
+
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error(`Footval ${context}.${field} must be a non-empty string.`);
+  }
+
+  return value;
+}
+
+function titleCase(value: string): string {
+  return value
+    .replaceAll('_', ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function getModelLabel(model: string): string {
+  return MODEL_LABELS[model] ?? model;
+}
+
+function normalizeStrategy(value: unknown, context: string): Strategy {
+  const strategy = requireRecord(value, context);
+
+  return {
+    bucket: requireString(strategy, 'bucket', context),
+    type: requireString(strategy, 'type', context),
+    title: requireString(strategy, 'title', context),
+    recommendation: requireString(strategy, 'recommendation', context),
+    rationale: requireString(strategy, 'rationale', context),
+  };
+}
+
+function parseCsvRows(csv: string): Record<string, string>[] {
+  const [headerLine, ...lines] = csv.trim().split(/\r?\n/);
+
+  if (!headerLine) {
+    throw new Error('Footval pairwise_results.csv is empty.');
+  }
+
+  const headers = headerLine.split(',');
+
+  return lines
+    .filter(line => line.trim().length > 0)
+    .map((line, rowIndex) => {
+      const values = line.split(',');
+
+      if (values.length !== headers.length) {
+        throw new Error(`Footval pairwise_results.csv row ${rowIndex + 2} has an unexpected column count.`);
+      }
+
+      return Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+    });
+}
+
+function getPairwiseScores(csv: string): Map<string, { rank: number; wins: number; comparisons: number; winPct: number; index: number }> {
+  const rows = parseCsvRows(csv);
+  const stats = new Map<string, { wins: number; comparisons: number; firstSeen: number }>();
+  let seenIndex = 0;
+
+  rows.forEach((row, rowIndex) => {
+    const context = `pairwise_results.csv row ${rowIndex + 2}`;
+    const modelA = row.model_a;
+    const modelB = row.model_b;
+    const winner = row.winner;
+
+    if (!modelA || !modelB || !winner) {
+      throw new Error(`Footval ${context} is missing model_a, model_b, or winner.`);
+    }
+
+    [modelA, modelB].forEach(model => {
+      if (!stats.has(model)) {
+        stats.set(model, { wins: 0, comparisons: 0, firstSeen: seenIndex });
+        seenIndex += 1;
+      }
+
+      stats.get(model)!.comparisons += 1;
+    });
+
+    if (!stats.has(winner)) {
+      throw new Error(`Footval ${context} winner ${winner} is not one of the compared models.`);
+    }
+
+    stats.get(winner)!.wins += 1;
+  });
+
+  const ranked = [...stats.entries()]
+    .map(([model, stat]) => ({
+      model,
+      wins: stat.wins,
+      comparisons: stat.comparisons,
+      winPct: (stat.wins / stat.comparisons) * 100,
+      firstSeen: stat.firstSeen,
+    }))
+    .sort((a, b) => b.winPct - a.winPct || a.firstSeen - b.firstSeen);
+
+  const scores = new Map<string, { rank: number; wins: number; comparisons: number; winPct: number; index: number }>();
+  let previousWinPct: number | undefined;
+  let previousRank = 0;
+
+  ranked.forEach((row, index) => {
+    const rank = previousWinPct === row.winPct ? previousRank : index + 1;
+    previousWinPct = row.winPct;
+    previousRank = rank;
+
+    scores.set(row.model, {
+      rank,
+      wins: row.wins,
+      comparisons: row.comparisons,
+      winPct: row.winPct,
+      index,
+    });
+  });
+
+  if (scores.size === 0) {
+    throw new Error('Footval pairwise_results.csv does not contain pairwise score rows.');
+  }
+
+  return scores;
+}
+
+function getModels(value: unknown): ModelOutput[] {
+  const scores = getPairwiseScores(pairwiseResultsCsv);
+  const responses = requireArray(value, 'responses.json');
+  const models = responses.map((responseValue, responseIndex) => {
+    const response = requireRecord(responseValue, `responses.json[${responseIndex}]`);
+    const model = requireString(response, 'model', `responses.json[${responseIndex}]`);
+    const parsedJson = requireRecord(response.parsed_json, `responses.json[${responseIndex}].parsed_json`);
+    const strategies = requireArray(
+      parsedJson.strategies,
+      `responses.json[${responseIndex}].parsed_json.strategies`,
+    ).map((strategy, strategyIndex) =>
+      normalizeStrategy(strategy, `responses.json[${responseIndex}].parsed_json.strategies[${strategyIndex}]`),
+    );
+    const score = scores.get(model);
+
+    if (!score) {
+      throw new Error(`Footval model ${model} is missing a pairwise score.`);
+    }
+
+    if (strategies.length !== EXPECTED_STRATEGY_COUNT) {
+      throw new Error(
+        `Footval model ${model} has ${strategies.length} strategies; expected ${EXPECTED_STRATEGY_COUNT}.`,
+      );
+    }
+
+    return {
+      id: model,
+      label: getModelLabel(model),
+      rank: score.rank,
+      wins: score.wins,
+      comparisons: score.comparisons,
+      winPct: score.winPct,
+      scoreIndex: score.index,
+      strategies,
+    };
+  });
+
+  models.sort((a, b) => a.rank - b.rank || a.scoreIndex - b.scoreIndex);
+
+  return models;
+}
+
+function getStrategySlots(models: ModelOutput[]): StrategySlot[] {
+  if (models.length === 0) {
+    throw new Error('Footval responses.json does not contain any model responses.');
+  }
+
+  return models[0].strategies.map((strategy, index) => {
+    const bucket = strategy.bucket;
+    const type = strategy.type;
+
+    models.forEach(model => {
+      const modelStrategy = model.strategies[index];
+
+      if (!modelStrategy || modelStrategy.bucket !== bucket || modelStrategy.type !== type) {
+        throw new Error(
+          `Footval strategy slot ${index + 1} is not stable across models for bucket/type grouping.`,
+        );
+      }
+    });
+
+    return {
+      index,
+      bucket,
+      type,
+      label: `${index + 1}. ${titleCase(bucket)} / ${titleCase(type)}`,
+    };
+  });
+}
+
+const models = getModels(responsesJson);
+const strategySlots = getStrategySlots(models);
+---
+
+<section class="footval-model-output" data-footval-model-output>
+  <div class="fmo-toolbar">
+    <div class="fmo-segmented" role="tablist" aria-label="Model output view">
+      <button
+        type="button"
+        class="fmo-toggle is-active"
+        data-view-button="model"
+        aria-selected="true"
+      >
+        By model
+      </button>
+      <button
+        type="button"
+        class="fmo-toggle"
+        data-view-button="strategy"
+        aria-selected="false"
+      >
+        By strategy
+      </button>
+    </div>
+
+    <label class="fmo-select" data-control="model">
+      <span>Model</span>
+      <select data-model-select>
+        {models.map(model => (
+          <option value={model.id}>{model.label}</option>
+        ))}
+      </select>
+    </label>
+
+    <label class="fmo-select" data-control="strategy" hidden>
+      <span>Strategy</span>
+      <select data-strategy-select>
+        {strategySlots.map(slot => (
+          <option value={String(slot.index)}>{slot.label}</option>
+        ))}
+      </select>
+    </label>
+  </div>
+
+  <div class="fmo-view" data-view="model">
+    {models.map((model, modelIndex) => (
+      <div data-model-panel={model.id} hidden={modelIndex !== 0}>
+        <div class="fmo-view-header">
+          <h3>{model.label}</h3>
+          <p>Overall pairwise rank #{model.rank}</p>
+        </div>
+
+        <div class="fmo-list">
+          {model.strategies.map(strategy => (
+            <article class="fmo-card fmo-model-card">
+              <header class="fmo-card-header">
+                <div class="fmo-meta">
+                  <span>{titleCase(strategy.bucket)}</span>
+                  <span>{titleCase(strategy.type)}</span>
+                </div>
+              </header>
+
+              <dl class="fmo-fields">
+                <div>
+                  <dt>Recommendation</dt>
+                  <dd>{strategy.recommendation}</dd>
+                </div>
+                <div>
+                  <dt>Rationale</dt>
+                  <dd>{strategy.rationale}</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="fmo-view" data-view="strategy" hidden>
+    {strategySlots.map((slot, slotIndex) => (
+      <div data-strategy-panel={String(slot.index)} hidden={slotIndex !== 0}>
+        <div class="fmo-view-header">
+          <h3>{slot.label}</h3>
+          <p>{models.length} model responses in overall pairwise rank order</p>
+        </div>
+
+        <div class="fmo-list">
+          {models.map(model => {
+            const strategy = model.strategies[slot.index];
+
+            return (
+              <article class="fmo-card fmo-strategy-card">
+                <header class="fmo-card-header fmo-strategy-model-row">
+                  <p class="fmo-model-name">{model.label}</p>
+                </header>
+
+                <dl class="fmo-fields">
+                  <div>
+                    <dt>Recommendation</dt>
+                    <dd>{strategy.recommendation}</dd>
+                  </div>
+                  <div>
+                    <dt>Rationale</dt>
+                    <dd>{strategy.rationale}</dd>
+                  </div>
+                </dl>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  function initFootvalModelOutput(root) {
+    if (!(root instanceof HTMLElement) || root.dataset.initialized === 'true') {
+      return;
+    }
+
+    root.dataset.initialized = 'true';
+
+    const viewButtons = Array.from(root.querySelectorAll('[data-view-button]'));
+    const views = Array.from(root.querySelectorAll('[data-view]'));
+    const controls = Array.from(root.querySelectorAll('[data-control]'));
+    const modelSelect = root.querySelector('[data-model-select]');
+    const strategySelect = root.querySelector('[data-strategy-select]');
+    const modelPanels = Array.from(root.querySelectorAll('[data-model-panel]'));
+    const strategyPanels = Array.from(root.querySelectorAll('[data-strategy-panel]'));
+
+    const setView = view => {
+      viewButtons.forEach(button => {
+        const isActive = button.dataset.viewButton === view;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-selected', String(isActive));
+      });
+
+      views.forEach(panel => {
+        panel.hidden = panel.dataset.view !== view;
+      });
+
+      controls.forEach(control => {
+        control.hidden = control.dataset.control !== view;
+      });
+    };
+
+    const setModel = modelId => {
+      modelPanels.forEach(panel => {
+        panel.hidden = panel.dataset.modelPanel !== modelId;
+      });
+    };
+
+    const setStrategy = strategyIndex => {
+      strategyPanels.forEach(panel => {
+        panel.hidden = panel.dataset.strategyPanel !== strategyIndex;
+      });
+    };
+
+    viewButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        setView(button.dataset.viewButton);
+      });
+    });
+
+    if (modelSelect instanceof HTMLSelectElement) {
+      modelSelect.addEventListener('change', () => {
+        setModel(modelSelect.value);
+      });
+    }
+
+    if (strategySelect instanceof HTMLSelectElement) {
+      strategySelect.addEventListener('change', () => {
+        setStrategy(strategySelect.value);
+      });
+    }
+  }
+
+  function initFootvalModelOutputs() {
+    document.querySelectorAll('[data-footval-model-output]').forEach(initFootvalModelOutput);
+  }
+
+  initFootvalModelOutputs();
+  document.addEventListener('astro:page-load', initFootvalModelOutputs);
+</script>
+
+<style>
+  .footval-model-output {
+    margin: 2rem 0;
+  }
+
+  .fmo-toolbar {
+    align-items: start;
+    display: grid;
+    gap: 0.75rem;
+    justify-items: start;
+    margin-bottom: 1rem;
+  }
+
+  .fmo-segmented {
+    background: rgb(243 244 246);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 8px;
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+  }
+
+  :global(.dark) .fmo-segmented {
+    background: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+  }
+
+  .fmo-toggle {
+    border-radius: 6px;
+    color: rgb(75 85 99);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    min-height: 2.25rem;
+    padding: 0.5rem 0.875rem;
+    transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .fmo-toggle:hover {
+    color: rgb(17 24 39);
+  }
+
+  .fmo-toggle.is-active {
+    background: white;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+    color: rgb(17 24 39);
+  }
+
+  :global(.dark) .fmo-toggle {
+    color: rgb(209 213 219);
+  }
+
+  :global(.dark) .fmo-toggle:hover,
+  :global(.dark) .fmo-toggle.is-active {
+    color: rgb(243 244 246);
+  }
+
+  :global(.dark) .fmo-toggle.is-active {
+    background: rgb(17 24 39);
+  }
+
+  .fmo-select {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    max-width: 28rem;
+    width: min(100%, 28rem);
+  }
+
+  .fmo-select[hidden] {
+    display: none;
+  }
+
+  .fmo-select span {
+    color: rgb(75 85 99);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1rem;
+    text-transform: uppercase;
+  }
+
+  :global(.dark) .fmo-select span {
+    color: rgb(156 163 175);
+  }
+
+  .fmo-select select {
+    appearance: none;
+    background:
+      linear-gradient(45deg, transparent 50%, rgb(75 85 99) 50%),
+      linear-gradient(135deg, rgb(75 85 99) 50%, transparent 50%),
+      linear-gradient(to right, transparent, transparent);
+    background-color: white;
+    background-position:
+      calc(100% - 18px) calc(50% + 1px),
+      calc(100% - 12px) calc(50% + 1px),
+      100% 0;
+    background-repeat: no-repeat;
+    background-size: 6px 6px, 6px 6px, 2.5rem 100%;
+    border: 1px solid rgb(209 213 219);
+    border-radius: 8px;
+    color: rgb(17 24 39);
+    font-size: 0.95rem;
+    line-height: 1.35rem;
+    min-height: 2.75rem;
+    padding: 0.55rem 2.75rem 0.55rem 0.75rem;
+    width: 100%;
+  }
+
+  :global(.dark) .fmo-select select {
+    background-color: rgb(17 24 39);
+    border-color: rgb(55 65 81);
+    color: rgb(243 244 246);
+  }
+
+  .fmo-view-header {
+    border-bottom: 1px solid rgb(229 231 235);
+    margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
+  }
+
+  :global(.dark) .fmo-view-header {
+    border-color: rgb(55 65 81);
+  }
+
+  .fmo-view-header h3 {
+    color: rgb(17 24 39);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.6rem;
+    margin: 0;
+  }
+
+  .fmo-view-header p {
+    color: rgb(75 85 99);
+    font-size: 0.95rem;
+    line-height: 1.35rem;
+    margin: 0.25rem 0 0;
+  }
+
+  :global(.dark) .fmo-view-header h3 {
+    color: rgb(243 244 246);
+  }
+
+  :global(.dark) .fmo-view-header p {
+    color: rgb(156 163 175);
+  }
+
+  .fmo-list {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .fmo-card {
+    background: rgb(249 250 251);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 8px;
+    display: grid;
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+
+  :global(.dark) .fmo-card {
+    background: rgb(31 41 55 / 0.55);
+    border-color: rgb(55 65 81);
+  }
+
+  .fmo-strategy-card {
+    gap: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .fmo-card-header {
+    min-width: 0;
+  }
+
+  .fmo-strategy-model-row {
+    background: rgb(243 244 246);
+    border-bottom: 1px solid rgb(229 231 235);
+    padding: 0.75rem 1rem;
+  }
+
+  :global(.dark) .fmo-strategy-model-row {
+    background: rgb(17 24 39 / 0.75);
+    border-color: rgb(55 65 81);
+  }
+
+  .fmo-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .fmo-meta span {
+    background: rgb(239 246 255);
+    border: 1px solid rgb(191 219 254);
+    border-radius: 6px;
+    color: rgb(30 64 175);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1rem;
+    padding: 0.15rem 0.4rem;
+  }
+
+  :global(.dark) .fmo-meta span {
+    background: rgb(30 64 175 / 0.16);
+    border-color: rgb(59 130 246 / 0.35);
+    color: rgb(147 197 253);
+  }
+
+  .fmo-model-name {
+    color: rgb(75 85 99);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+    margin: 0 0 0.35rem;
+  }
+
+  :global(.dark) .fmo-model-name {
+    color: rgb(209 213 219);
+  }
+
+  .fmo-card h4 {
+    color: rgb(17 24 39);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.4rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  :global(.dark) .fmo-card h4 {
+    color: rgb(243 244 246);
+  }
+
+  .fmo-fields {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0;
+  }
+
+  .fmo-strategy-card .fmo-fields {
+    padding: 1rem;
+  }
+
+  .fmo-fields div {
+    min-width: 0;
+  }
+
+  .fmo-fields dt {
+    color: rgb(75 85 99);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1rem;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+  }
+
+  .fmo-fields dd {
+    color: rgb(31 41 55);
+    font-size: 0.95rem;
+    line-height: 1.55rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  :global(.dark) .fmo-fields dt {
+    color: rgb(156 163 175);
+  }
+
+  :global(.dark) .fmo-fields dd {
+    color: rgb(229 231 235);
+  }
+
+  @media (min-width: 900px) {
+    .fmo-card {
+      grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr);
+      padding: 1.1rem;
+    }
+
+    .fmo-model-card {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fmo-strategy-card {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 0;
+    }
+
+    .fmo-strategy-card .fmo-fields {
+      padding: 1.1rem;
+    }
+
+    .fmo-fields {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .fmo-segmented,
+    .fmo-select {
+      max-width: none;
+      width: 100%;
+    }
+
+    .fmo-toggle {
+      flex: 1 1 0;
+    }
+  }
+</style>

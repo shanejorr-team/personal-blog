@@ -45,20 +45,20 @@ scratch/**/__pycache__/
 scratch/**/blurred_photos/
 scratch/**/original_photos/
 
-# Footbench runtime data (raw responses, rendered figures, judgments)
-footbench/artifacts/*
-!footbench/artifacts/tables/
-footbench/artifacts/tables/*
-!footbench/artifacts/tables/responses.json
+# Footval runtime data (raw responses, rendered figures, judgments)
+footval/artifacts/*
+!footval/artifacts/tables/
+footval/artifacts/tables/*
+!footval/artifacts/tables/responses.json
 # Keep the small per-instance candidate records the judge stage reads (so re-judging is
 # reproducible from a clone); rendered figures and other large/derived artifacts stay ignored.
-!footbench/artifacts/instances/
-footbench/artifacts/instances/*
-!footbench/artifacts/instances/*/
-footbench/artifacts/instances/*/*
-!footbench/artifacts/instances/*/response.json
-!footbench/artifacts/instances/*/checks.json
-footbench/.venv/
+!footval/artifacts/instances/
+footval/artifacts/instances/*
+!footval/artifacts/instances/*/
+footval/artifacts/instances/*/*
+!footval/artifacts/instances/*/response.json
+!footval/artifacts/instances/*/checks.json
+footval/.venv/
 __pycache__/
 .pytest_cache/
 .ruff_cache/
